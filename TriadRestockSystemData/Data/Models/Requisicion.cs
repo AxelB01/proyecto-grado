@@ -38,7 +38,7 @@ public partial class Requisicion
 
     [ForeignKey("IdEstado")]
     [InverseProperty("Requisiciones")]
-    public virtual EstadoRequisicionOrdenCompra IdEstadoNavigation { get; set; } = null!;
+    public virtual EstadoRequisicionOrdenesCompra IdEstadoNavigation { get; set; } = null!;
 
     [ForeignKey("ModificadoPor")]
     [InverseProperty("RequisicioneModificadoPorNavigations")]

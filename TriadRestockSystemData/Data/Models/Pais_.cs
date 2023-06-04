@@ -6,15 +6,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
-public partial class TipoProveedore
+public partial class Pais_
 {
     [Key]
-    public int IdTipoProveedor { get; set; }
+    public int IdPais { get; set; }
 
     [StringLength(100)]
     [Unicode(false)]
-    public string TipoProveedor { get; set; } = null!;
+    public string Pais { get; set; } = null!;
 
-    [InverseProperty("IdTipoProveedorNavigation")]
+    [InverseProperty("IdPaisNavigation")]
     public virtual ICollection<Proveedor> Proveedores { get; set; } = new List<Proveedor>();
 }

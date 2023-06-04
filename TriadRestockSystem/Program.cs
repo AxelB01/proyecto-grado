@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using TriadRestockSystemData.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +13,21 @@ builder.Services.AddDbContext<InventarioDBContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("InventarioDB"));
 });
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(
+                        builder.Configuration.GetValue<string>("AppSettings:TokenKey")
+                    )
+                ),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+        };
+    });
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CORSPolicy",
@@ -35,6 +53,9 @@ app.UseHttpsRedirection();
 app.UseCors("CORSPolicy");
 app.UseStaticFiles();
 app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseEndpoints(endpoints =>
 {

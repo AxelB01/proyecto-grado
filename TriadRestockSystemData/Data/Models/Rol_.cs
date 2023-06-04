@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
-public partial class Role
+public partial class Rol_
 {
     [Key]
     public int IdRol { get; set; }
@@ -19,6 +19,7 @@ public partial class Role
     [Unicode(false)]
     public string? Descripcion { get; set; }
 
-    [InverseProperty("IdRolNavigation")]
-    public virtual ICollection<UsuarioRole> UsuariosRoles { get; set; } = new List<UsuarioRole>();
+    [ForeignKey("IdRol")]
+    [InverseProperty("IdRols")]
+    public virtual ICollection<Usuario> IdUsuarios { get; set; } = new List<Usuario>();
 }

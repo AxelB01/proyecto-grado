@@ -26,11 +26,11 @@ public partial class InventarioDBContext : DbContext
 
     public virtual DbSet<Articulo> Articulos { get; set; }
 
-    public virtual DbSet<CentroCosto> CentrosCostos { get; set; }
+    public virtual DbSet<CentroCostos> CentrosCostos { get; set; }
 
-    public virtual DbSet<CentroCostoCatalogo> CentrosCostosCatalogos { get; set; }
+    public virtual DbSet<CentroCostosCatalogo> CentrosCostosCatalogos { get; set; }
 
-    public virtual DbSet<CentroCostoCatalogoArticulo> CentrosCostosCatalogosArticulos { get; set; }
+    public virtual DbSet<CentroCostosCatalogoArticulo> CentrosCostosCatalogosArticulos { get; set; }
 
     public virtual DbSet<EstadoArticulo> EstadosArticulos { get; set; }
 
@@ -40,7 +40,7 @@ public partial class InventarioDBContext : DbContext
 
     public virtual DbSet<EstadoProveedor> EstadosProveedores { get; set; }
 
-    public virtual DbSet<EstadoRequisicionOrdenCompra> EstadosRequisicionesOrdenesCompras { get; set; }
+    public virtual DbSet<EstadoRequisicionOrdenesCompra> EstadosRequisicionesOrdenesCompras { get; set; }
 
     public virtual DbSet<EstadoSolicitud> EstadosSolicitudes { get; set; }
 
@@ -58,7 +58,7 @@ public partial class InventarioDBContext : DbContext
 
     public virtual DbSet<OrdenCompraDetalle> OrdenesCompraDetalles { get; set; }
 
-    public virtual DbSet<Paise> Paises { get; set; }
+    public virtual DbSet<Pais_> Paises { get; set; }
 
     public virtual DbSet<Presupuesto> Presupuestos { get; set; }
 
@@ -72,7 +72,7 @@ public partial class InventarioDBContext : DbContext
 
     public virtual DbSet<RequisicionDetalle> RequisicionesDetalles { get; set; }
 
-    public virtual DbSet<Role> Roles { get; set; }
+    public virtual DbSet<Rol_> Roles { get; set; }
 
     public virtual DbSet<Solicitud> Solicitudes { get; set; }
 
@@ -84,19 +84,15 @@ public partial class InventarioDBContext : DbContext
 
     public virtual DbSet<TipoArticulo> TiposArticulos { get; set; }
 
-    public virtual DbSet<TipoProveedore> TiposProveedores { get; set; }
+    public virtual DbSet<TipoProveedor_> TiposProveedores { get; set; }
 
     public virtual DbSet<TipoZonasAlmacenamiento> TiposZonasAlmacenamientos { get; set; }
 
-    public virtual DbSet<UnidadesMedida> UnidadesMedidas { get; set; }
+    public virtual DbSet<UnidadMedida_> UnidadesMedidas { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
-    public virtual DbSet<UsuarioRole> UsuariosRoles { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-    }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -173,12 +169,12 @@ public partial class InventarioDBContext : DbContext
             entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.ArticuloModificadoPorNavigations).HasConstraintName("FK_Articulos_Usuarios1");
         });
 
-        modelBuilder.Entity<CentroCosto>(entity =>
+        modelBuilder.Entity<CentroCostos>(entity =>
         {
             entity.HasKey(e => e.IdCentroCosto).HasName("PK_Departamentos");
         });
 
-        modelBuilder.Entity<CentroCostoCatalogo>(entity =>
+        modelBuilder.Entity<CentroCostosCatalogo>(entity =>
         {
             entity.HasKey(e => e.IdCentroCostoCatalogo).HasName("PK_InventariosDepartamentos");
 
@@ -193,7 +189,7 @@ public partial class InventarioDBContext : DbContext
             entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.CentrosCostosCatalogoModificadoPorNavigations).HasConstraintName("FK_Inventarios_Usuarios1");
         });
 
-        modelBuilder.Entity<CentroCostoCatalogoArticulo>(entity =>
+        modelBuilder.Entity<CentroCostosCatalogoArticulo>(entity =>
         {
             entity.HasKey(e => new { e.IdCentroCostoCatalogo, e.IdArticulo }).HasName("PK_InventariosArticulos");
 
@@ -235,7 +231,7 @@ public partial class InventarioDBContext : DbContext
             entity.Property(e => e.IdEstado).ValueGeneratedNever();
         });
 
-        modelBuilder.Entity<EstadoRequisicionOrdenCompra>(entity =>
+        modelBuilder.Entity<EstadoRequisicionOrdenesCompra>(entity =>
         {
             entity.Property(e => e.IdEstado).ValueGeneratedNever();
         });
@@ -461,7 +457,7 @@ public partial class InventarioDBContext : DbContext
                 .HasConstraintName("FK_RequisicionesDetalles_Requisiciones");
         });
 
-        modelBuilder.Entity<Role>(entity =>
+        modelBuilder.Entity<Rol_>(entity =>
         {
             entity.Property(e => e.IdRol).ValueGeneratedNever();
         });
@@ -519,7 +515,7 @@ public partial class InventarioDBContext : DbContext
             entity.Property(e => e.IdTipoArticulo).ValueGeneratedNever();
         });
 
-        modelBuilder.Entity<TipoProveedore>(entity =>
+        modelBuilder.Entity<TipoProveedor_>(entity =>
         {
             entity.Property(e => e.IdTipoProveedor).ValueGeneratedNever();
         });
@@ -542,7 +538,7 @@ public partial class InventarioDBContext : DbContext
             entity.HasMany(d => d.IdCentroCostos).WithMany(p => p.IdUsuarios)
                 .UsingEntity<Dictionary<string, object>>(
                     "UsuariosCentrosCosto",
-                    r => r.HasOne<CentroCosto>().WithMany()
+                    r => r.HasOne<CentroCostos>().WithMany()
                         .HasForeignKey("IdCentroCosto")
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK_CentrosCostosEncargados_CentrosCostos"),
@@ -555,19 +551,23 @@ public partial class InventarioDBContext : DbContext
                         j.HasKey("IdUsuario", "IdCentroCosto");
                         j.ToTable("UsuariosCentrosCostos");
                     });
-        });
 
-        modelBuilder.Entity<UsuarioRole>(entity =>
-        {
-            entity.HasKey(e => e.IdUsuarioRol).HasName("PK_UsuariosRoles_1");
-
-            entity.HasOne(d => d.IdRolNavigation).WithMany(p => p.UsuariosRoles)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UsuariosRoles_Roles");
-
-            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.UsuariosRoles)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_UsuariosRoles_Usuarios");
+            entity.HasMany(d => d.IdRols).WithMany(p => p.IdUsuarios)
+                .UsingEntity<Dictionary<string, object>>(
+                    "UsuariosRole",
+                    r => r.HasOne<Rol_>().WithMany()
+                        .HasForeignKey("IdRol")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_UsuariosRoles_Roles"),
+                    l => l.HasOne<Usuario>().WithMany()
+                        .HasForeignKey("IdUsuario")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_UsuariosRoles_Usuarios"),
+                    j =>
+                    {
+                        j.HasKey("IdUsuario", "IdRol");
+                        j.ToTable("UsuariosRoles");
+                    });
         });
 
         OnModelCreatingPartial(modelBuilder);

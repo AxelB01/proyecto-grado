@@ -67,16 +67,16 @@ public partial class Usuario
     public virtual ICollection<Articulo> ArticuloModificadoPorNavigations { get; set; } = new List<Articulo>();
 
     [InverseProperty("CreadoPorNavigation")]
-    public virtual ICollection<CentroCostoCatalogo> CentrosCostosCatalogoCreadoPorNavigations { get; set; } = new List<CentroCostoCatalogo>();
+    public virtual ICollection<CentroCostosCatalogo> CentrosCostosCatalogoCreadoPorNavigations { get; set; } = new List<CentroCostosCatalogo>();
 
     [InverseProperty("ModificadoPorNavigation")]
-    public virtual ICollection<CentroCostoCatalogo> CentrosCostosCatalogoModificadoPorNavigations { get; set; } = new List<CentroCostoCatalogo>();
+    public virtual ICollection<CentroCostosCatalogo> CentrosCostosCatalogoModificadoPorNavigations { get; set; } = new List<CentroCostosCatalogo>();
 
     [InverseProperty("CreadoPorNavigation")]
-    public virtual ICollection<CentroCostoCatalogoArticulo> CentrosCostosCatalogosArticuloCreadoPorNavigations { get; set; } = new List<CentroCostoCatalogoArticulo>();
+    public virtual ICollection<CentroCostosCatalogoArticulo> CentrosCostosCatalogosArticuloCreadoPorNavigations { get; set; } = new List<CentroCostosCatalogoArticulo>();
 
     [InverseProperty("ModificadoPorNavigation")]
-    public virtual ICollection<CentroCostoCatalogoArticulo> CentrosCostosCatalogosArticuloModificadoPorNavigations { get; set; } = new List<CentroCostoCatalogoArticulo>();
+    public virtual ICollection<CentroCostosCatalogoArticulo> CentrosCostosCatalogosArticuloModificadoPorNavigations { get; set; } = new List<CentroCostosCatalogoArticulo>();
 
     [ForeignKey("CreadoPor")]
     [InverseProperty("InverseCreadoPorNavigation")]
@@ -150,10 +150,11 @@ public partial class Usuario
     [InverseProperty("ModificadoPorNavigation")]
     public virtual ICollection<SolicitudDespacho> SolicitudesDespachoModificadoPorNavigations { get; set; } = new List<SolicitudDespacho>();
 
-    [InverseProperty("IdUsuarioNavigation")]
-    public virtual ICollection<UsuarioRole> UsuariosRoles { get; set; } = new List<UsuarioRole>();
+    [ForeignKey("IdUsuario")]
+    [InverseProperty("IdUsuarios")]
+    public virtual ICollection<CentroCostos> IdCentroCostos { get; set; } = new List<CentroCostos>();
 
     [ForeignKey("IdUsuario")]
     [InverseProperty("IdUsuarios")]
-    public virtual ICollection<CentroCosto> IdCentroCostos { get; set; } = new List<CentroCosto>();
+    public virtual ICollection<Rol_> IdRols { get; set; } = new List<Rol_>();
 }

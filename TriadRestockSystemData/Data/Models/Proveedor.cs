@@ -65,11 +65,11 @@ public partial class Proveedor
 
     [ForeignKey("IdPais")]
     [InverseProperty("Proveedores")]
-    public virtual Paise IdPaisNavigation { get; set; } = null!;
+    public virtual Pais_ IdPaisNavigation { get; set; } = null!;
 
     [ForeignKey("IdTipoProveedor")]
     [InverseProperty("Proveedores")]
-    public virtual TipoProveedore IdTipoProveedorNavigation { get; set; } = null!;
+    public virtual TipoProveedor_ IdTipoProveedorNavigation { get; set; } = null!;
 
     [InverseProperty("IdProveedorNavigation")]
     public virtual ICollection<Inventario> Inventarios { get; set; } = new List<Inventario>();
