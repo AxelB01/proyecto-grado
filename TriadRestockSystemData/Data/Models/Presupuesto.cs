@@ -36,7 +36,7 @@ public partial class Presupuesto
 
     [ForeignKey("IdCentroCosto")]
     [InverseProperty("Presupuestos")]
-    public virtual CentroCosto IdCentroCostoNavigation { get; set; } = null!;
+    public virtual CentroCostos IdCentroCostoNavigation { get; set; } = null!;
 
     [ForeignKey("IdEstado")]
     [InverseProperty("Presupuestos")]

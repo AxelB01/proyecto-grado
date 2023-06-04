@@ -44,7 +44,7 @@ public partial class Articulo
     public virtual ICollection<AlmacenesSeccionesEstanteria> AlmacenesSeccionesEstanteria { get; set; } = new List<AlmacenesSeccionesEstanteria>();
 
     [InverseProperty("IdArticuloNavigation")]
-    public virtual ICollection<CentroCostoCatalogoArticulo> CentrosCostosCatalogosArticulos { get; set; } = new List<CentroCostoCatalogoArticulo>();
+    public virtual ICollection<CentroCostosCatalogoArticulo> CentrosCostosCatalogosArticulos { get; set; } = new List<CentroCostosCatalogoArticulo>();
 
     [ForeignKey("CreadoPor")]
     [InverseProperty("ArticuloCreadoPorNavigations")]
@@ -60,7 +60,7 @@ public partial class Articulo
 
     [ForeignKey("IdUnidadMedida")]
     [InverseProperty("Articulos")]
-    public virtual UnidadesMedida IdUnidadMedidaNavigation { get; set; } = null!;
+    public virtual UnidadMedida_ IdUnidadMedidaNavigation { get; set; } = null!;
 
     [InverseProperty("IdArticuloNavigation")]
     public virtual ICollection<Inventario> Inventarios { get; set; } = new List<Inventario>();

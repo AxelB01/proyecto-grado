@@ -8,7 +8,7 @@ namespace TriadRestockSystemData.Data.Models;
 
 [Index("UnidadMedida", Name = "IX_UnidadesMedidas", IsUnique = true)]
 [Index("Codigo", Name = "IX_UnidadesMedidas_1", IsUnique = true)]
-public partial class UnidadesMedida
+public partial class UnidadMedida_
 {
     [Key]
     public int IdUnidadMedida { get; set; }

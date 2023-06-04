@@ -1,0 +1,8 @@
+.social-media {
+	display: flex;
+	margin-left: 92%;
+	justify-content: space-between;
+	align-items: center;
+	height: 100%;
+	font-size: larger;
+}

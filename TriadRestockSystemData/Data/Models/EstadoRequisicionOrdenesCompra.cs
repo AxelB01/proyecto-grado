@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
-[Table("EstadoRequisicionOrdenCompra")]
-public partial class EstadoRequisicionOrdenCompra
+[Table("EstadoRequisicionOrdenesCompra")]
+public partial class EstadoRequisicionOrdenesCompra
 {
     [Key]
     public int IdEstado { get; set; }

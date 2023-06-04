@@ -49,7 +49,7 @@ public partial class OrdenCompra
 
     [ForeignKey("IdEstado")]
     [InverseProperty("OrdenesCompras")]
-    public virtual EstadoRequisicionOrdenCompra IdEstadoNavigation { get; set; } = null!;
+    public virtual EstadoRequisicionOrdenesCompra IdEstadoNavigation { get; set; } = null!;
 
     [ForeignKey("IdProveedor")]
     [InverseProperty("OrdenesCompras")]
