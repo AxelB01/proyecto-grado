@@ -1,6 +1,7 @@
 import { useContext, useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import AppRoutes from './AppRoutes'
+import CustomLayout from './components/CustomLayout'
 import AuthContext from './context/AuthContext'
 import './custom.css'
 
@@ -9,17 +10,20 @@ const App = () => {
 
 	useEffect(() => {
 		document.title = 'App'
+		destroyStoredAuth()
 		readStoredAuth()
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	return (
-		<Routes>
-			{AppRoutes.map((route, index) => {
-				const { element, ...rest } = route
-				return <Route key={index} {...rest} element={element} />
-			})}
-		</Routes>
+		<CustomLayout>
+			<Routes>
+				{AppRoutes.map((route, index) => {
+					const { element, ...rest } = route
+					return <Route key={index} {...rest} element={element} />
+				})}
+			</Routes>
+		</CustomLayout>
 	)
 }
 

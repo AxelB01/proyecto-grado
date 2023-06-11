@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { AuthProvider } from './context/AuthContext'
+import { LayoutProvider } from './context/LayoutContext'
 import reportWebVitals from './reportWebVitals'
 import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 
@@ -13,7 +14,9 @@ const root = createRoot(rootElement)
 root.render(
 	<BrowserRouter basename={baseUrl}>
 		<AuthProvider>
-			<App />
+			<LayoutProvider>
+				<App />
+			</LayoutProvider>
 		</AuthProvider>
 	</BrowserRouter>
 )
