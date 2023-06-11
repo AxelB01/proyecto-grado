@@ -1,0 +1,21 @@
+.logo-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	max-width: 100%;
+	min-height: 3.5rem;
+	background-color: #46bb84;
+}
+
+.logo {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 2.5rem;
+	min-height: auto;
+}
+
+.logo img {
+	width: 100%;
+	height: auto;
+}

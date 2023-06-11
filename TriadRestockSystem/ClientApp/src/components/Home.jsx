@@ -1,14 +1,15 @@
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
+import LayoutContext from '../context/LayoutContext'
 import createNotification from '../functions/notification'
 import { sleep } from '../functions/sleep'
 import { isStringEmpty } from '../functions/validation'
-import Layout from './Layout'
 import Loader from './Loader'
 
 const Home = () => {
 	const { username, password, roles, token } = useContext(AuthContext)
+	const { handleLayout } = useContext(LayoutContext)
 	const navigate = useNavigate()
 	const [loaded, setLoaded] = useState(true)
 
@@ -26,8 +27,10 @@ const Home = () => {
 			roles == null
 		) {
 			waitForUpdate()
+			handleLayout(false)
 			navigate('/login')
 		} else {
+			handleLayout(true)
 			setLoaded(false)
 			createNotification(
 				'success',
@@ -38,7 +41,13 @@ const Home = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
-	return loaded ? <Loader /> : <Layout></Layout>
+	return loaded ? (
+		<Loader />
+	) : (
+		<>
+			<h2>Home</h2>
+		</>
+	)
 }
 
 export default Home
