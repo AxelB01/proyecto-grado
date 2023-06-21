@@ -76,7 +76,6 @@ const Users = () => {
 				login,
 				password,
 				state,
-				email,
 				roles,
 				costCenters
 			} = respose?.data
@@ -373,6 +372,7 @@ const Users = () => {
 						Nuevo usuario
 					</Button>
 				</div>
+
 				<div className='table-container'>
 					<Table
 						columns={columns}
