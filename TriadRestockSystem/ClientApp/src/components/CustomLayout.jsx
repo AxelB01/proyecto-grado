@@ -44,6 +44,10 @@ const CustomLayout = ({ children }) => {
 				handlePageChange('Usuarios')
 				navigate('/users')
 				break
+			case 3:
+				handlePageChange('Familias')
+				navigate('/families')
+				break
 			case 6:
 				handlePageChange('Solicitudes')
 				navigate('/requests')

@@ -380,6 +380,7 @@ const Users = () => {
 						Nuevo usuario
 					</Button>
 				</div>
+
 				<div className='table-container'>
 					<Table
 						columns={columns}

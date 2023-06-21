@@ -25,3 +25,11 @@ export const createUserModel = () => {
 		CostCenters: []
 	}
 }
+
+export const createFamiliesModel = () => {
+	return {
+		Id: 0,
+		Familia: ''
+
+	}
+}

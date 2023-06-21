@@ -1,3 +1,4 @@
+import Families from './components/Families'
 import Home from './components/Home'
 import Login from './components/Login'
 import Request from './components/Request'
@@ -29,6 +30,11 @@ const AppRoutes = [
 		index: false,
 		path: '/request',
 		element: <Request />
+	},
+	{
+		index: false,
+		path: '/families',
+		element: <Families />
 	}
 ]
 
