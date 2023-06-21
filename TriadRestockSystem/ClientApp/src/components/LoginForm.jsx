@@ -3,7 +3,9 @@ import { Button, Checkbox, Form, Input } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 import axios from '../api/axios'
 import AuthContext from '../context/AuthContext'
+import { createLoginModel } from '../functions/constructors'
 import createNotification from '../functions/notification'
+import { isStringEmpty } from '../functions/validation'
 import './LoginForm.css'
 
 const USER_REGEX = /^[a-zA-Z][a-zA-Z ]{4,}$/
@@ -13,11 +15,13 @@ const LoginForm = () => {
 	const { createAuth, destroyStoredAuth } = useContext(AuthContext)
 
 	const [form] = Form.useForm()
+	const values = Form.useWatch([], form)
+	const [disabled, setDisabled] = useState(true)
 	const [loading, setLoading] = useState(false)
 	const userRef = useRef()
 
 	const onFinish = ({ username, password, remember }) => {
-		const model = CreateLoginModel()
+		const model = createLoginModel()
 		model.Username = username
 		model.Password = password
 		model.Remember = remember
@@ -25,26 +29,43 @@ const LoginForm = () => {
 		handleLogin(model)
 	}
 
+	const onFinishFailed = () => {
+		setLoading(!loading)
+	}
+
 	const handleLogin = async model => {
 		try {
 			const response = await axios.post(LOGIN_URL, model, {
 				headers: { 'Content-Type': 'application/json' }
 			})
-			const data = response?.data
-			const { username, password, roles, token } = data
-			if (model.Remember) {
+			if (response?.status === 200) {
+				const data = response?.data
+				const { username, password, roles, token, refreshtoken } = data
 				destroyStoredAuth()
+				createAuth(
+					true,
+					username,
+					password,
+					roles,
+					token,
+					refreshtoken,
+					model.Remember
+				)
 			}
-			createAuth(username, password, roles, token, model.Remember)
 		} catch (error) {
 			if (!error?.response) {
 				console.log('No hubo respuesta del servidor')
+				createNotification(
+					'error',
+					'Error inesperado',
+					'No hubo respuesta del servidor'
+				)
 			} else {
-				const data = JSON.stringify(error.response?.data)
-				console.log(data)
-				if (error.response?.status === 400) {
-					createNotification('error', 'Credenciales inválidas', data)
-				}
+				createNotification(
+					'error',
+					'Credenciales inválidas',
+					error.response.data
+				)
 			}
 			setLoading(false)
 		}
@@ -54,6 +75,12 @@ const LoginForm = () => {
 		userRef.current.focus()
 	}, [])
 
+	useEffect(() => {
+		const username = values?.username ?? ''
+		const password = values?.password
+		setDisabled(!USER_REGEX.test(username) || isStringEmpty(password))
+	}, [values])
+
 	return (
 		<Form
 			form={form}
@@ -61,6 +88,7 @@ const LoginForm = () => {
 			name='form_login'
 			initialValues={{ remember: false }}
 			onFinish={onFinish}
+			onFinishFailed={onFinishFailed}
 		>
 			<Form.Item
 				name='username'
@@ -122,20 +150,13 @@ const LoginForm = () => {
 					htmlType='submit'
 					onClick={() => setLoading(!loading)}
 					loading={loading}
+					disabled={disabled}
 				>
 					Ingresar
 				</Button>
 			</Form.Item>
 		</Form>
 	)
-}
-
-const CreateLoginModel = () => {
-	return {
-		Username: '',
-		Password: '',
-		Remember: false
-	}
 }
 
 export default LoginForm

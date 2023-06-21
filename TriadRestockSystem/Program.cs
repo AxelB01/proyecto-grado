@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using TriadRestockSystem.Security;
 using TriadRestockSystemData.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,6 +49,8 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseMiddleware<JwtDataMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseCors("CORSPolicy");
