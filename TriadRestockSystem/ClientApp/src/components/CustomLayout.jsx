@@ -1,20 +1,53 @@
-import { HomeOutlined } from '@ant-design/icons'
-import { Breadcrumb, Layout, Menu } from 'antd'
-import { useContext, useState } from 'react'
+import { LogoutOutlined } from '@ant-design/icons'
+import { Avatar, Breadcrumb, Dropdown, Layout, Menu } from 'antd'
+import { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
+import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
+import { isStringEmpty } from '../functions/validation'
 import CustomFooter from './CustomFooter'
 import './CustomLayout.css'
 import MenuItems from './MenuItems'
 
 const { Header, Content, Footer, Sider } = Layout
 
+const items = [
+	{
+		label: (
+			<a style={{ textDecoration: 'none' }}>
+				<LogoutOutlined style={{ marginRight: '0.4rem' }} /> Cerrar sesión
+			</a>
+		),
+		key: 0
+	}
+]
+
 const CustomLayout = ({ children }) => {
-	const { active, page, handlePage } = useContext(LayoutContext)
-	const [collapsed, setCollapsed] = useState(false)
+	const { username, destroyStoredAuth } = useContext(AuthContext)
+	const { active, collapsed, page, handleSlider, handlePageChange } =
+		useContext(LayoutContext)
+	const navigate = useNavigate()
+
+	const onClick = () => {
+		destroyStoredAuth()
+		window.location.reload()
+	}
 
 	const handleMenuOption = e => {
-		const pageName = e.item.props.children[0][1].props.children
-		handlePage(pageName)
+		console.log(e)
+		const selectedKey = Number(e.key)
+		switch (selectedKey) {
+			case 0:
+				handlePageChange('Inicio')
+				navigate('/')
+				break
+			case 1:
+				handlePageChange('Usuarios')
+				navigate('/users')
+				break
+			default:
+				break
+		}
 	}
 
 	if (!active) {
@@ -27,7 +60,7 @@ const CustomLayout = ({ children }) => {
 				width={220}
 				collapsible
 				collapsed={collapsed}
-				onCollapse={value => setCollapsed(value)}
+				onCollapse={() => handleSlider()}
 				theme='light'
 			>
 				<div className='logo-container'>
@@ -39,21 +72,41 @@ const CustomLayout = ({ children }) => {
 					style={{
 						width: '100%'
 					}}
-					defaultSelectedKeys={['1']}
+					defaultSelectedKeys={['0']}
 					mode='inline'
 					items={MenuItems}
 					onClick={handleMenuOption}
 				></Menu>
 			</Sider>
 			<Layout>
-				<Header style={{ padding: 0, height: '3.5rem', background: '#FFF' }} />
+				<Header style={{ padding: 0, height: '3.5rem', background: '#FFF' }}>
+					{!isStringEmpty(username) && (
+						<div className='header-container'>
+							<div className='user-name'>
+								<span>{'uce\\' + username}</span>
+							</div>
+							<Dropdown menu={{ items, onClick }} trigger={['click']}>
+								<a onClick={e => e.preventDefault()}>
+									<Avatar
+										style={{
+											backgroundColor: '#40a9ff',
+											verticalAlign: 'middle'
+										}}
+										size='large'
+									>
+										{username[0].toUpperCase()}
+									</Avatar>
+								</a>
+							</Dropdown>
+						</div>
+					)}
+				</Header>
 				<Content style={{ margin: '0 1rem' }}>
 					<Breadcrumb
 						style={{ margin: '1rem 0' }}
 						items={[
 							{
-								href: '#',
-								title: <HomeOutlined />
+								title: <span className='page-name'>{page}</span>
 							}
 						]}
 					/>

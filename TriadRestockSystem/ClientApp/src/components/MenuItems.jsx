@@ -3,6 +3,7 @@ import {
 	FileDoneOutlined,
 	FileSearchOutlined,
 	GoldOutlined,
+	HomeOutlined,
 	ReadOutlined,
 	SolutionOutlined,
 	TagsOutlined,
@@ -24,6 +25,8 @@ const getItem = (label, key, icon, children, type) => {
 }
 
 const MenuItems = [
+	{ type: 'divider' },
+	getItem('Inicio', '0', <HomeOutlined style={iconStyle} />),
 	{ type: 'divider' },
 	getItem('Usuarios', '1', <UserOutlined style={iconStyle} />),
 	{ type: 'divider' },

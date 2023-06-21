@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
@@ -35,6 +33,10 @@ public partial class Usuario
     public DateTime? FechaCreacion { get; set; }
 
     public int? ModificadoPor { get; set; }
+
+    [StringLength(1000)]
+    [Unicode(false)]
+    public string? RefreshToken { get; set; }
 
     [Column(TypeName = "datetime")]
     public DateTime? FechaModificacion { get; set; }
