@@ -5,13 +5,16 @@ const AuthContext = createContext({})
 
 export const AuthProvider = ({ children }) => {
 	const {
+		validLogin,
 		username,
 		password,
 		roles,
 		token,
+		refreshtoken,
 		readStoredAuth,
 		createAuth,
 		setNewToken,
+		setNewRefreshToken,
 		destroyAuth,
 		destroyStoredAuth
 	} = useAuth()
@@ -19,13 +22,16 @@ export const AuthProvider = ({ children }) => {
 	return (
 		<AuthContext.Provider
 			value={{
+				validLogin,
 				username,
 				password,
 				roles,
 				token,
+				refreshtoken,
 				readStoredAuth,
 				createAuth,
 				setNewToken,
+				setNewRefreshToken,
 				destroyAuth,
 				destroyStoredAuth
 			}}
@@ -37,21 +43,39 @@ export const AuthProvider = ({ children }) => {
 
 const useAuth = () => {
 	const [auth, setAuth] = useState({
+		validLogin: false,
 		username: '',
 		password: '',
 		roles: [],
-		token: ''
+		token: '',
+		refreshtoken: ''
 	})
 
-	const createAuth = (username, password, roles, token, remember) => {
+	const createAuth = (
+		validLogin,
+		username,
+		password,
+		roles,
+		token,
+		refreshtoken,
+		remember
+	) => {
 		setAuth({
+			validLogin,
 			username,
 			password,
 			roles,
-			token
+			token,
+			refreshtoken
 		})
 
-		const storedAuth = StoredAuth(username, password, roles, token)
+		const storedAuth = StoredAuth(
+			validLogin,
+			username,
+			password,
+			roles,
+			refreshtoken
+		)
 		const jsonStoredAuth = JSON.stringify(storedAuth)
 
 		sessionStorage.setItem('auth', jsonStoredAuth)
@@ -62,15 +86,30 @@ const useAuth = () => {
 	}
 
 	const readStoredAuth = () => {
+		let remember = true
 		let storedAuth = localStorage.getItem('auth')
 		if (isStringEmpty(storedAuth)) {
+			remember = false
 			storedAuth = sessionStorage.getItem('auth')
 		}
 
 		if (!isStringEmpty(storedAuth)) {
-			const { storedUsername, storedPassword, storedRoles, storedToken } =
-				JSON.parse(storedAuth)
-			createAuth(storedUsername, storedPassword, storedRoles, storedToken, true)
+			const {
+				storedLogin,
+				storedUsername,
+				storedPassword,
+				storedRoles,
+				storedRefreshToken
+			} = JSON.parse(storedAuth)
+			createAuth(
+				storedLogin,
+				storedUsername,
+				storedPassword,
+				storedRoles,
+				'',
+				storedRefreshToken,
+				remember
+			)
 		}
 	}
 
@@ -80,13 +119,21 @@ const useAuth = () => {
 			token
 		})
 	}
+	const setNewRefreshToken = refreshtoken => {
+		setAuth({
+			...auth,
+			refreshtoken
+		})
+	}
 
 	const destroyAuth = () => {
 		setAuth({
+			validLogin: false,
 			username: '',
 			password: '',
 			roles: [],
-			token: ''
+			token: '',
+			refreshtoken: ''
 		})
 		destroyStoredAuth()
 	}
@@ -101,17 +148,19 @@ const useAuth = () => {
 		readStoredAuth,
 		createAuth,
 		setNewToken,
+		setNewRefreshToken,
 		destroyAuth,
 		destroyStoredAuth
 	}
 }
 
-const StoredAuth = (username, password, roles, token) => {
+const StoredAuth = (validLogin, username, password, roles, refreshtoken) => {
 	return {
+		storedLogin: validLogin,
 		storedUsername: username,
 		storedPassword: password,
 		storedRoles: roles,
-		storedToken: token
+		storedRefreshToken: refreshtoken
 	}
 }
 
