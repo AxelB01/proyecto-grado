@@ -20,21 +20,15 @@ const UserForm = ({
 	loading,
 	handleLoading
 }) => {
-	const { roles, centrosCostos } = initialValues
 	const axiosPrivate = useAxiosPrivate()
 
 	const [form] = Form.useForm()
 	const values = Form.useWatch([], form)
 
-	const [selectedRoles, setSelectedRoles] = useState(roles)
-	const [selectedCentrosCostos, setSelectedCentrosCostos] =
-		useState(centrosCostos)
-
 	const [disabled, setDisabled] = useState(true)
 	const [required, setRequired] = useState(false)
 
 	useEffect(() => {
-		console.log(initialValues)
 		const {
 			id,
 			nombre,
@@ -56,17 +50,17 @@ const UserForm = ({
 			roles,
 			centrosCostos
 		})
-	}, [form, initialValues])
+	}, [form, open, initialValues])
 
 	useEffect(() => {
-		if (selectedRoles.includes(4)) {
-			setDisabled(false)
-			setRequired(true)
-		} else {
-			setDisabled(true)
-			setRequired(false)
+		const roles = values?.roles
+
+		if (roles !== undefined) {
+			const costCenterRoleSelected = values.roles.includes(4)
+			setDisabled(!costCenterRoleSelected)
+			setRequired(costCenterRoleSelected)
 		}
-	}, [selectedRoles])
+	}, [values])
 
 	const saveUser = async model => {
 		try {
@@ -98,9 +92,13 @@ const UserForm = ({
 		model.Login = values.login
 		model.Password = values.contrasena
 		model.State = Number(values.estado)
-		model.Roles = selectedRoles
-		model.CostCenters = selectedCentrosCostos
+		model.Roles = values.roles
+		model.CostCenters = values.centrosCostos
 		saveUser(model)
+	}
+
+	const onFinishFailed = () => {
+		handleLoading(false)
 	}
 
 	return (
@@ -130,6 +128,7 @@ const UserForm = ({
 				<Form
 					form={form}
 					onFinish={onFinish}
+					onFinishFailed={onFinishFailed}
 					name='form_user'
 					layout='vertical'
 					requiredMark
@@ -291,8 +290,6 @@ const UserForm = ({
 									options={rolesItems.map(rol => {
 										return { value: rol.key, label: rol.text }
 									})}
-									value={selectedRoles}
-									onChange={setSelectedRoles}
 								></Select>
 							</Form.Item>
 						</Col>
@@ -300,7 +297,7 @@ const UserForm = ({
 					<Row gutter={16}>
 						<Col span={24}>
 							<Form.Item
-								name='centroCostos'
+								name='centrosCostos'
 								label='Centros de costos'
 								rules={[
 									{
@@ -316,8 +313,6 @@ const UserForm = ({
 									options={centrosCostosItems.map(c => {
 										return { value: c.key, label: c.text }
 									})}
-									value={selectedCentrosCostos}
-									onChange={setSelectedCentrosCostos}
 									disabled={disabled}
 								></Select>
 							</Form.Item>

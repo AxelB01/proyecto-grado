@@ -1,5 +1,7 @@
 import Home from './components/Home'
 import Login from './components/Login'
+import Request from './components/Request'
+import Requests from './components/Requests'
 import Users from './components/Users'
 
 const AppRoutes = [
@@ -17,6 +19,16 @@ const AppRoutes = [
 		index: false,
 		path: '/users',
 		element: <Users />
+	},
+	{
+		index: false,
+		path: '/requests',
+		element: <Requests />
+	},
+	{
+		index: false,
+		path: '/request',
+		element: <Request />
 	}
 ]
 
