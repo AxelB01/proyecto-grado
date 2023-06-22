@@ -34,7 +34,6 @@ const CustomLayout = ({ children }) => {
 	}
 
 	const handleMenuOption = e => {
-		console.log(e)
 		const selectedKey = Number(e.key)
 		switch (selectedKey) {
 			case 0:
@@ -44,6 +43,10 @@ const CustomLayout = ({ children }) => {
 			case 1:
 				handlePageChange('Usuarios')
 				navigate('/users')
+				break
+			case 6:
+				handlePageChange('Solicitudes')
+				navigate('/requests')
 				break
 			default:
 				break
