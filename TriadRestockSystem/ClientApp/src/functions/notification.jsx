@@ -12,7 +12,7 @@ const createNotification = (type, title, message) => {
 	notification[type]({
 		message: title,
 		description: message,
-		duration: 10,
+		duration: 1,
 		placement: 'topRight'
 	})
 }

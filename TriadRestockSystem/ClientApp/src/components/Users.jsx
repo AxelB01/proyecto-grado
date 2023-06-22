@@ -3,7 +3,7 @@ import {
 	SearchOutlined,
 	UserAddOutlined
 } from '@ant-design/icons'
-import { Button, Input, Space, Table, Tag } from 'antd'
+import { Button, Empty, Input, Space, Table, Tag } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 import Highlighter from 'react-highlight-words'
 import { useNavigate } from 'react-router-dom'
@@ -11,8 +11,8 @@ import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { sleep } from '../functions/sleep'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
+import './DefaultContentStyle.css'
 import UserForm from './UserForm'
-import './Users.css'
 
 const USERS_DATA_URL = '/api/usuarios/getUsuarios'
 const ROLES_URL = '/api/usuarios/getRoles'
@@ -76,7 +76,7 @@ const Users = () => {
 				login,
 				password,
 				state,
-				email,
+				// email,
 				roles,
 				costCenters
 			} = respose?.data
@@ -350,6 +350,13 @@ const Users = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
+	const customNoDataText = (
+		<Empty
+			image={Empty.PRESENTED_IMAGE_SIMPLE}
+			description='No existen registros'
+		/>
+	)
+
 	return (
 		<>
 			<UserForm
@@ -382,6 +389,9 @@ const Users = () => {
 							showTotal: () => `${data.length} registros en total`,
 							defaultPageSize: 10,
 							defaultCurrent: 1
+						}}
+						locale={{
+							emptyText: customNoDataText
 						}}
 					/>
 				</div>
