@@ -120,7 +120,10 @@ namespace TriadRestockSystem.Controllers
                 using var dbTran = _db.Database.BeginTransaction();
                 try
                 {
-                    Usuario? usuario = _db.Usuarios.FirstOrDefault(u => u.IdUsuario == model.Id);
+                    Usuario? usuario = _db.Usuarios
+                        .Include(u => u.IdRols)
+                        .Include(u => u.IdCentroCostos)
+                        .FirstOrDefault(u => u.IdUsuario == model.Id);
 
                     if (usuario == null)
                     {
@@ -149,20 +152,12 @@ namespace TriadRestockSystem.Controllers
                     var newRoles = _db.Roles
                         .Where(r => model.Roles.Contains(r.IdRol))
                         .ToList();
-                    _db.RemoveRange(usuario.IdRols);
-                    foreach (var item in newRoles)
-                    {
-                        usuario.IdRols.Add(item);
-                    }
+                    usuario.IdRols = newRoles;
 
-                    var newCostCenters = _db.CentrosCostos
+                    var newCentrosCostos = _db.CentrosCostos
                         .Where(c => model.CostCenters.Contains(c.IdCentroCosto))
                         .ToList();
-                    _db.RemoveRange(usuario.IdCentroCostos);
-                    foreach (var item in newCostCenters)
-                    {
-                        usuario.IdCentroCostos.Add(item);
-                    }
+                    usuario.IdCentroCostos = newCentrosCostos;
 
                     _db.SaveChanges();
                     dbTran.Commit();

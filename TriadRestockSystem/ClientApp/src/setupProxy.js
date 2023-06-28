@@ -10,6 +10,7 @@ const context =  [
     "/api/auth",
     "/api/usuarios",
     "/api/familias",
+    "/api/solicitudes"
 ];
 
 module.exports = function(app) {
