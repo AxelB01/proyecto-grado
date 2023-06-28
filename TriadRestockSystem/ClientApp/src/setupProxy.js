@@ -9,6 +9,7 @@ const target = 'https://localhost:7204';
 const context =  [
     "/api/auth",
     "/api/usuarios",
+    "/api/familias",
 ];
 
 module.exports = function(app) {
