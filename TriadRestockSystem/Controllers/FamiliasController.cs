@@ -1,4 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol.Plugins;
+using System.Linq;
+using TriadRestockSystem.Security;
+using TriadRestockSystem.ViewModels;
+using TriadRestockSystemData.Data;
+using TriadRestockSystemData.Data.Models;
+using TriadRestockSystemData.Data.ViewModels;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -6,38 +16,69 @@ namespace TriadRestockSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [JwtData]
+    [Authorize(Roles = RolesNames.ADMINISTRADOR)]
     public class FamiliasController : ControllerBase
     {
-        // GET: api/<FamiliasController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        private readonly InventarioDBContext _dbContext;
+        private readonly IConfiguration _configuration;
+
+        public FamiliasController(InventarioDBContext dBContext, IConfiguration configuration)
         {
-            return new string[] { "value1", "value2" };
+            _dbContext = dBContext;
+            _configuration = configuration;
+
         }
 
-        // GET api/<FamiliasController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("getFamilias")]
+        public ActionResult GetFamilias()
         {
-            return "value";
+            var result = _dbContext.FamiliasArticulos
+                .Select(x => new
+                {
+                    Id = x.IdFamilia,
+                    x.Familia,
+                    Fecha = x.FechaCreacion.ToString("dd/MM/yyyy HH:mm:ss"),
+                    CreadoPor = x.CreadoPorNavigation.Login
+                })
+                .ToList();
+            return Ok(result);
+
         }
 
-        // POST api/<FamiliasController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpPost("guardarFamilia")]
+        public IActionResult GuardarFamilias(vmFamilia model)
         {
-        }
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
 
-        // PUT api/<FamiliasController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+            Usuario? user = _dbContext.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
 
-        // DELETE api/<FamiliasController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            if(user != null)
+            {
+                FamiliaArticulo? familia = _dbContext.FamiliasArticulos.FirstOrDefault(v => v.IdFamilia == model.IdFamilia);
+                if (familia == null)
+                {
+                    familia = new FamiliaArticulo
+                    {
+                        //IdFamilia = familia.IdFamilia,
+                        Familia = model!.Familia,
+                        CreadoPor = user.IdUsuario,
+                        FechaCreacion = DateTime.Now,
+                    };
+                    _dbContext.FamiliasArticulos.Add(familia);
+                }
+                else
+                {
+                    familia.Familia = model.Familia;
+                    familia.ModificadoPor = user.IdUsuario;
+                    familia.FechaModificacion = DateTime.Now;
+                }
+                _dbContext.SaveChanges();
+                return Ok(familia);
+            }
+            return BadRequest();
+
         }
     }
 }

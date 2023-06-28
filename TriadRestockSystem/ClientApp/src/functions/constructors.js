@@ -28,8 +28,10 @@ export const createUserModel = () => {
 
 export const createFamiliesModel = () => {
 	return {
-		Id: 0,
-		Familia: ''
+		IdFamilia: 0,
+		Familia: '',
+		CreadoPor: null,
+		FechaCreacion: null
 
 	}
 }

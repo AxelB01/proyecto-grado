@@ -18,14 +18,7 @@ const Families = () => {
 
     const [familyFormInitialValues, setFamiliesFormInitialValues] = useState({
 		id: 0,
-		nombre: '',
-		apellido: '',
-		login: '',
-		contrasena: '',
-		confirmarContrasena: '',
-		estado: 1,
-		roles: [],
-		centrosCostos: []
+		nombre: ''
 	})
 
     useEffect(() => {
@@ -61,6 +54,7 @@ const Families = () => {
 		try {
 			const response = await axiosPrivate.get(FAMILIES_DATA_URL)
 			const data = response?.data
+			console.log(data)
 			setData(data)
 		} catch (error) {
 			console.log(error)
@@ -90,7 +84,7 @@ const Families = () => {
                 title={title}
                 open={open}
 				onClose={closeFamiliesForm}
-                getUsersData={getFamiliesData }
+                getUsersData={getFamiliesData}
 				initialValues={familyFormInitialValues}
 				loading={loading}
 				handleLoading={setLoading}
@@ -101,7 +95,7 @@ const Families = () => {
 						icon={<UserAddOutlined />}
 						onClick={handleResetFamiliesForm}
 					>
-						Nuevo usuario
+						Nuevo familia
 					</Button>
 				</div>
 

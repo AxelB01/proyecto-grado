@@ -34,17 +34,20 @@ const FamiliesForm = ({
 		console.log(initialValues)
 		const {
 			id,
-			familia
+			familia,
+			CreadoPor,
+			FechaCreacion	
 			
 		} = initialValues
 		form.setFieldsValue({
 			id,
-			familia
-
+			familia,
+			CreadoPor,
+			FechaCreacion
 		})
 	}, [form, initialValues])
 
-	const saveUser = async model => {
+	const saveFamily = async model => {
 		try {
 			const response = await axiosPrivate.post(SAVE_FAMILIES_URL, model)
 			if (response?.status === 200) {
@@ -68,9 +71,13 @@ const FamiliesForm = ({
 
 	const onFinish = values => {
 		const model = createFamiliesModel()
-		model.Id = values.id
+		model.IdFamilia = values.id
 		model.Familia = values.familia
-		saveUser(model)
+		// model.CreadoPor = values.CreadoPor
+		// model.FechaCreacion = values.FechaCreacion
+		// model.ModificadoPor = values.ModificadoPor
+		// model.FechaModificacion = values.FechaModificacion
+		saveFamily(model)
 	}
 
 	return (
@@ -110,7 +117,7 @@ const FamiliesForm = ({
 					<Row gutter={16}>
 						<Col span={24}>
 							<Form.Item
-								name='famlia'
+								name='familia'
 								label='Nombre de familia'
 								rules={[
 									{
