@@ -46,7 +46,6 @@ namespace TriadRestockSystem.Controllers
         [HttpGet("getUsuario")]
         public IActionResult GetUsuario(int id)
         {
-
             string key = _configuration.GetValue<string>("AppSettings:AesKey");
             string iv = _configuration.GetValue<string>("AppSettings:AesIV");
 

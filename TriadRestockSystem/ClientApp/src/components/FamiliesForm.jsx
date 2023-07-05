@@ -73,10 +73,7 @@ const FamiliesForm = ({
 		const model = createFamiliesModel()
 		model.IdFamilia = values.id
 		model.Familia = values.familia
-		// model.CreadoPor = values.CreadoPor
-		// model.FechaCreacion = values.FechaCreacion
-		// model.ModificadoPor = values.ModificadoPor
-		// model.FechaModificacion = values.FechaModificacion
+
 		saveFamily(model)
 	}
 

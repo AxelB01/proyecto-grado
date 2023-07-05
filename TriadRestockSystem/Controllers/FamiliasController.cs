@@ -36,6 +36,7 @@ namespace TriadRestockSystem.Controllers
             var result = _dbContext.FamiliasArticulos
                 .Select(x => new
                 {
+                    Key = x.IdFamilia, 
                     Id = x.IdFamilia,
                     x.Familia,
                     Fecha = x.FechaCreacion.ToString("dd/MM/yyyy HH:mm:ss"),
@@ -75,10 +76,31 @@ namespace TriadRestockSystem.Controllers
                     familia.FechaModificacion = DateTime.Now;
                 }
                 _dbContext.SaveChanges();
-                return Ok(familia);
+                return Ok();
             }
-            return BadRequest();
+            return base.Ok();
 
+        }
+
+        [HttpGet("getFamilia")]
+        public IActionResult GetFamilia(int id)
+        {
+            var familia = _dbContext.FamiliasArticulos
+                .FirstOrDefault(u => u.IdFamilia == id);
+       
+            if (familia != null )
+            {
+                vmFamilia vm = new()
+                {
+                    IdFamilia = familia.IdFamilia,
+                    Familia = familia.Familia
+                };
+                return Ok(vm);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
     }
 }
