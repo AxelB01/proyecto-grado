@@ -1,8 +1,10 @@
+import Families from './components/Families'
 import Home from './components/Home'
 import Login from './components/Login'
 import Request from './components/Request'
 import Requests from './components/Requests'
 import Users from './components/Users'
+import Items from './components/Items'
 
 const AppRoutes = [
 	{
@@ -22,6 +24,11 @@ const AppRoutes = [
 	},
 	{
 		index: false,
+		path: '/families',
+		element: <Families />
+	},
+	{
+		index: false,
 		path: '/requests',
 		element: <Requests />
 	},
@@ -29,7 +36,13 @@ const AppRoutes = [
 		index: false,
 		path: '/request',
 		element: <Request />
+	},
+	{
+		index: false,
+		path: '/items',
+		element: <Items />
 	}
+
 ]
 
 export default AppRoutes
