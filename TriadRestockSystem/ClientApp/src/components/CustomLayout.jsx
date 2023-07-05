@@ -48,10 +48,16 @@ const CustomLayout = ({ children }) => {
 				handlePageChange('Familias')
 				navigate('/families')
 				break
+			case 4:
+				handlePageChange('Articulos')
+				navigate('/items')
+				break
 			case 6:
 				handlePageChange('Solicitudes')
 				navigate('/requests')
 				break
+
+
 			default:
 				break
 		}

@@ -4,6 +4,7 @@ import Login from './components/Login'
 import Request from './components/Request'
 import Requests from './components/Requests'
 import Users from './components/Users'
+import Items from './components/Items'
 
 const AppRoutes = [
 	{
@@ -35,7 +36,13 @@ const AppRoutes = [
 		index: false,
 		path: '/families',
 		element: <Families />
+	},
+	{
+		index: false,
+		path: '/items',
+		element: <Items />
 	}
+
 ]
 
 export default AppRoutes

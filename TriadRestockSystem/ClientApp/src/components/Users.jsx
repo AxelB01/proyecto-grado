@@ -347,7 +347,6 @@ const Users = () => {
 			getRolesItems()
 			getCentrosCostosItems()
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	const customNoDataText = (
