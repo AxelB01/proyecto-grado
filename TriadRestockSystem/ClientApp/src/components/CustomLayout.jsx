@@ -24,7 +24,7 @@ const items = [
 
 const CustomLayout = ({ children }) => {
 	const { username, destroyStoredAuth } = useContext(AuthContext)
-	const { active, collapsed, page, handleSlider, handlePageChange } =
+	const { active, collapsed, breadcrumb, handleSlider } =
 		useContext(LayoutContext)
 	const navigate = useNavigate()
 
@@ -34,23 +34,24 @@ const CustomLayout = ({ children }) => {
 	}
 
 	const handleMenuOption = e => {
+		let path = ''
 		const selectedKey = Number(e.key)
+
 		switch (selectedKey) {
 			case 0:
-				handlePageChange('Inicio')
-				navigate('/')
+				path = '/'
 				break
 			case 1:
-				handlePageChange('Usuarios')
-				navigate('/users')
+				path = '/users'
 				break
 			case 6:
-				handlePageChange('Solicitudes')
-				navigate('/requests')
+				path = '/requests'
 				break
 			default:
 				break
 		}
+
+		navigate(path)
 	}
 
 	if (!active) {
@@ -92,7 +93,7 @@ const CustomLayout = ({ children }) => {
 								<a onClick={e => e.preventDefault()}>
 									<Avatar
 										style={{
-											backgroundColor: '#40a9ff',
+											backgroundColor: '#1890ff',
 											verticalAlign: 'middle'
 										}}
 										size='large'
@@ -105,14 +106,7 @@ const CustomLayout = ({ children }) => {
 					)}
 				</Header>
 				<Content style={{ margin: '0 1rem' }}>
-					<Breadcrumb
-						style={{ margin: '1rem 0' }}
-						items={[
-							{
-								title: <span className='page-name'>{page}</span>
-							}
-						]}
-					/>
+					<Breadcrumb style={{ margin: '1rem 0' }} items={breadcrumb} />
 
 					<div
 						style={{

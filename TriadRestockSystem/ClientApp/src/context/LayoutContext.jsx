@@ -3,16 +3,16 @@ import { createContext, useState } from 'react'
 const LayoutContext = createContext({})
 
 export const LayoutProvider = ({ children }) => {
-	const [active, setActive] = useState(false)
-	const [page, setPage] = useState('Inicio')
+	const [active, setActive] = useState(true)
+	const [breadcrumb, setBreadcrumb] = useState()
 	const [collapsed, setCollapsed] = useState(false)
 
 	const handleLayout = newState => {
 		setActive(newState)
 	}
 
-	const handlePageChange = newPage => {
-		setPage(newPage)
+	const handleBreadcrumb = breadcrumbItems => {
+		setBreadcrumb(breadcrumbItems)
 	}
 
 	const handleSlider = () => {
@@ -24,8 +24,8 @@ export const LayoutProvider = ({ children }) => {
 			value={{
 				active,
 				handleLayout,
-				page,
-				handlePageChange,
+				breadcrumb,
+				handleBreadcrumb,
 				collapsed,
 				handleSlider
 			}}

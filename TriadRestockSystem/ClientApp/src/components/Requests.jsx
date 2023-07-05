@@ -1,4 +1,8 @@
-import { EditOutlined, FileAddOutlined } from '@ant-design/icons'
+import {
+	EditOutlined,
+	FileAddOutlined,
+	SolutionOutlined
+} from '@ant-design/icons'
 import { Button, Empty, Space, Table } from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
@@ -9,10 +13,10 @@ import './DefaultContentStyle.css'
 
 const Requests = () => {
 	const { validLogin } = useContext(AuthContext)
-	const { handleLayout } = useContext(LayoutContext)
+	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
 	const navigate = useNavigate()
 
-	const [data, setData] = useState([])
+	const [data] = useState([])
 
 	const handleGotoRequest = () => {
 		navigate('/request')
@@ -30,6 +34,18 @@ const Requests = () => {
 			navigate('/login')
 		} else {
 			handleLayout(true)
+			const breadcrumbItems = [
+				{
+					title: (
+						<a onClick={() => navigate('/requests')}>
+							<span className='breadcrumb-item'>
+								<SolutionOutlined /> Solicitudes
+							</span>
+						</a>
+					)
+				}
+			]
+			handleBreadcrumb(breadcrumbItems)
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps

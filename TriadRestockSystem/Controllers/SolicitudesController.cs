@@ -26,5 +26,18 @@ namespace TriadRestockSystem.Controllers
                 .ToList();
             return Ok(response);
         }
+
+        [HttpGet("getArticulosList")]
+        public IActionResult GetArticulosList()
+        {
+            var response = _db.ArticulosGetList()
+                .Select(x => new
+                {
+                    Value = x.IdArticulo,
+                    Text = x.Nombre
+                })
+                .ToList();
+            return Ok(response);
+        }
     }
 }

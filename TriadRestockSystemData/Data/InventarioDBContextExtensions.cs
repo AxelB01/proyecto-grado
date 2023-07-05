@@ -20,5 +20,12 @@ namespace TriadRestockSystemData.Data
                 .Query<vmSolicitudes>("SolicitudesGetAll", commandType: CommandType.StoredProcedure)
                 .ToList();
         }
+
+        public static IList<vmArticuloListItem> ArticulosGetList(this InventarioDBContext context)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmArticuloListItem>("ArticulosGetList", commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
     }
 }
