@@ -25,3 +25,29 @@ export const createUserModel = () => {
 		CostCenters: []
 	}
 }
+
+export const createFamiliesModel = () => {
+	return {
+		IdFamilia: 0,
+		Familia: '',
+		CreadoPor: null,
+		FechaCreacion: null
+
+	}
+}
+
+
+export const createItemsModel = () => {
+	return {
+		IdArticulo: 0,
+		idUnidadMedida: 0,
+		codigo: 0,
+		nombre: '',
+		descripcion: '',
+		familia: 0,
+		tipoArticulo: 0,
+		CreadoPor: null,
+		FechaCreacion: null
+
+	}
+}
