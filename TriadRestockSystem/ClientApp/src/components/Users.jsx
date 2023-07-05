@@ -362,7 +362,6 @@ const Users = () => {
 
 			handleBreadcrumb(breadcrumbItems)
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	const customNoDataText = (
@@ -395,6 +394,7 @@ const Users = () => {
 						Nuevo usuario
 					</Button>
 				</div>
+
 				<div className='table-container'>
 					<Table
 						columns={columns}
