@@ -7,6 +7,7 @@ import useAxiosPrivate from '../hooks/usePrivateAxios'
 
 const { Option } = Select
 
+// const INPUT_TEXT_REGEX = /[^a-zA-ZÀ-ÿ0-9\s]/
 const SAVE_USER_URL = '/api/usuarios/guardarUsuario'
 
 const UserForm = ({

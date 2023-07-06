@@ -8,6 +8,7 @@ const target = 'https://localhost:7204';
 
 const context =  [
     "/api/auth",
+    "/api/data",
     "/api/usuarios",
     "/api/familias",
     "/api/solicitudes",

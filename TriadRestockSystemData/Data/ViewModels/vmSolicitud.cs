@@ -1,6 +1,6 @@
 ﻿namespace TriadRestockSystemData.Data.ViewModels
 {
-    public class vmSolicitudes
+    public class vmSolicitud
     {
         public int IdSolicitud { get; set; }
         public int IdCentroCosto { get; set; }

@@ -1,7 +1,8 @@
 import {
 	EditOutlined,
 	SearchOutlined,
-	UserAddOutlined
+	UserAddOutlined,
+	UserOutlined
 } from '@ant-design/icons'
 import { Button, Empty, Input, Space, Table, Tag } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
@@ -21,7 +22,7 @@ const GET_USER_URL = '/api/usuarios/getUsuario'
 
 const Users = () => {
 	const { validLogin } = useContext(AuthContext)
-	const { handleLayout } = useContext(LayoutContext)
+	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
 	const axiosPrivate = useAxiosPrivate()
 	const navigate = useNavigate()
 	const [data, setData] = useState([])
@@ -346,6 +347,20 @@ const Users = () => {
 			getUsersData()
 			getRolesItems()
 			getCentrosCostosItems()
+
+			const breadcrumbItems = [
+				{
+					title: (
+						<a onClick={() => navigate('/users')}>
+							<span className='breadcrumb-item'>
+								<UserOutlined /> Usuarios
+							</span>
+						</a>
+					)
+				}
+			]
+
+			handleBreadcrumb(breadcrumbItems)
 		}
 	}, [])
 

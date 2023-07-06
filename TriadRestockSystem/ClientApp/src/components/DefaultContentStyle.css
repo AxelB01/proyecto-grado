@@ -30,3 +30,7 @@
 	font-weight: bold;
 	font-size: 1.2rem;
 }
+
+.breadcrumb-item {
+	color: #1890ff;
+}
