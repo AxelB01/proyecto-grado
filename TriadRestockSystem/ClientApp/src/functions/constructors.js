@@ -32,10 +32,8 @@ export const createFamiliesModel = () => {
 		Familia: '',
 		CreadoPor: null,
 		FechaCreacion: null
-
 	}
 }
-
 
 export const createItemsModel = () => {
 	return {
@@ -48,6 +46,22 @@ export const createItemsModel = () => {
 		tipoArticulo: 0,
 		CreadoPor: null,
 		FechaCreacion: null
+	}
+}
 
+export const createRequestModel = () => {
+	return {
+		IdSolicitud: 0,
+		IdCentroCosto: 0,
+		CentroCosto: '',
+		Numero: '',
+		Fecha: '',
+		IdEstado: 0,
+		Estado: '',
+		IdCreadoPor: 0,
+		CreadoPor: '',
+		IdRevisadoPor: 0,
+		RevisadoPor: '',
+		Detalles: []
 	}
 }

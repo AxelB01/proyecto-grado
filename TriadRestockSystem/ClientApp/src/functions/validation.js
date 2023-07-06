@@ -15,3 +15,7 @@ export function areArraysEqual(array1, array2) {
 
 	return true
 }
+
+export function isObjectNotEmpty(obj) {
+	return Object.keys(obj).length > 0
+}
