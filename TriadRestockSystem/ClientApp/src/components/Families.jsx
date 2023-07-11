@@ -1,23 +1,22 @@
 import {
-	UserAddOutlined,
 	EditOutlined,
-	SearchOutlined
+	SearchOutlined,
+	UserAddOutlined
 } from '@ant-design/icons'
 import { Button, Input, Space, Table } from 'antd'
-import { useEffect,useState,useRef } from 'react'
-import useAxiosPrivate from '../hooks/usePrivateAxios'
+import { useEffect, useRef, useState } from 'react'
 import Highlighter from 'react-highlight-words'
+import useAxiosPrivate from '../hooks/usePrivateAxios'
 import FamiliesForm from './FamiliesForm'
 
 const FAMILIES_DATA_URL = '/api/familias/getFamilias'
 const GET_FAMILY_DATA = '/api/familias/getFamilia'
 
 const Families = () => {
-
-    const [title, setTitle] = useState('')
-    const axiosPrivate = useAxiosPrivate()
-    const [data, setData] = useState([])
-    const [open, setOpen] = useState(false)
+	const [title, setTitle] = useState('')
+	const axiosPrivate = useAxiosPrivate()
+	const [data, setData] = useState([])
+	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
 
 	const [searchText, setSearchText] = useState('')
@@ -28,7 +27,7 @@ const Families = () => {
 		setSearchText(selectedKeys[0])
 		setSearchedColumn(dataIndex)
 	}
-	
+
 	const handleReset = (clearFilters, confirm, dataIndex) => {
 		clearFilters()
 		confirm()
@@ -131,43 +130,41 @@ const Families = () => {
 				text
 			)
 	})
-	
-    const [familyFormInitialValues, setFamiliesFormInitialValues] = useState({
+
+	const [familyFormInitialValues, setFamiliesFormInitialValues] = useState({
 		id: 0,
 		nombre: ''
 	})
 
-    useEffect(() => {
+	useEffect(() => {
 		document.title = 'Familias'
-        getFamiliesData()
-			
+		getFamiliesData()
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
-	
-    const columns = [
-        {
-            title: 'Código',
+
+	const columns = [
+		{
+			title: 'Código',
 			dataIndex: 'id',
 			key: 'id',
 			...getColumnSearchProps('id')
-        },
-        {
-            title: 'Nombre',
-            dataIndex: 'familia',
-            key: 'familia',
+		},
+		{
+			title: 'Nombre',
+			dataIndex: 'familia',
+			key: 'familia',
 			...getColumnSearchProps('familia')
-
-        },
-        {
+		},
+		{
 			title: 'Fecha de creación',
 			dataIndex: 'fecha',
-			key: 'fecha',
+			key: 'fecha'
 		},
 		{
 			title: 'Creado por',
 			dataIndex: 'creadoPor',
 			key: 'creadoPor',
 			...getColumnSearchProps('creadoPor')
-
 		},
 		{
 			title: 'Acciones',
@@ -183,9 +180,9 @@ const Families = () => {
 				</Space>
 			)
 		}
-    ]
+	]
 
-    const getFamiliesData = async () => {
+	const getFamiliesData = async () => {
 		try {
 			const response = await axiosPrivate.get(FAMILIES_DATA_URL)
 			const data = response?.data
@@ -195,7 +192,7 @@ const Families = () => {
 		}
 	}
 
-    const showFamiliesForm = () => {
+	const showFamiliesForm = () => {
 		setOpen(true)
 	}
 
@@ -203,11 +200,11 @@ const Families = () => {
 		setOpen(false)
 		setLoading(false)
 	}
-	
-    const handleResetFamiliesForm = () => {
+
+	const handleResetFamiliesForm = () => {
 		setFamiliesFormInitialValues({
 			id: 0,
-			familia: '',
+			familia: ''
 		})
 		setTitle('Registrar Familia')
 		showFamiliesForm()
@@ -217,10 +214,7 @@ const Families = () => {
 		try {
 			const editFamilyUrl = `${GET_FAMILY_DATA}?id=${key}`
 			const respose = await axiosPrivate.get(editFamilyUrl)
-			const {
-				idFamilia,
-				familia
-			} = respose?.data
+			const { idFamilia, familia } = respose?.data
 			const model = {
 				id: idFamilia,
 				familia
@@ -234,41 +228,40 @@ const Families = () => {
 		}
 	}
 
-    return(
-        <>
-            <FamiliesForm
-                title={title}
-                open={open}
+	return (
+		<>
+			<FamiliesForm
+				title={title}
+				open={open}
 				onClose={closeFamiliesForm}
-                getFamilyData={getFamiliesData}
+				getFamilyData={getFamiliesData}
 				initialValues={familyFormInitialValues}
 				loading={loading}
 				handleLoading={setLoading}
-            />
-                <div className='btn-container'>
-					<Button
-						type='primary'
-						icon={<UserAddOutlined />}
-						onClick={handleResetFamiliesForm}
-					>
-						Nuevo familia
-					</Button>
-				</div>
+			/>
+			<div className='btn-container'>
+				<Button
+					type='primary'
+					icon={<UserAddOutlined />}
+					onClick={handleResetFamiliesForm}
+				>
+					Nuevo familia
+				</Button>
+			</div>
 
-            <div className='table-container'>
-                <Table
-                    columns={columns}
-                    dataSource={data}
-                    pagination={{
-                    total: data.length,
-                    showTotal: () => `${data.length} registros en total`,
-                    defaultPageSize: 10,
-                    defaultCurrent: 1
-                    }}
-                />
-            </div>
-        </>
-    )
-
+			<div className='table-container'>
+				<Table
+					columns={columns}
+					dataSource={data}
+					pagination={{
+						total: data.length,
+						showTotal: () => `${data.length} registros en total`,
+						defaultPageSize: 10,
+						defaultCurrent: 1
+					}}
+				/>
+			</div>
+		</>
+	)
 }
 export default Families

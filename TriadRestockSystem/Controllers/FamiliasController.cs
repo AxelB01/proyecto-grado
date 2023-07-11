@@ -1,16 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.EntityFrameworkCore;
-using NuGet.Protocol.Plugins;
-using System.Linq;
 using TriadRestockSystem.Security;
-using TriadRestockSystem.ViewModels;
 using TriadRestockSystemData.Data;
 using TriadRestockSystemData.Data.Models;
 using TriadRestockSystemData.Data.ViewModels;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace TriadRestockSystem.Controllers
 {
@@ -20,54 +13,53 @@ namespace TriadRestockSystem.Controllers
     [Authorize(Roles = RolesNames.ADMINISTRADOR)]
     public class FamiliasController : ControllerBase
     {
-        private readonly InventarioDBContext _dbContext;
+        private readonly InventarioDBContext _db;
         private readonly IConfiguration _configuration;
 
-        public FamiliasController(InventarioDBContext dBContext, IConfiguration configuration)
+        public FamiliasController(InventarioDBContext db, IConfiguration configuration)
         {
-            _dbContext = dBContext;
+            _db = db;
             _configuration = configuration;
 
         }
 
         [HttpGet("getFamilias")]
-        public ActionResult GetFamilias()
+        public IActionResult GetFamilias()
         {
-            var result = _dbContext.FamiliasArticulos
+            var result = _db.FamiliasArticulos
                 .Select(x => new
                 {
-                    Key = x.IdFamilia, 
+                    Key = x.IdFamilia,
                     Id = x.IdFamilia,
                     x.Familia,
-                    Fecha = x.FechaCreacion.ToString("dd/MM/yyyy HH:mm:ss"),
+                    Fecha = x.FechaCreacion.ToString("dd/mm/yyyy hh:mm:ss"),
                     CreadoPor = x.CreadoPorNavigation.Login
                 })
                 .ToList();
             return Ok(result);
-
         }
 
         [HttpPost("guardarFamilia")]
-        public IActionResult GuardarFamilias(vmFamilia model)
+        public IActionResult GuardarFamilia(vmFamilia model)
         {
             var login = HttpContext.Items["Username"] as string;
             var pass = HttpContext.Items["Password"] as string;
 
-            Usuario? user = _dbContext.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
 
-            if(user != null)
+            if (user != null)
             {
-                FamiliaArticulo? familia = _dbContext.FamiliasArticulos.FirstOrDefault(v => v.IdFamilia == model.IdFamilia);
+                FamiliasArticulo? familia = _db.FamiliasArticulos.FirstOrDefault(v => v.IdFamilia == model.IdFamilia);
                 if (familia == null)
                 {
-                    familia = new FamiliaArticulo
+                    familia = new FamiliasArticulo
                     {
-                        //IdFamilia = familia.IdFamilia,
+                        //idfamilia = familia.idfamilia,
                         Familia = model!.Familia,
                         CreadoPor = user.IdUsuario,
                         FechaCreacion = DateTime.Now,
                     };
-                    _dbContext.FamiliasArticulos.Add(familia);
+                    _db.FamiliasArticulos.Add(familia);
                 }
                 else
                 {
@@ -75,20 +67,20 @@ namespace TriadRestockSystem.Controllers
                     familia.ModificadoPor = user.IdUsuario;
                     familia.FechaModificacion = DateTime.Now;
                 }
-                _dbContext.SaveChanges();
+                _db.SaveChanges();
                 return Ok();
             }
-            return base.Ok();
 
+            return Unauthorized();
         }
 
         [HttpGet("getFamilia")]
         public IActionResult GetFamilia(int id)
         {
-            var familia = _dbContext.FamiliasArticulos
+            var familia = _db.FamiliasArticulos
                 .FirstOrDefault(u => u.IdFamilia == id);
-       
-            if (familia != null )
+
+            if (familia != null)
             {
                 vmFamilia vm = new()
                 {
@@ -97,10 +89,8 @@ namespace TriadRestockSystem.Controllers
                 };
                 return Ok(vm);
             }
-            else
-            {
-                return NotFound();
-            }
+
+            return NotFound();
         }
     }
 }

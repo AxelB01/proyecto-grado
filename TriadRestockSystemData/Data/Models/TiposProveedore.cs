@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
-public partial class TipoProveedor_
+public partial class TiposProveedore
 {
     [Key]
     public int IdTipoProveedor { get; set; }
@@ -16,5 +16,5 @@ public partial class TipoProveedor_
     public string TipoProveedor { get; set; } = null!;
 
     [InverseProperty("IdTipoProveedorNavigation")]
-    public virtual ICollection<Proveedor> Proveedores { get; set; } = new List<Proveedor>();
+    public virtual ICollection<Proveedore> Proveedores { get; set; } = new List<Proveedore>();
 }

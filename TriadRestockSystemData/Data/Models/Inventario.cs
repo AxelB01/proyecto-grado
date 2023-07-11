@@ -16,7 +16,7 @@ public partial class Inventario
 
     public int IdAlmacenSeccionEstanteria { get; set; }
 
-    public int IdProveedor { get; set; }
+    public int IdOrdenCompra { get; set; }
 
     [StringLength(100)]
     [Unicode(false)]
@@ -35,12 +35,15 @@ public partial class Inventario
     [Column(TypeName = "decimal(18, 2)")]
     public decimal PrecioCompra { get; set; }
 
+    [Column(TypeName = "decimal(18, 2)")]
+    public decimal? PrecioPromedio { get; set; }
+
     [Column(TypeName = "datetime")]
     public DateTime? FechaVencimiento { get; set; }
 
     [StringLength(500)]
     [Unicode(false)]
-    public string? Comentario { get; set; }
+    public string? Notas { get; set; }
 
     public int CreadoPor { get; set; }
 
@@ -66,7 +69,7 @@ public partial class Inventario
 
     [ForeignKey("IdEstado")]
     [InverseProperty("Inventarios")]
-    public virtual EstadoArticulo IdEstadoNavigation { get; set; } = null!;
+    public virtual EstadosArticulo IdEstadoNavigation { get; set; } = null!;
 
     [ForeignKey("IdImpuesto")]
     [InverseProperty("Inventarios")]
@@ -76,14 +79,14 @@ public partial class Inventario
     [InverseProperty("Inventarios")]
     public virtual Marca? IdMarcaNavigation { get; set; }
 
-    [ForeignKey("IdProveedor")]
+    [ForeignKey("IdOrdenCompra")]
     [InverseProperty("Inventarios")]
-    public virtual Proveedor IdProveedorNavigation { get; set; } = null!;
+    public virtual OrdenesCompra IdOrdenCompraNavigation { get; set; } = null!;
 
     [ForeignKey("ModificadoPor")]
     [InverseProperty("InventarioModificadoPorNavigations")]
     public virtual Usuario? ModificadoPorNavigation { get; set; }
 
     [InverseProperty("IdInventarioNavigation")]
-    public virtual ICollection<SolicitudDespachoDetalle> SolicitudesDespachosDetalles { get; set; } = new List<SolicitudDespachoDetalle>();
+    public virtual ICollection<SolicitudesDespachosDetalle> SolicitudesDespachosDetalles { get; set; } = new List<SolicitudesDespachosDetalle>();
 }

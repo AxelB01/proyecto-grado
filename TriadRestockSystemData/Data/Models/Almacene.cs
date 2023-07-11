@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
-public partial class Almacen
+public partial class Almacene
 {
     [Key]
     public int IdAlmacen { get; set; }
@@ -37,7 +37,7 @@ public partial class Almacen
     public DateTime? FechaModificacion { get; set; }
 
     [InverseProperty("IdAlmacenNavigation")]
-    public virtual ICollection<AlmacenSeccion> AlmacenesSecciones { get; set; } = new List<AlmacenSeccion>();
+    public virtual ICollection<AlmacenesSeccione> AlmacenesSecciones { get; set; } = new List<AlmacenesSeccione>();
 
     [ForeignKey("CreadoPor")]
     [InverseProperty("AlmaceneCreadoPorNavigations")]
@@ -46,4 +46,12 @@ public partial class Almacen
     [ForeignKey("ModificadoPor")]
     [InverseProperty("AlmaceneModificadoPorNavigations")]
     public virtual Usuario? ModificadoPorNavigation { get; set; }
+
+    [ForeignKey("IdAlmacen")]
+    [InverseProperty("IdAlmacens")]
+    public virtual ICollection<CentrosCosto> IdCentroCostos { get; set; } = new List<CentrosCosto>();
+
+    [ForeignKey("IdAlmacen")]
+    [InverseProperty("IdAlmacens")]
+    public virtual ICollection<Usuario> IdUsuarios { get; set; } = new List<Usuario>();
 }

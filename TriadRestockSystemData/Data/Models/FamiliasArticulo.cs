@@ -6,16 +6,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
-public partial class CentroCostosCatalogo
+public partial class FamiliasArticulo
 {
     [Key]
-    public int IdCentroCostoCatalogo { get; set; }
-
-    public int IdCentroCosto { get; set; }
+    public int IdFamilia { get; set; }
 
     [StringLength(100)]
     [Unicode(false)]
-    public string Nombre { get; set; } = null!;
+    public string Familia { get; set; } = null!;
 
     public int CreadoPor { get; set; }
 
@@ -27,18 +25,14 @@ public partial class CentroCostosCatalogo
     [Column(TypeName = "datetime")]
     public DateTime? FechaModificacion { get; set; }
 
-    [InverseProperty("IdCentroCostoCatalogoNavigation")]
-    public virtual ICollection<CentroCostosCatalogoArticulo> CentrosCostosCatalogosArticulos { get; set; } = new List<CentroCostosCatalogoArticulo>();
+    [InverseProperty("IdFamiliaNavigation")]
+    public virtual ICollection<Articulo> Articulos { get; set; } = new List<Articulo>();
 
     [ForeignKey("CreadoPor")]
-    [InverseProperty("CentrosCostosCatalogoCreadoPorNavigations")]
+    [InverseProperty("FamiliasArticuloCreadoPorNavigations")]
     public virtual Usuario CreadoPorNavigation { get; set; } = null!;
 
-    [ForeignKey("IdCentroCosto")]
-    [InverseProperty("CentrosCostosCatalogos")]
-    public virtual CentroCostos IdCentroCostoNavigation { get; set; } = null!;
-
     [ForeignKey("ModificadoPor")]
-    [InverseProperty("CentrosCostosCatalogoModificadoPorNavigations")]
+    [InverseProperty("FamiliasArticuloModificadoPorNavigations")]
     public virtual Usuario? ModificadoPorNavigation { get; set; }
 }

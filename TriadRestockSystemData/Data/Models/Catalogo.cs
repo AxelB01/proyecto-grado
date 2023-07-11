@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
-public partial class FamiliaArticulo
+public partial class Catalogo
 {
     [Key]
-    public int IdFamilia { get; set; }
+    public int IdCatalogo { get; set; }
 
-    [StringLength(100)]
+    [StringLength(200)]
     [Unicode(false)]
-    public string Familia { get; set; } = null!;
+    public string Nombre { get; set; } = null!;
 
     public int CreadoPor { get; set; }
 
@@ -26,14 +25,15 @@ public partial class FamiliaArticulo
     [Column(TypeName = "datetime")]
     public DateTime? FechaModificacion { get; set; }
 
-    [InverseProperty("IdFamiliaNavigation")]
-    public virtual ICollection<Articulo> Articulos { get; set; } = new List<Articulo>();
-
     [ForeignKey("CreadoPor")]
-    [InverseProperty("FamiliasArticuloCreadoPorNavigations")]
+    [InverseProperty("CatalogoCreadoPorNavigations")]
     public virtual Usuario CreadoPorNavigation { get; set; } = null!;
 
     [ForeignKey("ModificadoPor")]
-    [InverseProperty("FamiliasArticuloModificadoPorNavigations")]
+    [InverseProperty("CatalogoModificadoPorNavigations")]
     public virtual Usuario? ModificadoPorNavigation { get; set; }
+
+    [ForeignKey("IdCatalogo")]
+    [InverseProperty("IdCatalogos")]
+    public virtual ICollection<Articulo> IdArticulos { get; set; } = new List<Articulo>();
 }
