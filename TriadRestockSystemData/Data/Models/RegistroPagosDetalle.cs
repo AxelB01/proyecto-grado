@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace TriadRestockSystemData.Data.Models;
 
 [Keyless]
-public partial class RegistroPagoDetalle
+public partial class RegistroPagosDetalle
 {
     public int Numero { get; set; }
 
@@ -32,10 +32,7 @@ public partial class RegistroPagoDetalle
     public DateTime? FechaModificacion { get; set; }
 
     [ForeignKey("IdEstado")]
-    public virtual EstadoPago IdEstadoNavigation { get; set; } = null!;
-
-    [ForeignKey("IdOrdenCompra")]
-    public virtual OrdenCompra IdOrdenCompraNavigation { get; set; } = null!;
+    public virtual EstadosPago IdEstadoNavigation { get; set; } = null!;
 
     [ForeignKey("Numero")]
     public virtual RegistroPago NumeroNavigation { get; set; } = null!;

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
-public partial class TipoZonasAlmacenamiento
+public partial class TiposZonasAlmacenamiento
 {
     [Key]
     public int IdTipoZonaAlmacenamiento { get; set; }
@@ -16,5 +16,5 @@ public partial class TipoZonasAlmacenamiento
     public string TipoZonaAlmacenamiento { get; set; } = null!;
 
     [InverseProperty("IdTipoZonaNavigation")]
-    public virtual ICollection<AlmacenSeccion> AlmacenesSecciones { get; set; } = new List<AlmacenSeccion>();
+    public virtual ICollection<AlmacenesSeccione> AlmacenesSecciones { get; set; } = new List<AlmacenesSeccione>();
 }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
-public partial class EstadoUsuario
+public partial class EstadosUsuario
 {
     [Key]
     public int IdEstado { get; set; }

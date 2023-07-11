@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace TriadRestockSystemData.Data.Models;
 
 [Index("Tipo", Name = "IX_TiposArticulos", IsUnique = true)]
-public partial class TipoArticulo
+public partial class TiposArticulo
 {
     [Key]
     public int IdTipoArticulo { get; set; }

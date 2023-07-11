@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
@@ -34,24 +36,24 @@ public partial class Usuario
 
     public int? ModificadoPor { get; set; }
 
+    [Column(TypeName = "datetime")]
+    public DateTime? FechaModificacion { get; set; }
+
     [StringLength(1000)]
     [Unicode(false)]
     public string? RefreshToken { get; set; }
 
-    [Column(TypeName = "datetime")]
-    public DateTime? FechaModificacion { get; set; }
-
     [InverseProperty("CreadoPorNavigation")]
-    public virtual ICollection<Almacen> AlmaceneCreadoPorNavigations { get; set; } = new List<Almacen>();
+    public virtual ICollection<Almacene> AlmaceneCreadoPorNavigations { get; set; } = new List<Almacene>();
 
     [InverseProperty("ModificadoPorNavigation")]
-    public virtual ICollection<Almacen> AlmaceneModificadoPorNavigations { get; set; } = new List<Almacen>();
+    public virtual ICollection<Almacene> AlmaceneModificadoPorNavigations { get; set; } = new List<Almacene>();
 
     [InverseProperty("CreadoPorNavigation")]
-    public virtual ICollection<AlmacenSeccion> AlmacenesSeccioneCreadoPorNavigations { get; set; } = new List<AlmacenSeccion>();
+    public virtual ICollection<AlmacenesSeccione> AlmacenesSeccioneCreadoPorNavigations { get; set; } = new List<AlmacenesSeccione>();
 
     [InverseProperty("ModificadoPorNavigation")]
-    public virtual ICollection<AlmacenSeccion> AlmacenesSeccioneModificadoPorNavigations { get; set; } = new List<AlmacenSeccion>();
+    public virtual ICollection<AlmacenesSeccione> AlmacenesSeccioneModificadoPorNavigations { get; set; } = new List<AlmacenesSeccione>();
 
     [InverseProperty("CreadoPorNavigation")]
     public virtual ICollection<AlmacenesSeccionesEstanteria> AlmacenesSeccionesEstanteriaCreadoPorNavigations { get; set; } = new List<AlmacenesSeccionesEstanteria>();
@@ -69,30 +71,30 @@ public partial class Usuario
     public virtual ICollection<Articulo> ArticuloModificadoPorNavigations { get; set; } = new List<Articulo>();
 
     [InverseProperty("CreadoPorNavigation")]
-    public virtual ICollection<CentroCostosCatalogo> CentrosCostosCatalogoCreadoPorNavigations { get; set; } = new List<CentroCostosCatalogo>();
+    public virtual ICollection<Catalogo> CatalogoCreadoPorNavigations { get; set; } = new List<Catalogo>();
 
     [InverseProperty("ModificadoPorNavigation")]
-    public virtual ICollection<CentroCostosCatalogo> CentrosCostosCatalogoModificadoPorNavigations { get; set; } = new List<CentroCostosCatalogo>();
-
-    [InverseProperty("CreadoPorNavigation")]
-    public virtual ICollection<CentroCostosCatalogoArticulo> CentrosCostosCatalogosArticuloCreadoPorNavigations { get; set; } = new List<CentroCostosCatalogoArticulo>();
-
-    [InverseProperty("ModificadoPorNavigation")]
-    public virtual ICollection<CentroCostosCatalogoArticulo> CentrosCostosCatalogosArticuloModificadoPorNavigations { get; set; } = new List<CentroCostosCatalogoArticulo>();
+    public virtual ICollection<Catalogo> CatalogoModificadoPorNavigations { get; set; } = new List<Catalogo>();
 
     [ForeignKey("CreadoPor")]
     [InverseProperty("InverseCreadoPorNavigation")]
     public virtual Usuario? CreadoPorNavigation { get; set; }
 
     [InverseProperty("CreadoPorNavigation")]
-    public virtual ICollection<FamiliaArticulo> FamiliasArticuloCreadoPorNavigations { get; set; } = new List<FamiliaArticulo>();
+    public virtual ICollection<Documento> DocumentoCreadoPorNavigations { get; set; } = new List<Documento>();
 
     [InverseProperty("ModificadoPorNavigation")]
-    public virtual ICollection<FamiliaArticulo> FamiliasArticuloModificadoPorNavigations { get; set; } = new List<FamiliaArticulo>();
+    public virtual ICollection<Documento> DocumentoModificadoPorNavigations { get; set; } = new List<Documento>();
+
+    [InverseProperty("CreadoPorNavigation")]
+    public virtual ICollection<FamiliasArticulo> FamiliasArticuloCreadoPorNavigations { get; set; } = new List<FamiliasArticulo>();
+
+    [InverseProperty("ModificadoPorNavigation")]
+    public virtual ICollection<FamiliasArticulo> FamiliasArticuloModificadoPorNavigations { get; set; } = new List<FamiliasArticulo>();
 
     [ForeignKey("IdEstado")]
     [InverseProperty("Usuarios")]
-    public virtual EstadoUsuario IdEstadoNavigation { get; set; } = null!;
+    public virtual EstadosUsuario IdEstadoNavigation { get; set; } = null!;
 
     [InverseProperty("CreadoPorNavigation")]
     public virtual ICollection<Inventario> InventarioCreadoPorNavigations { get; set; } = new List<Inventario>();
@@ -117,16 +119,10 @@ public partial class Usuario
     public virtual Usuario? ModificadoPorNavigation { get; set; }
 
     [InverseProperty("CreadoPorNavigation")]
-    public virtual ICollection<OrdenCompra> OrdenesCompraCreadoPorNavigations { get; set; } = new List<OrdenCompra>();
+    public virtual ICollection<Proveedore> ProveedoreCreadoPorNavigations { get; set; } = new List<Proveedore>();
 
     [InverseProperty("ModificadoPorNavigation")]
-    public virtual ICollection<OrdenCompra> OrdenesCompraModificadoPorNavigations { get; set; } = new List<OrdenCompra>();
-
-    [InverseProperty("CreadoPorNavigation")]
-    public virtual ICollection<Proveedor> ProveedoreCreadoPorNavigations { get; set; } = new List<Proveedor>();
-
-    [InverseProperty("ModificadoPorNavigation")]
-    public virtual ICollection<Proveedor> ProveedoreModificadoPorNavigations { get; set; } = new List<Proveedor>();
+    public virtual ICollection<Proveedore> ProveedoreModificadoPorNavigations { get; set; } = new List<Proveedore>();
 
     [InverseProperty("CreadoPorNavigation")]
     public virtual ICollection<RegistroPago> RegistroPagoCreadoPorNavigations { get; set; } = new List<RegistroPago>();
@@ -134,29 +130,15 @@ public partial class Usuario
     [InverseProperty("ModificadoPorNavigation")]
     public virtual ICollection<RegistroPago> RegistroPagoModificadoPorNavigations { get; set; } = new List<RegistroPago>();
 
-    [InverseProperty("CreadoPorNavigation")]
-    public virtual ICollection<Requisicion> RequisicioneCreadoPorNavigations { get; set; } = new List<Requisicion>();
-
-    [InverseProperty("ModificadoPorNavigation")]
-    public virtual ICollection<Requisicion> RequisicioneModificadoPorNavigations { get; set; } = new List<Requisicion>();
-
-    [InverseProperty("CreadoPorNavigation")]
-    public virtual ICollection<Solicitud> SolicitudeCreadoPorNavigations { get; set; } = new List<Solicitud>();
-
-    [InverseProperty("ModificadoPorNavigation")]
-    public virtual ICollection<Solicitud> SolicitudeModificadoPorNavigations { get; set; } = new List<Solicitud>();
-
-    [InverseProperty("CreadoPorNavigation")]
-    public virtual ICollection<SolicitudDespacho> SolicitudesDespachoCreadoPorNavigations { get; set; } = new List<SolicitudDespacho>();
-
-    [InverseProperty("ModificadoPorNavigation")]
-    public virtual ICollection<SolicitudDespacho> SolicitudesDespachoModificadoPorNavigations { get; set; } = new List<SolicitudDespacho>();
+    [ForeignKey("IdUsuario")]
+    [InverseProperty("IdUsuarios")]
+    public virtual ICollection<Almacene> IdAlmacens { get; set; } = new List<Almacene>();
 
     [ForeignKey("IdUsuario")]
     [InverseProperty("IdUsuarios")]
-    public virtual ICollection<CentroCostos> IdCentroCostos { get; set; } = new List<CentroCostos>();
+    public virtual ICollection<CentrosCosto> IdCentroCostos { get; set; } = new List<CentrosCosto>();
 
     [ForeignKey("IdUsuario")]
     [InverseProperty("IdUsuarios")]
-    public virtual ICollection<Rol_> IdRols { get; set; } = new List<Rol_>();
+    public virtual ICollection<Role> IdRols { get; set; } = new List<Role>();
 }

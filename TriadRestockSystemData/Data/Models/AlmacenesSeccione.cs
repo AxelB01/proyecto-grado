@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
-public partial class AlmacenSeccion
+public partial class AlmacenesSeccione
 {
     [Key]
     public int IdAlmacenSeccion { get; set; }
@@ -37,11 +37,11 @@ public partial class AlmacenSeccion
 
     [ForeignKey("IdAlmacen")]
     [InverseProperty("AlmacenesSecciones")]
-    public virtual Almacen IdAlmacenNavigation { get; set; } = null!;
+    public virtual Almacene IdAlmacenNavigation { get; set; } = null!;
 
     [ForeignKey("IdTipoZona")]
     [InverseProperty("AlmacenesSecciones")]
-    public virtual TipoZonasAlmacenamiento IdTipoZonaNavigation { get; set; } = null!;
+    public virtual TiposZonasAlmacenamiento IdTipoZonaNavigation { get; set; } = null!;
 
     [ForeignKey("ModificadoPor")]
     [InverseProperty("AlmacenesSeccioneModificadoPorNavigations")]

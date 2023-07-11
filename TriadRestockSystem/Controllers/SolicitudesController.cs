@@ -28,7 +28,7 @@ namespace TriadRestockSystem.Controllers
             var response = _db.SolicitudesGetAll()
                 .Select(x => new
                 {
-                    Id = x.IdSolicitud,
+                    Id = x.IdSolicitudMateriales,
                     x.Numero,
                     x.IdCentroCosto,
                     x.CentroCosto,
@@ -54,25 +54,27 @@ namespace TriadRestockSystem.Controllers
             {
                 try
                 {
-                    var solicitud = _db.Solicitudes
-                        .Include(x => x.IdEstadoNavigation)
-                        .Include(x => x.SolicitudesDetalles)
+                    var solicitud = _db.SolicitudesMateriales
+                        .Include(x => x.IdDocumentoNavigation)
+                        .ThenInclude(x => x.IdEstadoNavigation)
+                        .Include(x => x.IdCentroCostosNavigation)
+                        .Include(x => x.SolicitudesMaterialesDetalles)
                         .ThenInclude(x => x.IdArticuloNavigation)
                         .ThenInclude(x => x.IdUnidadMedidaNavigation)
-                        .First(x => x.IdSolicitud == id);
+                        .First(x => x.IdSolicitudMateriales == id);
 
                     vmRequest model = new()
                     {
-                        IdSolicitud = solicitud.IdSolicitud,
-                        IdCentroCosto = solicitud.IdCentroCosto,
-                        CentroCosto = _db.CentrosCostos.First(c => c.IdCentroCosto == solicitud.IdCentroCosto).Nombre,
-                        Numero = solicitud.Numero,
-                        Fecha = solicitud.Fecha.ToString("dd/MM/yyyy"),
-                        IdEstado = solicitud.IdEstado,
-                        Estado = solicitud.IdEstadoNavigation.Estado,
-                        IdCreadoPor = solicitud.CreadoPor,
-                        CreadoPor = solicitud.CreadoPorNavigation.Login,
-                        Detalles = solicitud.SolicitudesDetalles
+                        IdSolicitud = solicitud.IdSolicitudMateriales,
+                        IdCentroCosto = solicitud.IdCentroCostos,
+                        CentroCosto = solicitud.IdCentroCostosNavigation.Nombre,
+                        Numero = solicitud.IdDocumentoNavigation.Numero,
+                        Fecha = solicitud.IdDocumentoNavigation.Fecha.ToString("dd/MM/yyyy"),
+                        IdEstado = solicitud.IdDocumentoNavigation.IdEstado,
+                        Estado = solicitud.IdDocumentoNavigation.IdEstadoNavigation.Estado,
+                        IdCreadoPor = solicitud.IdDocumentoNavigation.CreadoPor,
+                        CreadoPor = solicitud.IdDocumentoNavigation.CreadoPorNavigation.Login,
+                        Detalles = solicitud.SolicitudesMaterialesDetalles
                         .Select(x => new RequestItem
                         {
                             IdArticulo = x.IdArticulo,
@@ -120,47 +122,55 @@ namespace TriadRestockSystem.Controllers
                 using var dbTran = _db.Database.BeginTransaction();
                 try
                 {
-                    var solicitud = _db.Solicitudes
-                    .Include(x => x.SolicitudesDetalles)
-                    .FirstOrDefault(x => x.IdSolicitud == model.IdSolicitud);
+                    var solicitud = _db.SolicitudesMateriales
+                    .Include(x => x.IdDocumentoNavigation)
+                    .Include(x => x.SolicitudesMaterialesDetalles)
+                    .FirstOrDefault(x => x.IdSolicitudMateriales == model.IdSolicitud);
 
                     if (solicitud == null)
                     {
-                        solicitud = new Solicitud
+                        Documento documento = new()
                         {
-                            IdCentroCosto = model.IdCentroCosto,
-                            Numero = _db.DocumentoGetNumero(1),
+                            IdTipoDocumento = (int)IdTipoDocumento.SolicitudMateriales,
+                            Numero = _db.DocumentoGetNumero((int)IdTipoDocumento.SolicitudMateriales),
                             Fecha = DateTime.Today,
-                            IdEstado = (int)IdEstadoSolicitud.Borrador,
+                            IdEstado = (int)IdEstadoDocumento.Borrador,
                             CreadoPor = user.IdUsuario,
                             FechaCreacion = DateTime.Now
                         };
-                        _db.Solicitudes.Add(solicitud);
+
+                        solicitud = new SolicitudesMateriale
+                        {
+                            IdCentroCostos = model.IdCentroCosto
+                        };
+
+                        documento.SolicitudesMateriales.Add(solicitud);
+                        _db.Documentos.Add(documento);
                     }
                     else
                     {
-                        solicitud.ModificadoPor = user.IdUsuario;
-                        solicitud.FechaModificacion = DateTime.Now;
+                        solicitud.IdDocumentoNavigation.ModificadoPor = user.IdUsuario;
+                        solicitud.IdDocumentoNavigation.FechaModificacion = DateTime.Now;
                     }
 
-                    _db.SolicitudesDetalles.RemoveRange(solicitud.SolicitudesDetalles);
-                    solicitud.SolicitudesDetalles.Clear();
+                    _db.SolicitudesMaterialesDetalles.RemoveRange(solicitud.SolicitudesMaterialesDetalles);
+                    solicitud.SolicitudesMaterialesDetalles.Clear();
 
                     foreach (var item in model.Detalles)
                     {
-                        var detalle = new SolicitudDetalle
+                        var detalle = new SolicitudesMaterialesDetalle
                         {
                             IdArticulo = item.IdArticulo,
                             Cantidad = item.Cantidad
                         };
 
-                        solicitud.SolicitudesDetalles.Add(detalle);
+                        solicitud.SolicitudesMaterialesDetalles.Add(detalle);
                     }
 
                     _db.SaveChanges();
                     dbTran.Commit();
 
-                    return Ok(solicitud.IdSolicitud);
+                    return Ok(solicitud.IdSolicitudMateriales);
                 }
                 catch (Exception e)
                 {
@@ -171,5 +181,6 @@ namespace TriadRestockSystem.Controllers
 
             return Unauthorized();
         }
+
     }
 }

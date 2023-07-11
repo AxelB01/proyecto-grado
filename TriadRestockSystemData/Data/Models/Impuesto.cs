@@ -20,7 +20,4 @@ public partial class Impuesto
 
     [InverseProperty("IdImpuestoNavigation")]
     public virtual ICollection<Inventario> Inventarios { get; set; } = new List<Inventario>();
-
-    [InverseProperty("IdImpuestoNavigation")]
-    public virtual ICollection<OrdenCompraDetalle> OrdenesCompraDetalles { get; set; } = new List<OrdenCompraDetalle>();
 }

@@ -42,7 +42,7 @@ public partial class AlmacenesSeccionesEstanteria
 
     [ForeignKey("IdAlmacenSeccion")]
     [InverseProperty("AlmacenesSeccionesEstanteria")]
-    public virtual AlmacenSeccion IdAlmacenSeccionNavigation { get; set; } = null!;
+    public virtual AlmacenesSeccione IdAlmacenSeccionNavigation { get; set; } = null!;
 
     [ForeignKey("IdArticulo")]
     [InverseProperty("AlmacenesSeccionesEstanteria")]

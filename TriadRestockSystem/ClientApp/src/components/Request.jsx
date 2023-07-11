@@ -115,17 +115,17 @@ const Request = () => {
 				}
 			} catch (error) {
 				console.log(error)
-			} finally {
-				breadcrumbItems.push({
-					title: (
-						<a>
-							<span className='breadcrumb-item'>{breadcrumbLastItemText}</span>
-						</a>
-					)
-				})
-				handleBreadcrumb(breadcrumbItems)
 			}
 		}
+
+		breadcrumbItems.push({
+			title: (
+				<a>
+					<span className='breadcrumb-item'>{breadcrumbLastItemText}</span>
+				</a>
+			)
+		})
+		handleBreadcrumb(breadcrumbItems)
 	}
 
 	const saveRequest = async model => {
@@ -415,7 +415,11 @@ const Request = () => {
 												{
 													validator: async (_, articulos) => {
 														if (!articulos || articulos.length === 0) {
-															return Promise.reject(new Error('Prueba'))
+															return Promise.reject(
+																new Error(
+																	'Debe agregar por lo menos un artículo'
+																)
+															)
 														}
 													}
 												}

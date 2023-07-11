@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
-public partial class Rol_
+public partial class Role
 {
     [Key]
     public int IdRol { get; set; }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TriadRestockSystemData.Data.Models;
 
 namespace TriadRestockSystemData.Data;
@@ -16,9 +14,9 @@ public partial class InventarioDBContext : DbContext
     {
     }
 
-    public virtual DbSet<Almacen> Almacenes { get; set; }
+    public virtual DbSet<Almacene> Almacenes { get; set; }
 
-    public virtual DbSet<AlmacenSeccion> AlmacenesSecciones { get; set; }
+    public virtual DbSet<AlmacenesSeccione> AlmacenesSecciones { get; set; }
 
     public virtual DbSet<AlmacenesSeccionesEstanteria> AlmacenesSeccionesEstanterias { get; set; }
 
@@ -26,27 +24,25 @@ public partial class InventarioDBContext : DbContext
 
     public virtual DbSet<Articulo> Articulos { get; set; }
 
-    public virtual DbSet<CentroCostos> CentrosCostos { get; set; }
+    public virtual DbSet<Catalogo> Catalogos { get; set; }
 
-    public virtual DbSet<CentroCostosCatalogo> CentrosCostosCatalogos { get; set; }
+    public virtual DbSet<CentrosCosto> CentrosCostos { get; set; }
 
-    public virtual DbSet<CentroCostosCatalogoArticulo> CentrosCostosCatalogosArticulos { get; set; }
+    public virtual DbSet<Documento> Documentos { get; set; }
 
-    public virtual DbSet<EstadoArticulo> EstadosArticulos { get; set; }
+    public virtual DbSet<EstadosArticulo> EstadosArticulos { get; set; }
 
-    public virtual DbSet<EstadoPago> EstadosPagos { get; set; }
+    public virtual DbSet<EstadosDocumento> EstadosDocumentos { get; set; }
 
-    public virtual DbSet<EstadoPresupuesto> EstadosPresupuestos { get; set; }
+    public virtual DbSet<EstadosPago> EstadosPagos { get; set; }
 
-    public virtual DbSet<EstadoProveedor> EstadosProveedores { get; set; }
+    public virtual DbSet<EstadosPresupuesto> EstadosPresupuestos { get; set; }
 
-    public virtual DbSet<EstadoRequisicionOrdenesCompra> EstadosRequisicionesOrdenesCompras { get; set; }
+    public virtual DbSet<EstadosProveedore> EstadosProveedores { get; set; }
 
-    public virtual DbSet<EstadoSolicitud> EstadosSolicitudes { get; set; }
+    public virtual DbSet<EstadosUsuario> EstadosUsuarios { get; set; }
 
-    public virtual DbSet<EstadoUsuario> EstadosUsuarios { get; set; }
-
-    public virtual DbSet<FamiliaArticulo> FamiliasArticulos { get; set; }
+    public virtual DbSet<FamiliasArticulo> FamiliasArticulos { get; set; }
 
     public virtual DbSet<Impuesto> Impuestos { get; set; }
 
@@ -54,58 +50,79 @@ public partial class InventarioDBContext : DbContext
 
     public virtual DbSet<Marca> Marcas { get; set; }
 
-    public virtual DbSet<OrdenCompra> OrdenesCompras { get; set; }
+    public virtual DbSet<OrdenesCompra> OrdenesCompras { get; set; }
 
-    public virtual DbSet<OrdenCompraDetalle> OrdenesCompraDetalles { get; set; }
+    public virtual DbSet<OrdenesCompraDetalle> OrdenesCompraDetalles { get; set; }
 
-    public virtual DbSet<Pais_> Paises { get; set; }
+    public virtual DbSet<Paise> Paises { get; set; }
 
     public virtual DbSet<Presupuesto> Presupuestos { get; set; }
 
-    public virtual DbSet<Proveedor> Proveedores { get; set; }
+    public virtual DbSet<Proveedore> Proveedores { get; set; }
 
     public virtual DbSet<RegistroPago> RegistroPagos { get; set; }
 
-    public virtual DbSet<RegistroPagoDetalle> RegistroPagosDetalles { get; set; }
+    public virtual DbSet<RegistroPagosDetalle> RegistroPagosDetalles { get; set; }
 
-    public virtual DbSet<Requisicion> Requisiciones { get; set; }
+    public virtual DbSet<Requisicione> Requisiciones { get; set; }
 
-    public virtual DbSet<RequisicionDetalle> RequisicionesDetalles { get; set; }
+    public virtual DbSet<RequisicionesDetalle> RequisicionesDetalles { get; set; }
 
-    public virtual DbSet<Rol_> Roles { get; set; }
+    public virtual DbSet<Role> Roles { get; set; }
 
-    public virtual DbSet<Solicitud> Solicitudes { get; set; }
+    public virtual DbSet<SolicitudesDespacho> SolicitudesDespachos { get; set; }
 
-    public virtual DbSet<SolicitudDespacho> SolicitudesDespachos { get; set; }
+    public virtual DbSet<SolicitudesDespachosDetalle> SolicitudesDespachosDetalles { get; set; }
 
-    public virtual DbSet<SolicitudDespachoDetalle> SolicitudesDespachosDetalles { get; set; }
+    public virtual DbSet<SolicitudesMateriale> SolicitudesMateriales { get; set; }
 
-    public virtual DbSet<SolicitudDetalle> SolicitudesDetalles { get; set; }
+    public virtual DbSet<SolicitudesMaterialesDetalle> SolicitudesMaterialesDetalles { get; set; }
 
-    public virtual DbSet<TipoArticulo> TiposArticulos { get; set; }
+    public virtual DbSet<TiposArticulo> TiposArticulos { get; set; }
 
-    public virtual DbSet<TipoProveedor_> TiposProveedores { get; set; }
+    public virtual DbSet<TiposDocumento> TiposDocumentos { get; set; }
 
-    public virtual DbSet<TipoZonasAlmacenamiento> TiposZonasAlmacenamientos { get; set; }
+    public virtual DbSet<TiposProveedore> TiposProveedores { get; set; }
 
-    public virtual DbSet<UnidadMedida_> UnidadesMedidas { get; set; }
+    public virtual DbSet<TiposZonasAlmacenamiento> TiposZonasAlmacenamientos { get; set; }
+
+    public virtual DbSet<UnidadesMedida> UnidadesMedidas { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Almacen>(entity =>
+        modelBuilder.Entity<Almacene>(entity =>
         {
             entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.AlmaceneCreadoPorNavigations)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Almacenes_Usuarios");
 
             entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.AlmaceneModificadoPorNavigations).HasConstraintName("FK_Almacenes_Usuarios1");
+
+            entity.HasMany(d => d.IdCentroCostos).WithMany(p => p.IdAlmacens)
+                .UsingEntity<Dictionary<string, object>>(
+                    "AlmacenesCentrosCosto",
+                    r => r.HasOne<CentrosCosto>().WithMany()
+                        .HasForeignKey("IdCentroCosto")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_AlmacenesCentrosCostos_CentrosCostos"),
+                    l => l.HasOne<Almacene>().WithMany()
+                        .HasForeignKey("IdAlmacen")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_AlmacenesCentrosCostos_Almacenes"),
+                    j =>
+                    {
+                        j.HasKey("IdAlmacen", "IdCentroCosto");
+                        j.ToTable("AlmacenesCentrosCostos");
+                    });
         });
 
-        modelBuilder.Entity<AlmacenSeccion>(entity =>
+        modelBuilder.Entity<AlmacenesSeccione>(entity =>
         {
             entity.Property(e => e.Seccion).IsFixedLength();
 
@@ -169,84 +186,88 @@ public partial class InventarioDBContext : DbContext
             entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.ArticuloModificadoPorNavigations).HasConstraintName("FK_Articulos_Usuarios1");
         });
 
-        modelBuilder.Entity<CentroCostos>(entity =>
+        modelBuilder.Entity<Catalogo>(entity =>
+        {
+            entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.CatalogoCreadoPorNavigations)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Catalogos_Usuarios");
+
+            entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.CatalogoModificadoPorNavigations).HasConstraintName("FK_Catalogos_Usuarios1");
+
+            entity.HasMany(d => d.IdArticulos).WithMany(p => p.IdCatalogos)
+                .UsingEntity<Dictionary<string, object>>(
+                    "CatalogosArticulo",
+                    r => r.HasOne<Articulo>().WithMany()
+                        .HasForeignKey("IdArticulo")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_CatalogosArticulos_Articulos"),
+                    l => l.HasOne<Catalogo>().WithMany()
+                        .HasForeignKey("IdCatalogo")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_CatalogosArticulos_Catalogos"),
+                    j =>
+                    {
+                        j.HasKey("IdCatalogo", "IdArticulo");
+                        j.ToTable("CatalogosArticulos");
+                    });
+        });
+
+        modelBuilder.Entity<CentrosCosto>(entity =>
         {
             entity.HasKey(e => e.IdCentroCosto).HasName("PK_Departamentos");
         });
 
-        modelBuilder.Entity<CentroCostosCatalogo>(entity =>
+        modelBuilder.Entity<Documento>(entity =>
         {
-            entity.HasKey(e => e.IdCentroCostoCatalogo).HasName("PK_InventariosDepartamentos");
-
-            entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.CentrosCostosCatalogoCreadoPorNavigations)
+            entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.DocumentoCreadoPorNavigations)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Inventarios_Usuarios");
+                .HasConstraintName("FK_Documentos_Usuarios");
 
-            entity.HasOne(d => d.IdCentroCostoNavigation).WithMany(p => p.CentrosCostosCatalogos)
+            entity.HasOne(d => d.IdEstadoNavigation).WithMany(p => p.Documentos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_CentrosCostosInventarios_CentrosCostos");
+                .HasConstraintName("FK_Documentos_EstadosDocumentos");
 
-            entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.CentrosCostosCatalogoModificadoPorNavigations).HasConstraintName("FK_Inventarios_Usuarios1");
+            entity.HasOne(d => d.IdTipoDocumentoNavigation).WithMany(p => p.Documentos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Documentos_TiposDocumentos");
+
+            entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.DocumentoModificadoPorNavigations).HasConstraintName("FK_Documentos_Usuarios1");
         });
 
-        modelBuilder.Entity<CentroCostosCatalogoArticulo>(entity =>
-        {
-            entity.HasKey(e => new { e.IdCentroCostoCatalogo, e.IdArticulo }).HasName("PK_InventariosArticulos");
-
-            entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.CentrosCostosCatalogosArticuloCreadoPorNavigations)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_CentrosCostosInventariosArticulos_Usuarios");
-
-            entity.HasOne(d => d.IdArticuloNavigation).WithMany(p => p.CentrosCostosCatalogosArticulos)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_CentrosCostosInventariosArticulos_Articulos");
-
-            entity.HasOne(d => d.IdCentroCostoCatalogoNavigation).WithMany(p => p.CentrosCostosCatalogosArticulos)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_CentrosCostosInventariosArticulos_CentrosCostosInventarios");
-
-            entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.CentrosCostosCatalogosArticuloModificadoPorNavigations).HasConstraintName("FK_CentrosCostosInventariosArticulos_Usuarios1");
-        });
-
-        modelBuilder.Entity<EstadoArticulo>(entity =>
+        modelBuilder.Entity<EstadosArticulo>(entity =>
         {
             entity.Property(e => e.IdEstado).ValueGeneratedNever();
             entity.Property(e => e.Estado).IsFixedLength();
         });
 
-        modelBuilder.Entity<EstadoPago>(entity =>
+        modelBuilder.Entity<EstadosDocumento>(entity =>
+        {
+            entity.Property(e => e.IdEstado).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<EstadosPago>(entity =>
         {
             entity.HasKey(e => e.IdEstado).HasName("PK_EstadosMovimientos");
 
             entity.Property(e => e.IdEstado).ValueGeneratedNever();
         });
 
-        modelBuilder.Entity<EstadoPresupuesto>(entity =>
+        modelBuilder.Entity<EstadosPresupuesto>(entity =>
         {
             entity.Property(e => e.IdEstado).ValueGeneratedNever();
         });
 
-        modelBuilder.Entity<EstadoProveedor>(entity =>
+        modelBuilder.Entity<EstadosProveedore>(entity =>
         {
             entity.Property(e => e.IdEstado).ValueGeneratedNever();
         });
 
-        modelBuilder.Entity<EstadoRequisicionOrdenesCompra>(entity =>
+        modelBuilder.Entity<EstadosUsuario>(entity =>
         {
             entity.Property(e => e.IdEstado).ValueGeneratedNever();
         });
 
-        modelBuilder.Entity<EstadoSolicitud>(entity =>
-        {
-            entity.Property(e => e.IdEstado).ValueGeneratedNever();
-        });
-
-        modelBuilder.Entity<EstadoUsuario>(entity =>
-        {
-            entity.Property(e => e.IdEstado).ValueGeneratedNever();
-        });
-
-        modelBuilder.Entity<FamiliaArticulo>(entity =>
+        modelBuilder.Entity<FamiliasArticulo>(entity =>
         {
             entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.FamiliasArticuloCreadoPorNavigations)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -284,9 +305,9 @@ public partial class InventarioDBContext : DbContext
 
             entity.HasOne(d => d.IdMarcaNavigation).WithMany(p => p.Inventarios).HasConstraintName("FK_ArticulosExistencias_Marcas");
 
-            entity.HasOne(d => d.IdProveedorNavigation).WithMany(p => p.Inventarios)
+            entity.HasOne(d => d.IdOrdenCompraNavigation).WithMany(p => p.Inventarios)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Inventarios_Proveedores");
+                .HasConstraintName("FK_Inventarios_OrdenesCompra");
 
             entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.InventarioModificadoPorNavigations).HasConstraintName("FK_ArticulosExistencias_Usuarios1");
         });
@@ -302,34 +323,15 @@ public partial class InventarioDBContext : DbContext
             entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.MarcaModificadoPorNavigations).HasConstraintName("FK_MarcasArticulos_Usuarios1");
         });
 
-        modelBuilder.Entity<OrdenCompra>(entity =>
+        modelBuilder.Entity<OrdenesCompra>(entity =>
         {
-            entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.OrdenesCompraCreadoPorNavigations)
+            entity.HasOne(d => d.IdDocumentoNavigation).WithMany(p => p.OrdenesCompras)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_OrdenesCompra_Usuarios");
-
-            entity.HasOne(d => d.IdEstadoNavigation).WithMany(p => p.OrdenesCompras)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_OrdenesCompra_EstadosRequisicionesOrdenesCompra");
+                .HasConstraintName("FK_OrdenesCompra_Documentos");
 
             entity.HasOne(d => d.IdProveedorNavigation).WithMany(p => p.OrdenesCompras)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_OrdenesCompra_Proveedores");
-
-            entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.OrdenesCompraModificadoPorNavigations).HasConstraintName("FK_OrdenesCompra_Usuarios1");
-        });
-
-        modelBuilder.Entity<OrdenCompraDetalle>(entity =>
-        {
-            entity.HasOne(d => d.IdArticuloNavigation).WithMany(p => p.OrdenesCompraDetalles)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_OrdenesCompraDetalles_Articulos");
-
-            entity.HasOne(d => d.IdImpuestoNavigation).WithMany(p => p.OrdenesCompraDetalles).HasConstraintName("FK_OrdenesCompraDetalles_Impuestos");
-
-            entity.HasOne(d => d.IdOrdenCompraNavigation).WithMany(p => p.OrdenesCompraDetalles)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_OrdenesCompraDetalles_OrdenesCompra");
         });
 
         modelBuilder.Entity<Presupuesto>(entity =>
@@ -346,7 +348,7 @@ public partial class InventarioDBContext : DbContext
                 .HasConstraintName("FK_Presupuestos_EstadosPresupuestos");
         });
 
-        modelBuilder.Entity<Proveedor>(entity =>
+        modelBuilder.Entity<Proveedore>(entity =>
         {
             entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.ProveedoreCreadoPorNavigations)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -384,41 +386,31 @@ public partial class InventarioDBContext : DbContext
             entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.RegistroPagoModificadoPorNavigations).HasConstraintName("FK_RegistroPagos_Usuarios1");
         });
 
-        modelBuilder.Entity<RegistroPagoDetalle>(entity =>
+        modelBuilder.Entity<RegistroPagosDetalle>(entity =>
         {
             entity.HasOne(d => d.IdEstadoNavigation).WithMany()
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_RegistroPagosDetalles_EstadosPagos");
-
-            entity.HasOne(d => d.IdOrdenCompraNavigation).WithMany()
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_RegistroPagosDetalles_OrdenesCompra");
 
             entity.HasOne(d => d.NumeroNavigation).WithMany()
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_RegistroPagosDetalles_RegistroPagos");
         });
 
-        modelBuilder.Entity<Requisicion>(entity =>
+        modelBuilder.Entity<Requisicione>(entity =>
         {
-            entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.RequisicioneCreadoPorNavigations)
+            entity.HasOne(d => d.IdDocumentoNavigation).WithMany(p => p.Requisiciones)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Requisiciones_Usuarios");
-
-            entity.HasOne(d => d.IdEstadoNavigation).WithMany(p => p.Requisiciones)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Requisiciones_EstadosRequisicionesOrdenesCompra");
-
-            entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.RequisicioneModificadoPorNavigations).HasConstraintName("FK_Requisiciones_Usuarios1");
+                .HasConstraintName("FK_Requisiciones_Documentos");
 
             entity.HasMany(d => d.IdOrdenCompras).WithMany(p => p.IdRequisicions)
                 .UsingEntity<Dictionary<string, object>>(
                     "RequisicionesOrdenesCompra",
-                    r => r.HasOne<OrdenCompra>().WithMany()
+                    r => r.HasOne<OrdenesCompra>().WithMany()
                         .HasForeignKey("IdOrdenCompra")
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK_RequisicionesOrdenesCompra_OrdenesCompra"),
-                    l => l.HasOne<Requisicion>().WithMany()
+                    l => l.HasOne<Requisicione>().WithMany()
                         .HasForeignKey("IdRequisicion")
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK_RequisicionesOrdenesCompra_Requisiciones"),
@@ -428,25 +420,25 @@ public partial class InventarioDBContext : DbContext
                         j.ToTable("RequisicionesOrdenesCompra");
                     });
 
-            entity.HasMany(d => d.IdSolicituds).WithMany(p => p.IdRequisicions)
+            entity.HasMany(d => d.IdSolicitudMateriales).WithMany(p => p.IdRequisicions)
                 .UsingEntity<Dictionary<string, object>>(
-                    "RequisicionesSolicitude",
-                    r => r.HasOne<Solicitud>().WithMany()
-                        .HasForeignKey("IdSolicitud")
+                    "RequisicionesSolicitudesMateriale",
+                    r => r.HasOne<SolicitudesMateriale>().WithMany()
+                        .HasForeignKey("IdSolicitudMateriales")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_RequisicionesSolicitudes_Solicitudes"),
-                    l => l.HasOne<Requisicion>().WithMany()
+                        .HasConstraintName("FK_RequisicionesSolicitudesMateriales_SolicitudesMateriales"),
+                    l => l.HasOne<Requisicione>().WithMany()
                         .HasForeignKey("IdRequisicion")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_RequisicionesSolicitudes_Requisiciones"),
+                        .HasConstraintName("FK_RequisicionesSolicitudesMateriales_Requisiciones"),
                     j =>
                     {
-                        j.HasKey("IdRequisicion", "IdSolicitud");
-                        j.ToTable("RequisicionesSolicitudes");
+                        j.HasKey("IdRequisicion", "IdSolicitudMateriales");
+                        j.ToTable("RequisicionesSolicitudesMateriales");
                     });
         });
 
-        modelBuilder.Entity<RequisicionDetalle>(entity =>
+        modelBuilder.Entity<RequisicionesDetalle>(entity =>
         {
             entity.HasOne(d => d.IdArticuloNavigation).WithMany(p => p.RequisicionesDetalles)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -457,38 +449,23 @@ public partial class InventarioDBContext : DbContext
                 .HasConstraintName("FK_RequisicionesDetalles_Requisiciones");
         });
 
-        modelBuilder.Entity<Rol_>(entity =>
+        modelBuilder.Entity<Role>(entity =>
         {
             entity.Property(e => e.IdRol).ValueGeneratedNever();
         });
 
-        modelBuilder.Entity<Solicitud>(entity =>
+        modelBuilder.Entity<SolicitudesDespacho>(entity =>
         {
-            entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.SolicitudeCreadoPorNavigations)
+            entity.HasOne(d => d.IdDocumentoNavigation).WithMany(p => p.SolicitudesDespachos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Solicitudes_Usuarios");
+                .HasConstraintName("FK_SolicitudesDespachos_Documentos");
 
-            entity.HasOne(d => d.IdEstadoNavigation).WithMany(p => p.Solicitudes)
+            entity.HasOne(d => d.IdSolicitudMaterialesNavigation).WithMany(p => p.SolicitudesDespachos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Solicitudes_EstadosSolicitudes");
-
-            entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.SolicitudeModificadoPorNavigations).HasConstraintName("FK_Solicitudes_Usuarios1");
+                .HasConstraintName("FK_SolicitudesDespachos_SolicitudesMateriales");
         });
 
-        modelBuilder.Entity<SolicitudDespacho>(entity =>
-        {
-            entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.SolicitudesDespachoCreadoPorNavigations)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_SolicitudesDespachos_Usuarios");
-
-            entity.HasOne(d => d.IdSolicitudNavigation).WithMany(p => p.SolicitudesDespachos)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_SolicitudesDespachos_Solicitudes");
-
-            entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.SolicitudesDespachoModificadoPorNavigations).HasConstraintName("FK_SolicitudesDespachos_Usuarios1");
-        });
-
-        modelBuilder.Entity<SolicitudDespachoDetalle>(entity =>
+        modelBuilder.Entity<SolicitudesDespachosDetalle>(entity =>
         {
             entity.HasOne(d => d.IdInventarioNavigation).WithMany(p => p.SolicitudesDespachosDetalles)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -499,28 +476,44 @@ public partial class InventarioDBContext : DbContext
                 .HasConstraintName("FK_SolicitudesDespachosDetalles_SolicitudesDespachos");
         });
 
-        modelBuilder.Entity<SolicitudDetalle>(entity =>
+        modelBuilder.Entity<SolicitudesMateriale>(entity =>
         {
-            entity.HasOne(d => d.IdArticuloNavigation).WithMany(p => p.SolicitudesDetalles)
+            entity.HasOne(d => d.IdCentroCostosNavigation).WithMany(p => p.SolicitudesMateriales)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_SolicitudesDetalles_Articulos");
+                .HasConstraintName("FK_SolicitudesMateriales_CentrosCostos");
 
-            entity.HasOne(d => d.IdSolicitudNavigation).WithMany(p => p.SolicitudesDetalles)
+            entity.HasOne(d => d.IdDocumentoNavigation).WithMany(p => p.SolicitudesMateriales)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_SolicitudesDetalles_Solicitudes");
+                .HasConstraintName("FK_SolicitudesMateriales_Documentos");
         });
 
-        modelBuilder.Entity<TipoArticulo>(entity =>
+        modelBuilder.Entity<SolicitudesMaterialesDetalle>(entity =>
+        {
+            entity.HasOne(d => d.IdArticuloNavigation).WithMany(p => p.SolicitudesMaterialesDetalles)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_SolicitudesMaterialesDetalles_Articulos");
+
+            entity.HasOne(d => d.IdSolicitudMaterialesNavigation).WithMany(p => p.SolicitudesMaterialesDetalles)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_SolicitudesMaterialesDetalles_SolicitudesMateriales");
+        });
+
+        modelBuilder.Entity<TiposArticulo>(entity =>
         {
             entity.Property(e => e.IdTipoArticulo).ValueGeneratedNever();
         });
 
-        modelBuilder.Entity<TipoProveedor_>(entity =>
+        modelBuilder.Entity<TiposDocumento>(entity =>
+        {
+            entity.Property(e => e.IdTipoDocumento).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<TiposProveedore>(entity =>
         {
             entity.Property(e => e.IdTipoProveedor).ValueGeneratedNever();
         });
 
-        modelBuilder.Entity<TipoZonasAlmacenamiento>(entity =>
+        modelBuilder.Entity<TiposZonasAlmacenamiento>(entity =>
         {
             entity.Property(e => e.IdTipoZonaAlmacenamiento).ValueGeneratedNever();
         });
@@ -535,10 +528,27 @@ public partial class InventarioDBContext : DbContext
 
             entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.InverseModificadoPorNavigation).HasConstraintName("FK_Usuarios_Usuarios1");
 
+            entity.HasMany(d => d.IdAlmacens).WithMany(p => p.IdUsuarios)
+                .UsingEntity<Dictionary<string, object>>(
+                    "UsuariosAlmacene",
+                    r => r.HasOne<Almacene>().WithMany()
+                        .HasForeignKey("IdAlmacen")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_UsuariosAlmacenes_Almacenes"),
+                    l => l.HasOne<Usuario>().WithMany()
+                        .HasForeignKey("IdUsuario")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_UsuariosAlmacenes_Usuarios"),
+                    j =>
+                    {
+                        j.HasKey("IdUsuario", "IdAlmacen");
+                        j.ToTable("UsuariosAlmacenes");
+                    });
+
             entity.HasMany(d => d.IdCentroCostos).WithMany(p => p.IdUsuarios)
                 .UsingEntity<Dictionary<string, object>>(
                     "UsuariosCentrosCosto",
-                    r => r.HasOne<CentroCostos>().WithMany()
+                    r => r.HasOne<CentrosCosto>().WithMany()
                         .HasForeignKey("IdCentroCosto")
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK_CentrosCostosEncargados_CentrosCostos"),
@@ -555,7 +565,7 @@ public partial class InventarioDBContext : DbContext
             entity.HasMany(d => d.IdRols).WithMany(p => p.IdUsuarios)
                 .UsingEntity<Dictionary<string, object>>(
                     "UsuariosRole",
-                    r => r.HasOne<Rol_>().WithMany()
+                    r => r.HasOne<Role>().WithMany()
                         .HasForeignKey("IdRol")
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK_UsuariosRoles_Roles"),
