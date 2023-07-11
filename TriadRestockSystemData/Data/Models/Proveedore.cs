@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
-public partial class Proveedor
+public partial class Proveedore
 {
     [Key]
     public int IdProveedor { get; set; }
@@ -61,23 +61,20 @@ public partial class Proveedor
 
     [ForeignKey("IdEstado")]
     [InverseProperty("Proveedores")]
-    public virtual EstadoProveedor IdEstadoNavigation { get; set; } = null!;
+    public virtual EstadosProveedore IdEstadoNavigation { get; set; } = null!;
 
     [ForeignKey("IdPais")]
     [InverseProperty("Proveedores")]
-    public virtual Pais_ IdPaisNavigation { get; set; } = null!;
+    public virtual Paise IdPaisNavigation { get; set; } = null!;
 
     [ForeignKey("IdTipoProveedor")]
     [InverseProperty("Proveedores")]
-    public virtual TipoProveedor_ IdTipoProveedorNavigation { get; set; } = null!;
-
-    [InverseProperty("IdProveedorNavigation")]
-    public virtual ICollection<Inventario> Inventarios { get; set; } = new List<Inventario>();
+    public virtual TiposProveedore IdTipoProveedorNavigation { get; set; } = null!;
 
     [ForeignKey("ModificadoPor")]
     [InverseProperty("ProveedoreModificadoPorNavigations")]
     public virtual Usuario? ModificadoPorNavigation { get; set; }
 
     [InverseProperty("IdProveedorNavigation")]
-    public virtual ICollection<OrdenCompra> OrdenesCompras { get; set; } = new List<OrdenCompra>();
+    public virtual ICollection<OrdenesCompra> OrdenesCompras { get; set; } = new List<OrdenesCompra>();
 }

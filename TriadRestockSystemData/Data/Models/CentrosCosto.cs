@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace TriadRestockSystemData.Data.Models;
 
 [Index("CodigoCentroCosto", Name = "IX_Departamentos", IsUnique = true)]
-public partial class CentroCostos
+public partial class CentrosCosto
 {
     [Key]
     public int IdCentroCosto { get; set; }
@@ -19,10 +19,14 @@ public partial class CentroCostos
     public string Nombre { get; set; } = null!;
 
     [InverseProperty("IdCentroCostoNavigation")]
-    public virtual ICollection<CentroCostosCatalogo> CentrosCostosCatalogos { get; set; } = new List<CentroCostosCatalogo>();
-
-    [InverseProperty("IdCentroCostoNavigation")]
     public virtual ICollection<Presupuesto> Presupuestos { get; set; } = new List<Presupuesto>();
+
+    [InverseProperty("IdCentroCostosNavigation")]
+    public virtual ICollection<SolicitudesMateriale> SolicitudesMateriales { get; set; } = new List<SolicitudesMateriale>();
+
+    [ForeignKey("IdCentroCosto")]
+    [InverseProperty("IdCentroCostos")]
+    public virtual ICollection<Almacene> IdAlmacens { get; set; } = new List<Almacene>();
 
     [ForeignKey("IdCentroCosto")]
     [InverseProperty("IdCentroCostos")]

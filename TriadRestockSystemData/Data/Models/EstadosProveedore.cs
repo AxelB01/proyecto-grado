@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
-public partial class EstadoPago
+public partial class EstadosProveedore
 {
     [Key]
     public int IdEstado { get; set; }
@@ -16,5 +16,5 @@ public partial class EstadoPago
     public string Estado { get; set; } = null!;
 
     [InverseProperty("IdEstadoNavigation")]
-    public virtual ICollection<RegistroPago> RegistroPagos { get; set; } = new List<RegistroPago>();
+    public virtual ICollection<Proveedore> Proveedores { get; set; } = new List<Proveedore>();
 }

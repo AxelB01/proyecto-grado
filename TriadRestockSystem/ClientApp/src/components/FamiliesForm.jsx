@@ -32,13 +32,7 @@ const FamiliesForm = ({
 
 	useEffect(() => {
 		console.log(initialValues)
-		const {
-			id,
-			familia,
-			CreadoPor,
-			FechaCreacion	
-			
-		} = initialValues
+		const { id, familia, CreadoPor, FechaCreacion } = initialValues
 		form.setFieldsValue({
 			id,
 			familia,

@@ -46,7 +46,7 @@ public partial class RegistroPago
 
     [ForeignKey("IdEstado")]
     [InverseProperty("RegistroPagos")]
-    public virtual EstadoPago IdEstadoNavigation { get; set; } = null!;
+    public virtual EstadosPago IdEstadoNavigation { get; set; } = null!;
 
     [ForeignKey("ModificadoPor")]
     [InverseProperty("RegistroPagoModificadoPorNavigations")]

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
-public partial class SolicitudDespachoDetalle
+public partial class SolicitudesDespachosDetalle
 {
     [Key]
     public int IdSolicitudDespachoDetalle { get; set; }
@@ -14,9 +14,6 @@ public partial class SolicitudDespachoDetalle
     public int IdSolicitudDespacho { get; set; }
 
     public int IdInventario { get; set; }
-
-    [Column(TypeName = "decimal(10, 2)")]
-    public decimal Cantidad { get; set; }
 
     [Column(TypeName = "decimal(18, 2)")]
     public decimal Precio { get; set; }
@@ -27,5 +24,5 @@ public partial class SolicitudDespachoDetalle
 
     [ForeignKey("IdSolicitudDespacho")]
     [InverseProperty("SolicitudesDespachosDetalles")]
-    public virtual SolicitudDespacho IdSolicitudDespachoNavigation { get; set; } = null!;
+    public virtual SolicitudesDespacho IdSolicitudDespachoNavigation { get; set; } = null!;
 }

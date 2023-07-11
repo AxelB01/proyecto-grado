@@ -43,24 +43,21 @@ public partial class Articulo
     [InverseProperty("IdArticuloNavigation")]
     public virtual ICollection<AlmacenesSeccionesEstanteria> AlmacenesSeccionesEstanteria { get; set; } = new List<AlmacenesSeccionesEstanteria>();
 
-    [InverseProperty("IdArticuloNavigation")]
-    public virtual ICollection<CentroCostosCatalogoArticulo> CentrosCostosCatalogosArticulos { get; set; } = new List<CentroCostosCatalogoArticulo>();
-
     [ForeignKey("CreadoPor")]
     [InverseProperty("ArticuloCreadoPorNavigations")]
     public virtual Usuario CreadoPorNavigation { get; set; } = null!;
 
     [ForeignKey("IdFamilia")]
     [InverseProperty("Articulos")]
-    public virtual FamiliaArticulo IdFamiliaNavigation { get; set; } = null!;
+    public virtual FamiliasArticulo IdFamiliaNavigation { get; set; } = null!;
 
     [ForeignKey("IdTipoArticulo")]
     [InverseProperty("Articulos")]
-    public virtual TipoArticulo IdTipoArticuloNavigation { get; set; } = null!;
+    public virtual TiposArticulo IdTipoArticuloNavigation { get; set; } = null!;
 
     [ForeignKey("IdUnidadMedida")]
     [InverseProperty("Articulos")]
-    public virtual UnidadMedida_ IdUnidadMedidaNavigation { get; set; } = null!;
+    public virtual UnidadesMedida IdUnidadMedidaNavigation { get; set; } = null!;
 
     [InverseProperty("IdArticuloNavigation")]
     public virtual ICollection<Inventario> Inventarios { get; set; } = new List<Inventario>();
@@ -70,11 +67,12 @@ public partial class Articulo
     public virtual Usuario? ModificadoPorNavigation { get; set; }
 
     [InverseProperty("IdArticuloNavigation")]
-    public virtual ICollection<OrdenCompraDetalle> OrdenesCompraDetalles { get; set; } = new List<OrdenCompraDetalle>();
+    public virtual ICollection<RequisicionesDetalle> RequisicionesDetalles { get; set; } = new List<RequisicionesDetalle>();
 
     [InverseProperty("IdArticuloNavigation")]
-    public virtual ICollection<RequisicionDetalle> RequisicionesDetalles { get; set; } = new List<RequisicionDetalle>();
+    public virtual ICollection<SolicitudesMaterialesDetalle> SolicitudesMaterialesDetalles { get; set; } = new List<SolicitudesMaterialesDetalle>();
 
-    [InverseProperty("IdArticuloNavigation")]
-    public virtual ICollection<SolicitudDetalle> SolicitudesDetalles { get; set; } = new List<SolicitudDetalle>();
+    [ForeignKey("IdArticulo")]
+    [InverseProperty("IdArticulos")]
+    public virtual ICollection<Catalogo> IdCatalogos { get; set; } = new List<Catalogo>();
 }
