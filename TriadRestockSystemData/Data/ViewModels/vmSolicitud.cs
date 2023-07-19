@@ -7,6 +7,7 @@
         public int IdCentroCosto { get; set; }
         public string CentroCosto { get; set; } = string.Empty;
         public string Numero { get; set; } = string.Empty;
+        public string Justificacion { get; set; } = string.Empty;
         public DateTime Fecha { get; set; }
         public IdEstadoDocumento IdEstado { get; set; }
         public string Estado { get; set; } = string.Empty;

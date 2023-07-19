@@ -1,3 +1,4 @@
+import { message } from 'antd'
 import { createContext, useState } from 'react'
 
 const LayoutContext = createContext({})
@@ -6,6 +7,12 @@ export const LayoutProvider = ({ children }) => {
 	const [active, setActive] = useState(true)
 	const [breadcrumb, setBreadcrumb] = useState()
 	const [collapsed, setCollapsed] = useState(false)
+
+	const [messageApi, contextHolder] = message.useMessage()
+
+	const openMessage = (type, content) => {
+		messageApi[type](content)
+	}
 
 	const handleLayout = newState => {
 		setActive(newState)
@@ -27,10 +34,14 @@ export const LayoutProvider = ({ children }) => {
 				breadcrumb,
 				handleBreadcrumb,
 				collapsed,
-				handleSlider
+				handleSlider,
+				openMessage
 			}}
 		>
-			{children}
+			<>
+				{contextHolder}
+				{children}
+			</>
 		</LayoutContext.Provider>
 	)
 }

@@ -66,71 +66,73 @@ const CustomLayout = ({ children }) => {
 	}
 
 	return (
-		<Layout style={{ minHeight: '100vh' }}>
-			<Sider
-				width={220}
-				collapsible
-				collapsed={collapsed}
-				onCollapse={() => handleSlider()}
-				theme='light'
-			>
-				<div className='logo-container'>
-					<div className='logo'>
-						<img src='../images/app-logo.png' />
-					</div>
-				</div>
-				<Menu
-					style={{
-						width: '100%'
-					}}
-					defaultSelectedKeys={['0']}
-					mode='inline'
-					items={MenuItems}
-					onClick={handleMenuOption}
-				></Menu>
-			</Sider>
-			<Layout>
-				<Header style={{ padding: 0, height: '3.5rem', background: '#FFF' }}>
-					{!isStringEmpty(username) && (
-						<div className='header-container'>
-							<div className='user-name'>
-								<span>{'uce\\' + username}</span>
-							</div>
-							<Dropdown menu={{ items, onClick }} trigger={['click']}>
-								<a onClick={e => e.preventDefault()}>
-									<Avatar
-										style={{
-											backgroundColor: '#1890ff',
-											verticalAlign: 'middle'
-										}}
-										size='large'
-									>
-										{username[0].toUpperCase()}
-									</Avatar>
-								</a>
-							</Dropdown>
+		<>
+			<Layout style={{ minHeight: '100vh' }}>
+				<Sider
+					width={220}
+					collapsible
+					collapsed={collapsed}
+					onCollapse={() => handleSlider()}
+					theme='light'
+				>
+					<div className='logo-container'>
+						<div className='logo'>
+							<img src='../images/app-logo.png' />
 						</div>
-					)}
-				</Header>
-				<Content style={{ margin: '0 1rem' }}>
-					<Breadcrumb style={{ margin: '1rem 0' }} items={breadcrumb} />
-
-					<div
-						style={{
-							padding: 24,
-							height: '95%',
-							width: '100%',
-							background: '#FFF'
-						}}
-					>
-						{children}
 					</div>
-				</Content>
-				<Footer style={{ height: 0 }}>
-					<CustomFooter />
-				</Footer>
+					<Menu
+						style={{
+							width: '100%'
+						}}
+						defaultSelectedKeys={['0']}
+						mode='inline'
+						items={MenuItems}
+						onClick={handleMenuOption}
+					></Menu>
+				</Sider>
+				<Layout>
+					<Header style={{ padding: 0, height: '3.5rem', background: '#FFF' }}>
+						{!isStringEmpty(username) && (
+							<div className='header-container'>
+								<div className='user-name'>
+									<span>{'uce\\' + username}</span>
+								</div>
+								<Dropdown menu={{ items, onClick }} trigger={['click']}>
+									<a onClick={e => e.preventDefault()}>
+										<Avatar
+											style={{
+												backgroundColor: '#1890ff',
+												verticalAlign: 'middle'
+											}}
+											size='large'
+										>
+											{username[0].toUpperCase()}
+										</Avatar>
+									</a>
+								</Dropdown>
+							</div>
+						)}
+					</Header>
+					<Content style={{ margin: '0 1rem' }}>
+						<Breadcrumb style={{ margin: '1rem 0' }} items={breadcrumb} />
+
+						<div
+							style={{
+								padding: 24,
+								height: '95%',
+								width: '100%',
+								background: '#FFF'
+							}}
+						>
+							{children}
+						</div>
+					</Content>
+					<Footer style={{ height: 0 }}>
+						<CustomFooter />
+					</Footer>
+				</Layout>
 			</Layout>
-		</Layout>
+		</>
 	)
 }
 

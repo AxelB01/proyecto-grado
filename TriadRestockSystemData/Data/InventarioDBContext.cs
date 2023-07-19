@@ -215,6 +215,12 @@ public partial class InventarioDBContext : DbContext
         modelBuilder.Entity<CentrosCosto>(entity =>
         {
             entity.HasKey(e => e.IdCentroCosto).HasName("PK_Departamentos");
+
+            entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.CentrosCostoCreadoPorNavigations)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CentrosCostos_Usuarios");
+
+            entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.CentrosCostoModificadoPorNavigations).HasConstraintName("FK_CentrosCostos_Usuarios1");
         });
 
         modelBuilder.Entity<Documento>(entity =>

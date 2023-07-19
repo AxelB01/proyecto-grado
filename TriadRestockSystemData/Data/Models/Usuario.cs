@@ -76,6 +76,12 @@ public partial class Usuario
     [InverseProperty("ModificadoPorNavigation")]
     public virtual ICollection<Catalogo> CatalogoModificadoPorNavigations { get; set; } = new List<Catalogo>();
 
+    [InverseProperty("CreadoPorNavigation")]
+    public virtual ICollection<CentrosCosto> CentrosCostoCreadoPorNavigations { get; set; } = new List<CentrosCosto>();
+
+    [InverseProperty("ModificadoPorNavigation")]
+    public virtual ICollection<CentrosCosto> CentrosCostoModificadoPorNavigations { get; set; } = new List<CentrosCosto>();
+
     [ForeignKey("CreadoPor")]
     [InverseProperty("InverseCreadoPorNavigation")]
     public virtual Usuario? CreadoPorNavigation { get; set; }

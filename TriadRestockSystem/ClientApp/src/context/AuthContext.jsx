@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
 				destroyStoredAuth
 			}}
 		>
-			{children}
+			<>{children}</>
 		</AuthContext.Provider>
 	)
 }

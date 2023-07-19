@@ -62,6 +62,8 @@ export const createRequestModel = () => {
 		CreadoPor: '',
 		IdRevisadoPor: 0,
 		RevisadoPor: '',
+		Justificacion: '',
+		Notas: '',
 		Detalles: []
 	}
 }
