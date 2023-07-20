@@ -9,7 +9,7 @@ const target = 'https://localhost:7204';
 const context =  [
     "/api/auth",
     "/api/usuarios",
-    "/api/solicitudes"
+    "/api/solicitudes",
     "/api/familias",
     "/api/solicitudes",
     "/api/articulos"
