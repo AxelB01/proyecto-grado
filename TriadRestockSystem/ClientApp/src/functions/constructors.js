@@ -38,12 +38,12 @@ export const createFamiliesModel = () => {
 export const createItemsModel = () => {
 	return {
 		IdArticulo: 0,
-		idUnidadMedida: 0,
-		codigo: 0,
-		nombre: '',
-		descripcion: '',
-		familia: 0,
-		tipoArticulo: 0,
+		IdUnidadMedida: 0,
+		Codigo: 0,
+		Nombre: '',
+		Descripcion: '',
+		IdFamilia: 0,
+		IdTipoArticulo: 0,
 		CreadoPor: null,
 		FechaCreacion: null
 	}

@@ -39,6 +39,16 @@ const AppRoutes = [
 	},
 	{
 		index: false,
+		path: '/families',
+		element: <Families />
+	},
+	{
+		index: false,
+		path: '/items',
+		element: <Items />
+	},
+	{
+		index: false,
 		path: '/items',
 		element: <Items />
 	}

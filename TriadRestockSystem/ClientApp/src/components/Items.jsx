@@ -1,23 +1,34 @@
 import {
-
-	SearchOutlined
+	SearchOutlined,
+	EditOutlined,
+	UserAddOutlined
 } from '@ant-design/icons'
 import { Button, Input, Space, Table } from 'antd'
 import { useEffect,useState,useRef } from 'react'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import Highlighter from 'react-highlight-words'
-// import ItemsForm from './ItemsFrom'
+import ItemsForm from './ItemsFrom'
 
-const ITEMS_DATA_URL = '/api/articulos/getItemsData'
-// const GET_ITEMS_DATA = '/api/articulos/getItemData'
+const ITEMS_DATA_URL = '/api/articulos/getArticulos'
+const GET_ITEMS_DATA = '/api/articulos/getArticulo'
+const GET_UNIDAD_MEDIDA = '/api/articulos/getUnidadMedida'
+const GET_FAMILIA = '/api/articulos/getFamilia'
+const GET_TIPO_ARTICULO = '/api/articulos/getTipoArticulo'
 
 const Items = () => {
 
-    //const [title, setTitle] = useState('')
+    const [title, setTitle] = useState('')
     const axiosPrivate = useAxiosPrivate()
     const [data, setData] = useState([])
-    //const [open, setOpen] = useState(false)
-	//const [loading, setLoading] = useState(false)
+    const [open, setOpen] = useState(false)
+	const [loading, setLoading] = useState(false)
+	const [familiaItems, setFamiliaItems] = useState([])
+	const [tipoArticuloItems, setTipoArticuloItems] = useState([])
+	const [unidadMedidaItems, setUnidadMedidaItems] = useState([])
+	
+	useEffect(() => {
+		console.log(unidadMedidaItems)
+	},[unidadMedidaItems] )
 
 	const [searchText, setSearchText] = useState('')
 	const [searchColumn, setSearchedColumn] = useState('')
@@ -132,19 +143,22 @@ const Items = () => {
 			)
 	})
 	
-    // const [ItemsFormInitialValues, setItemsFormInitialValues] = useState({
-	// 	id: 0,
-    //     idUnidadMedida: 0,
-    //     codigo: 0,
-    //     nombre: '',
-    //     descripcion: '',
-    //     familia: 0,
-    //     tipoArticulo: 0,
-	// })
+    const [ItemsFormInitialValues, setItemsFormInitialValues] = useState({
+		id: 0,
+        idUnidadMedida: '',
+        codigo: '',
+        nombre: '',
+        descripcion: '',
+        familia: '',
+        tipoArticulo: '',
+	})
 
     useEffect(() => {
 		document.title = 'Articulos'
         getItemsData()
+		getFamilia()
+		getTipoArticulo()
+		getUnidadMedida()
 			
 	}, [])
 	
@@ -153,48 +167,48 @@ const Items = () => {
             title: 'Código',
 			dataIndex: 'id',
 			key: 'id',
-			//...getColumnSearchProps('id')
+			...getColumnSearchProps('id')
         },
         {
             title: 'Nombre',
             dataIndex: 'nombre',
             key: 'nombre',
-			//...getColumnSearchProps('nombre')
+			...getColumnSearchProps('nombre')
 
         },
         {
             title: 'Codigo de articulo',
             dataIndex: 'codigo',
             key: 'codigo',
-			//...getColumnSearchProps('codigo')
+			...getColumnSearchProps('codigo')
 
         },
         {
             title: 'Unidad de Medida',
             dataIndex: 'idUnidadMedida',
             key: 'idUnidadMedida',
-			//...getColumnSearchProps('idUnidadMedida')
+			...getColumnSearchProps('idUnidadMedida')
 
         },
         {
             title: 'Descripcion',
             dataIndex: 'descripcion',
             key: 'descripcion',
-			//...getColumnSearchProps('descripcion')
+			...getColumnSearchProps('descripcion')
 
         },
         {
             title: 'Familia',
             dataIndex: 'familia',
             key: 'familia',
-			//...getColumnSearchProps('familia')
+			...getColumnSearchProps('familia')
 
         },
         {
             title: 'Tipo',
             dataIndex: 'tipo',
             key: 'tipo',
-			//...getColumnSearchProps('tipo')
+			...getColumnSearchProps('tipo')
 
         },
         {
@@ -206,23 +220,23 @@ const Items = () => {
 			title: 'Creado por',
 			dataIndex: 'creadoPor',
 			key: 'creadoPor',
-			//...getColumnSearchProps('creadoPor')
+			...getColumnSearchProps('creadoPor')
 
+		},
+		{
+			title: 'Acciones',
+			key: 'accion',
+			render: (_, record) => (
+				<Space size='middle' align='center'>
+					<Button
+						icon={<EditOutlined />}
+						onClick={() => handleEditItem(record)}
+					>
+						Editar
+					</Button>
+				</Space>
+			)
 		}
-		// {
-		// 	title: 'Acciones',
-		// 	key: 'accion',
-		// 	render: (_, record) => (
-		// 		<Space size='middle' align='center'>
-		// 			<Button
-		// 				icon={<EditOutlined />}
-		// 				onClick={() => handleEditItem(record)}
-		// 			>
-		// 				Editar
-		// 			</Button>
-		// 		</Space>
-		// 	)
-		// }
     ]
 
     const getItemsData = async () => {
@@ -235,56 +249,100 @@ const Items = () => {
 		}
 	}
 
-    // const showItemsForm = () => {
-	// 	setOpen(true)
-	// }
+	const getFamilia = async () => {
+		try {
+			const response = await axiosPrivate.get(GET_FAMILIA)
+			const data = response?.data.items
+			setFamiliaItems(data)
+		} catch (error) {
+			console.log(error)
+		}
+	}
 
-	// const closeItemsForm = () => {
-	// 	setOpen(false)
-	// 	setLoading(false)
-	// }
 	
-    // const handleResetItemsForm = () => {
-	// 	setItemsFormInitialValues({
-	// 		id: 0,
-    //         idUnidadMedida: 0,
-    //         codigo: 0,
-    //         nombre: '',
-    //         descripcion: '',
-    //         familia: 0,
-    //         tipoArticulo: 0,
-	// 	})
-	// 	setTitle('Registrar Articulo')
-	// 	showItemsForm()
-	// }
-	// const handleEditItem = async record => {
-	// 	const { key } = record
-	// 	try {
-	// 		const editItemUrl = `${GET_ITEMS_DATA}?id=${key}`
-	// 		const respose = await axiosPrivate.get(editItemUrl)
-	// 		const {
-	// 			idFamilia,
-	// 			familia
-	// 		} = respose?.data
-	// 		const model = {
-	// 			id: idFamilia,
-	// 			familia
-	// 		}
+	const getUnidadMedida = async () => {
+		try {
+			const response = await axiosPrivate.get(GET_UNIDAD_MEDIDA)
+			const data = response?.data.items
+			setUnidadMedidaItems(data)
+		} catch (error) {
+			console.log(error)
+		}
+	}
 
-	// 		setItemsFormInitialValues({ ...model })
-	// 		setTitle('Editar articulo')
-	// 		showItemsForm()
-	// 	} catch (error) {
-	// 		console.log(error)
-	// 	}
-	// }
+	const getTipoArticulo = async () => {
+		try {
+			const response = await axiosPrivate.get(GET_TIPO_ARTICULO)
+			const data = response?.data.items
+			setTipoArticuloItems(data)
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+    const showItemsForm = () => {
+		setOpen(true)
+	}
+
+	const closeItemsForm = () => {
+		setOpen(false)
+		setLoading(false)
+	}
+	
+    const handleResetItemsForm = () => {
+		setItemsFormInitialValues({
+			id: 0,
+            idUnidadMedida:'',
+            codigo: '',
+            nombre: '',
+            descripcion: '',
+            familia: '',
+            tipoArticulo: '',
+		})
+		setTitle('Registrar Articulo')
+		showItemsForm()
+	}
+	const handleEditItem = async record => {
+		const { key } = record
+		try {
+			const editItemUrl = `${GET_ITEMS_DATA}?id=${key}`
+			const respose = await axiosPrivate.get(editItemUrl)
+			const {
+				idArticulo,
+				nombre,
+				unidadMedida,
+				codigo,
+				descripcion,
+				familia,
+				tipoArticulo
+			} = respose?.data
+			const model = {
+				idArticulo,
+				nombre,
+				unidadMedida,
+				codigo,
+				descripcion,
+				familia,
+				tipoArticulo
+			}
+
+			setItemsFormInitialValues({ ...model })
+			setTitle('Editar articulo')
+			showItemsForm()
+		} catch (error) {
+			console.log(error)
+		}
+	}
 
         return (
             <>  
-             {/* <ItemsForm
+             <ItemsForm
                 title={title}
                 open={open}
 				onClose={closeItemsForm}
+				unidadMedidaItems={unidadMedidaItems}
+				tipoArticuloItems={tipoArticuloItems}
+				familiaItems={familiaItems}
                 getFamilyData={getItemsData}
 				initialValues={ItemsFormInitialValues}
 				loading={loading}
@@ -298,7 +356,7 @@ const Items = () => {
 					>
 						Nuevo Articulo
 					</Button>
-				</div> */}
+				</div>
 
             <div className='table-container'>
                 <Table
