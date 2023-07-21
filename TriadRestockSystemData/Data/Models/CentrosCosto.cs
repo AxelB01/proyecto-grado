@@ -18,6 +18,28 @@ public partial class CentrosCosto
     [Unicode(false)]
     public string Nombre { get; set; } = null!;
 
+    [StringLength(50)]
+    [Unicode(false)]
+    public string Cuenta { get; set; } = null!;
+
+    public int CreadoPor { get; set; }
+
+    [Column(TypeName = "datetime")]
+    public DateTime FechaCreacion { get; set; }
+
+    public int? ModificadoPor { get; set; }
+
+    [Column(TypeName = "datetime")]
+    public DateTime? FechaModificacion { get; set; }
+
+    [ForeignKey("CreadoPor")]
+    [InverseProperty("CentrosCostoCreadoPorNavigations")]
+    public virtual Usuario CreadoPorNavigation { get; set; } = null!;
+
+    [ForeignKey("ModificadoPor")]
+    [InverseProperty("CentrosCostoModificadoPorNavigations")]
+    public virtual Usuario? ModificadoPorNavigation { get; set; }
+
     [InverseProperty("IdCentroCostoNavigation")]
     public virtual ICollection<Presupuesto> Presupuestos { get; set; } = new List<Presupuesto>();
 

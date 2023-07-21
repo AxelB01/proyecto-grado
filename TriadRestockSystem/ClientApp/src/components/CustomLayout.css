@@ -43,3 +43,13 @@
 .page-name {
 	font-weight: 500;
 }
+
+.breadcrumb-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.breadcrumb-item-title {
+	margin-left: 0.25rem;
+}

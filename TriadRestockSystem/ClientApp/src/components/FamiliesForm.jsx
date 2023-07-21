@@ -6,6 +6,7 @@ import useAxiosPrivate from '../hooks/usePrivateAxios'
 
 // const { Option } = Select
 
+const INPUT_TEXT_NAME_REGEX = /^[A-Za-zñÑ\s]+$/
 const SAVE_FAMILIES_URL = '/api/familias/guardarFamilia'
 
 const FamiliesForm = ({
@@ -114,6 +115,17 @@ const FamiliesForm = ({
 									{
 										required: true,
 										message: 'Debe ingresar un nombre'
+									},
+									{
+										validator: (_, value) => {
+											if (INPUT_TEXT_NAME_REGEX.test(value)) {
+												return Promise.resolve()
+											} else {
+												return Promise.reject(
+													new Error('Debe ingresar un nombre válido')
+												)
+											}
+										}
 									}
 								]}
 								hasFeedback

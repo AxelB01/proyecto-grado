@@ -9,6 +9,8 @@
         public string Fecha { get; set; } = string.Empty;
         public int IdEstado { get; set; }
         public string Estado { get; set; } = string.Empty;
+        public string Justificacion { get; set; } = string.Empty;
+        public string? Notas { get; set; }
         public int IdCreadoPor { get; set; }
         public string CreadoPor { get; set; } = string.Empty;
         public int IdRevisadoPor { get; set; }

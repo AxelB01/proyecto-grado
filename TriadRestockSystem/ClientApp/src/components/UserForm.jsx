@@ -1,13 +1,23 @@
-import { Button, Col, Drawer, Form, Input, Row, Select, Space } from 'antd'
-import { useEffect, useState } from 'react'
+import {
+	Button,
+	Col,
+	Drawer,
+	Form,
+	Input,
+	Row,
+	Select,
+	Space,
+	Switch
+} from 'antd'
+import { useContext, useEffect, useState } from 'react'
+import LayoutContext from '../context/LayoutContext'
 import { createUserModel } from '../functions/constructors'
-import createNotification from '../functions/notification'
 import { isStringEmpty } from '../functions/validation'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 
-const { Option } = Select
-
 // const INPUT_TEXT_REGEX = /[^a-zA-ZÀ-ÿ0-9\s]/
+const INPUT_TEXT_NAME_REGEX = /^[A-Za-zñÑ\s]+$/
+const INPUT_TEXT_USERNAME_REGEX = /^[A-Za-z]+$/
 const SAVE_USER_URL = '/api/usuarios/guardarUsuario'
 
 const UserForm = ({
@@ -22,12 +32,15 @@ const UserForm = ({
 	handleLoading
 }) => {
 	const axiosPrivate = useAxiosPrivate()
+	const { openMessage } = useContext(LayoutContext)
 
 	const [form] = Form.useForm()
 	const values = Form.useWatch([], form)
 
 	const [disabled, setDisabled] = useState(true)
 	const [required, setRequired] = useState(false)
+
+	const [switchValue, setSwitchValue] = useState(true)
 
 	useEffect(() => {
 		const {
@@ -40,6 +53,9 @@ const UserForm = ({
 			roles,
 			centrosCostos
 		} = initialValues
+
+		setSwitchValue(estado === 1)
+
 		form.setFieldsValue({
 			id,
 			nombre,
@@ -47,7 +63,7 @@ const UserForm = ({
 			login,
 			contrasena,
 			confirmarContrasena: contrasena,
-			estado,
+			estado: estado === 1,
 			roles,
 			centrosCostos
 		})
@@ -67,11 +83,7 @@ const UserForm = ({
 		try {
 			const response = await axiosPrivate.post(SAVE_USER_URL, model)
 			if (response?.status === 200) {
-				createNotification(
-					'success',
-					'Guardado!',
-					'El usuario ha sido guardado correctamente'
-				)
+				openMessage('success', 'Usuario guardado correctamente')
 				onClose()
 				getUsersData()
 			}
@@ -80,26 +92,41 @@ const UserForm = ({
 		}
 	}
 
+	const handleSwitchChange = checked => {
+		setSwitchValue(checked)
+		form.setFieldsValue({
+			estado: checked
+		})
+	}
+
 	const handleSubmit = () => {
 		handleLoading(true)
 		form.submit()
 	}
 
 	const onFinish = values => {
+		console.log(values)
 		const model = createUserModel()
 		model.Id = values.id
 		model.Name = values.nombre
 		model.LastName = values.apellido
 		model.Login = values.login
 		model.Password = values.contrasena
-		model.State = Number(values.estado)
+		model.State = values.estado ? 1 : 2
 		model.Roles = values.roles
 		model.CostCenters = values.centrosCostos
+		console.log(model)
 		saveUser(model)
 	}
 
-	const onFinishFailed = () => {
+	const onFinishFailed = values => {
+		console.log(values)
 		handleLoading(false)
+	}
+
+	const handleOnClose = () => {
+		form.resetFields()
+		onClose()
 	}
 
 	return (
@@ -107,14 +134,14 @@ const UserForm = ({
 			<Drawer
 				title={title}
 				width={500}
-				onClose={onClose}
+				onClose={handleOnClose}
 				open={open}
 				bodyStyle={{
 					paddingBotton: 80
 				}}
 				extra={
 					<Space>
-						<Button onClick={onClose}>Cerrar</Button>
+						<Button onClick={handleOnClose}>Cerrar</Button>
 						<Button
 							type='primary'
 							onClick={handleSubmit}
@@ -146,6 +173,17 @@ const UserForm = ({
 									{
 										required: true,
 										message: 'Debe ingresar un nombre'
+									},
+									{
+										validator: (_, value) => {
+											if (INPUT_TEXT_NAME_REGEX.test(value)) {
+												return Promise.resolve()
+											} else {
+												return Promise.reject(
+													new Error('El nombre ingresado no es válido')
+												)
+											}
+										}
 									}
 								]}
 								hasFeedback
@@ -167,6 +205,17 @@ const UserForm = ({
 									{
 										required: true,
 										message: 'Debe ingresar un apellido'
+									},
+									{
+										validator: (_, value) => {
+											if (INPUT_TEXT_NAME_REGEX.test(value)) {
+												return Promise.resolve()
+											} else {
+												return Promise.reject(
+													new Error('El apellido ingresado no es válido')
+												)
+											}
+										}
 									}
 								]}
 								hasFeedback
@@ -188,6 +237,17 @@ const UserForm = ({
 									{
 										required: true,
 										message: 'Debe ingresar un login'
+									},
+									{
+										validator: (_, value) => {
+											if (INPUT_TEXT_USERNAME_REGEX.test(value)) {
+												return Promise.resolve()
+											} else {
+												return Promise.reject(
+													new Error('El login ingresado no es válido')
+												)
+											}
+										}
 									}
 								]}
 							>
@@ -253,21 +313,13 @@ const UserForm = ({
 					</Row>
 					<Row gutter={16}>
 						<Col span={24}>
-							<Form.Item
-								name='estado'
-								label='Estado'
-								rules={[
-									{
-										required: true,
-										message: 'Debe seleccionar un estado'
-									}
-								]}
-								hasFeedback
-							>
-								<Select placeholder='Seleccione un estado'>
-									<Option value='1'>Activo</Option>
-									<Option value='2'>Inactivo</Option>
-								</Select>
+							<Form.Item name='estado' label='Estado'>
+								<Switch
+									checkedChildren='Activo'
+									unCheckedChildren='Inactivo'
+									onChange={handleSwitchChange}
+									checked={switchValue}
+								/>
 							</Form.Item>
 						</Col>
 					</Row>
