@@ -3,8 +3,8 @@ import { Button, Checkbox, Form, Input } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 import axios from '../api/axios'
 import AuthContext from '../context/AuthContext'
+import LayoutContext from '../context/LayoutContext'
 import { createLoginModel } from '../functions/constructors'
-import createNotification from '../functions/notification'
 import { isStringEmpty } from '../functions/validation'
 import './LoginForm.css'
 
@@ -13,6 +13,7 @@ const LOGIN_URL = 'api/auth/login'
 
 const LoginForm = () => {
 	const { createAuth, destroyStoredAuth } = useContext(AuthContext)
+	const { openMessage } = useContext(LayoutContext)
 
 	const [form] = Form.useForm()
 	const values = Form.useWatch([], form)
@@ -55,17 +56,9 @@ const LoginForm = () => {
 		} catch (error) {
 			if (!error?.response) {
 				console.log('No hubo respuesta del servidor')
-				createNotification(
-					'error',
-					'Error inesperado',
-					'No hubo respuesta del servidor'
-				)
+				openMessage('error', 'No hubo respuesta del servidor')
 			} else {
-				createNotification(
-					'error',
-					'Credenciales inválidas',
-					error.response.data
-				)
+				openMessage('error', 'Credenciales inválidas')
 			}
 			setLoading(false)
 		}

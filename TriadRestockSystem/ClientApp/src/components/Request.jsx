@@ -26,7 +26,6 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { createRequestModel } from '../functions/constructors'
-import createNotification from '../functions/notification'
 import { sleep } from '../functions/sleep'
 import { isObjectNotEmpty, isStringEmpty } from '../functions/validation'
 import useCostCenters from '../hooks/useCostCenters'
@@ -52,7 +51,8 @@ const Request = () => {
 	const { state } = location
 
 	const { validLogin } = useContext(AuthContext)
-	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
+	const { handleLayout, handleBreadcrumb, openMessage } =
+		useContext(LayoutContext)
 	const navigate = useNavigate()
 
 	const [edit] = useState(state !== undefined && state !== null)
@@ -80,7 +80,8 @@ const Request = () => {
 				title: (
 					<a onClick={() => navigate('/requests')}>
 						<span className='breadcrumb-item'>
-							<SolutionOutlined /> Solicitudes
+							<SolutionOutlined />
+							<span className='breadcrumb-item-title'>Solicitudes</span>
 						</span>
 					</a>
 				)
@@ -100,6 +101,8 @@ const Request = () => {
 					model.IdCentroCosto = data.idCentroCosto
 					model.CentroCosto = data.centroCosto
 					model.Numero = data.numero
+					model.Justificacion = data.justificacion
+					model.Notas = data.notas
 					model.Fecha = data.fecha
 					model.IdEstado = data.idEstado
 					model.Estado = data.estado
@@ -133,11 +136,7 @@ const Request = () => {
 			const response = await axiosPrivate.post(SAVE_REQUEST, model)
 			const status = response?.status
 			if (status === 200) {
-				createNotification(
-					'success',
-					'Guardado!',
-					'La solicitud ha sido guardada correctamente'
-				)
+				openMessage('success', 'Solicitud guardada correctamente')
 				navigate('/request', { state: response.data })
 			}
 		} catch (error) {
@@ -161,6 +160,8 @@ const Request = () => {
 		model.IdSolicitud =
 			values.idSolicitud === undefined ? 0 : values.idSolicitud
 		model.IdCentroCosto = values.centroCostos
+		model.Justificacion = values.justificacion
+		model.Notas = isStringEmpty(values.notas) ? '' : values.notas
 		model.Detalles = values.articulos.map(articulo => {
 			return {
 				IdArticulo:
@@ -171,6 +172,7 @@ const Request = () => {
 				Cantidad: articulo.cantidad === undefined ? 1 : articulo.cantidad
 			}
 		})
+
 		saveRequest(model)
 	}
 
@@ -198,7 +200,8 @@ const Request = () => {
 
 	useEffect(() => {
 		if (isObjectNotEmpty(viewModel)) {
-			const { Detalles, IdCentroCosto, IdSolicitud } = viewModel
+			const { Detalles, IdCentroCosto, IdSolicitud, Justificacion, Notas } =
+				viewModel
 			const articulos = Detalles.map(detalle => {
 				return {
 					articulo: {
@@ -211,6 +214,8 @@ const Request = () => {
 			form.setFieldsValue({
 				centroCostos: IdCentroCosto,
 				idSolicitud: IdSolicitud,
+				justificacion: Justificacion,
+				notas: Notas,
 				articulos
 			})
 
@@ -504,6 +509,7 @@ const Request = () => {
 															}}
 															onClick={() => add()}
 															icon={<PlusOutlined />}
+															disabled={values?.centroCostos === undefined}
 														>
 															Agregar artículo
 														</Button>
@@ -520,6 +526,45 @@ const Request = () => {
 												</>
 											)}
 										</Form.List>
+									</Col>
+								</Row>
+								<Row
+									gutter={16}
+									style={{
+										marginTop: '1.5rem'
+									}}
+								>
+									<Col span={10}>
+										<Form.Item
+											// style={{
+											// 	width: '80%'
+											// }}
+											name='justificacion'
+											label='Justificación'
+											rules={[
+												{
+													required: true,
+													message:
+														'Debe dar una justificación para esta solicitud'
+												}
+											]}
+											hasFeedback
+										>
+											<Input.TextArea rows={3} showCount maxLength={200} />
+										</Form.Item>
+									</Col>
+									<Col span={10}>
+										<Form.Item
+											name='notas'
+											label='Notas'
+											rules={[
+												{
+													required: false
+												}
+											]}
+										>
+											<Input.TextArea rows={3} showCount maxLength={500} />
+										</Form.Item>
 									</Col>
 								</Row>
 							</Form>

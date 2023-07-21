@@ -47,6 +47,7 @@ const Requests = () => {
 
 			if (response?.status === 200) {
 				const data = response.data
+				console.log(data.map(e => e.key))
 				setRequests(data)
 			}
 		} catch (error) {
@@ -71,7 +72,8 @@ const Requests = () => {
 					title: (
 						<a onClick={() => navigate('/requests')}>
 							<span className='breadcrumb-item'>
-								<SolutionOutlined /> Solicitudes
+								<SolutionOutlined />
+								<span className='breadcrumb-item-title'>Solicitudes</span>
 							</span>
 						</a>
 					)
@@ -267,10 +269,10 @@ const Requests = () => {
 				<Space size='middle' align='center'>
 					<Button
 						icon={<EditOutlined />}
-						onClick={() => handleEditRequest(record.id)}
-						loading={loading[record.id]}
+						onClick={() => handleEditRequest(record.key)}
+						loading={loading[record.key]}
 					>
-						{loading[record.id] ? 'Cargando' : 'Editar'}
+						{loading[record.key] ? 'Cargando' : 'Editar'}
 					</Button>
 				</Space>
 			)
@@ -298,6 +300,20 @@ const Requests = () => {
 							showTotal: () => `${requests.length} registros en total`,
 							defaultPageSize: 10,
 							defaultCurrent: 1
+						}}
+						rowKey={record => record.key}
+						expandable={{
+							expandedRowRender: record => (
+								<p
+									style={{
+										margin: 0
+									}}
+								>
+									{record.justificacion}
+								</p>
+							),
+							expandIconColumnIndex: -1,
+							expandedRowKeys: requests.map(e => e.key)
 						}}
 						locale={{
 							emptyText: customNoDataText

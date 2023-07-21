@@ -2,7 +2,7 @@ import { Layout } from 'antd'
 import { useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
-import createNotification from '../functions/notification'
+import LayoutContext from '../context/LayoutContext'
 import CustomFooter from './CustomFooter'
 import Loader from './Loader'
 import './Login.css'
@@ -13,19 +13,16 @@ const { Content, Footer } = Layout
 const Login = () => {
 	const { validLogin, username, password, roles, token } =
 		useContext(AuthContext)
+	const { openMessage } = useContext(LayoutContext)
 	const navigate = useNavigate()
 
 	useEffect(() => {
 		document.title = 'Login'
 		if (validLogin) {
-			createNotification(
-				'success',
-				'Credenciales validades',
-				`Te damos la bienvenida ${username}`
-			)
+			openMessage('info', `Hola, ${username}!`)
 			navigate('/')
 		}
-	}, [validLogin, username, navigate])
+	}, [validLogin, username, openMessage, navigate])
 
 	return username && password && token && roles ? (
 		<Loader />

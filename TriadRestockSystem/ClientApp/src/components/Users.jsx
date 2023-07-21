@@ -54,7 +54,7 @@ const Users = () => {
 			login: '',
 			contrasena: '',
 			confirmarContrasena: '',
-			estado: '1',
+			estado: 1,
 			roles: [],
 			centrosCostos: []
 		})
@@ -88,7 +88,7 @@ const Users = () => {
 				login,
 				contrasena: password,
 				confirmarContrasena: password,
-				estado: state.toString(),
+				estado: state,
 				roles,
 				centrosCostos: costCenters
 			}
@@ -353,7 +353,8 @@ const Users = () => {
 					title: (
 						<a onClick={() => navigate('/users')}>
 							<span className='breadcrumb-item'>
-								<UserOutlined /> Usuarios
+								<UserOutlined />
+								<span className='breadcrumb-item-title'>Usuarios</span>
 							</span>
 						</a>
 					)
@@ -362,6 +363,7 @@ const Users = () => {
 
 			handleBreadcrumb(breadcrumbItems)
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	const customNoDataText = (

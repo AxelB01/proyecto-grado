@@ -28,10 +28,11 @@ namespace TriadRestockSystem.Controllers
             var response = _db.SolicitudesGetAll()
                 .Select(x => new
                 {
-                    Id = x.IdSolicitudMateriales,
+                    Key = x.IdSolicitudMateriales,
                     x.Numero,
                     x.IdCentroCosto,
                     x.CentroCosto,
+                    x.Justificacion,
                     Fecha = x.Fecha.ToString("dd/MM/yyyy"),
                     IdEstado = (int)x.IdEstado,
                     x.Estado,
@@ -72,6 +73,8 @@ namespace TriadRestockSystem.Controllers
                         Fecha = solicitud.IdDocumentoNavigation.Fecha.ToString("dd/MM/yyyy"),
                         IdEstado = solicitud.IdDocumentoNavigation.IdEstado,
                         Estado = solicitud.IdDocumentoNavigation.IdEstadoNavigation.Estado,
+                        Justificacion = solicitud.IdDocumentoNavigation.Justificacion!,
+                        Notas = solicitud.IdDocumentoNavigation.Notas ?? "",
                         IdCreadoPor = solicitud.IdDocumentoNavigation.CreadoPor,
                         CreadoPor = solicitud.IdDocumentoNavigation.CreadoPorNavigation.Login,
                         Detalles = solicitud.SolicitudesMaterialesDetalles
@@ -152,6 +155,9 @@ namespace TriadRestockSystem.Controllers
                         solicitud.IdDocumentoNavigation.ModificadoPor = user.IdUsuario;
                         solicitud.IdDocumentoNavigation.FechaModificacion = DateTime.Now;
                     }
+
+                    solicitud.IdDocumentoNavigation.Justificacion = model.Justificacion;
+                    solicitud.IdDocumentoNavigation.Notas = model.Notas ?? "";
 
                     _db.SolicitudesMaterialesDetalles.RemoveRange(solicitud.SolicitudesMaterialesDetalles);
                     solicitud.SolicitudesMaterialesDetalles.Clear();
