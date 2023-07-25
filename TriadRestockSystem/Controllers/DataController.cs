@@ -31,5 +31,47 @@ namespace TriadRestockSystem.Controllers
 
             return Ok(new { items = response });
         }
+
+        [HttpGet("getFamilias")]
+        public IActionResult GetFamilias()
+        {
+            var response = _db.FamiliasArticulos
+                .Select(f => new
+                {
+                    Key = f.IdFamilia,
+                    Text = f.Familia
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
+
+        [HttpGet("getUnidadesMedidas")]
+        public IActionResult GetUnidadesMedidas()
+        {
+            var response = _db.UnidadesMedidas
+                .Select(u => new
+                {
+                    Key = u.IdUnidadMedida,
+                    Text = u.UnidadMedida
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
+
+        [HttpGet("getTiposArticulos")]
+        public IActionResult GetTiposArticulos()
+        {
+            var response = _db.TiposArticulos
+                .Select(t => new
+                {
+                    Key = t.IdTipoArticulo,
+                    Text = t.Tipo
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
     }
 }

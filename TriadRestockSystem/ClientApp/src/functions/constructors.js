@@ -43,9 +43,7 @@ export const createItemsModel = () => {
 		Nombre: '',
 		Descripcion: '',
 		IdFamilia: 0,
-		IdTipoArticulo: 0,
-		CreadoPor: null,
-		FechaCreacion: null
+		IdTipoArticulo: 0
 	}
 }
 
@@ -65,5 +63,19 @@ export const createRequestModel = () => {
 		Justificacion: '',
 		Notas: '',
 		Detalles: []
+	}
+}
+
+export const createCostCenterModel = () => {
+	return {
+		IdCentroCosto: 0,
+		Nombre: '',
+		Cuenta: '',
+		IdCreadoPor: 0,
+		CreadoPor: '',
+		FechaCreacion: '',
+		IdModificadoPor: 0,
+		ModificadoPor: '',
+		FechaModificacion: ''
 	}
 }

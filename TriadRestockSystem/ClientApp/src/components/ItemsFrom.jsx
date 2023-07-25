@@ -1,111 +1,106 @@
-import { Button, Col, Drawer, Form, Input, Row, Space, Select } from 'antd'
-import { useEffect } from 'react'
+import { Button, Col, Drawer, Form, Input, Row, Select, Space } from 'antd'
+import { useContext, useEffect } from 'react'
+import LayoutContext from '../context/LayoutContext'
 import { createItemsModel } from '../functions/constructors'
-import createNotification from '../functions/notification'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 
 const SAVE_ITEMS_URL = '/api/articulos/guardarArticulo'
 
 const ItemsForm = ({
-    title,
+	title,
 	open,
 	onClose,
-	getItemData,
-    // items,
 	unidadMedidaItems,
 	tipoArticuloItems,
 	familiaItems,
-    // typeItems,
 	initialValues,
 	loading,
 	handleLoading
 }) => {
-
 	const axiosPrivate = useAxiosPrivate()
+	const { openMessage } = useContext(LayoutContext)
 	const [form] = Form.useForm()
 
-    useEffect(() => {
-		console.log(initialValues)
-		console.log(unidadMedidaItems)
+	const handleCloseForm = () => {
+		form.resetFields()
+		onClose()
+	}
 
-		const {
-            id,
-            idUnidadMedida,
-            codigo,
-            nombre,
-            descripcion,
-            familia,
-            tipoArticulo,
-			CreadoPor,
-			FechaCreacion,	
-			
-		} = initialValues
-		form.setFieldsValue({
-			id,
-            idUnidadMedida,
-            codigo,
-            nombre,
-            descripcion,
-            familia,
-            tipoArticulo,
-			CreadoPor,
-			FechaCreacion
-		})
+	useEffect(() => {
+		form.resetFields()
+
+		if (initialValues.IdArticulo !== 0) {
+			const {
+				IdArticulo,
+				IdUnidadMedida,
+				Codigo,
+				Nombre,
+				Descripcion,
+				IdFamilia,
+				IdTipoArticulo
+			} = initialValues
+			form.setFieldsValue({
+				id: IdArticulo,
+				unidadMedida: IdUnidadMedida,
+				codigo: Codigo,
+				nombre: Nombre,
+				descripcion: Descripcion,
+				familia: IdFamilia,
+				tipoArticulo: IdTipoArticulo
+			})
+		}
 	}, [form, initialValues])
 
-    const saveItem = async model => {
+	const saveItem = async model => {
 		try {
 			const response = await axiosPrivate.post(SAVE_ITEMS_URL, model)
 			if (response?.status === 200) {
-				createNotification(
-					'success',
-					'Guardado!',
-					'El Articulo ha sido guardado correctamente'
-				)
-				onClose()
-				getItemData()
+				openMessage('success', 'Artículo guardado')
+				handleCloseForm()
 			}
 		} catch (error) {
+			openMessage('error', 'Ha ocurrido un error')
+			handleCloseForm()
 			console.log(error)
 		}
 	}
 
-    const handleSubmit = () => {
+	const handleSubmit = () => {
 		handleLoading(true)
 		form.submit()
 	}
 
 	const onFinish = values => {
 		const model = createItemsModel()
-        model.Id = values.id
-        model.IdUnidadMedida = values.unidadMedida
-        model.Codigo = values.codigo
-        model.Nombre = values.nombre
-        model.Descripcion = values.descripcion
-        model.IdFamilia = values.familia
-        model.IdTipoArticulo = values.tipoArticulo
+		model.IdArticulo = values.id
+		model.IdUnidadMedida = values.unidadMedida
+		model.Codigo = values.codigo
+		model.Nombre = values.nombre
+		model.Descripcion = values.descripcion
+		model.IdFamilia = values.familia
+		model.IdTipoArticulo = values.tipoArticulo
 
-		console.log(model)
 		saveItem(model)
 	}
 
-    const onFinishFailed = () => {
+	const onFinishFailed = values => {
+		console.log(values)
 		handleLoading(false)
-	} 
+	}
 
-    return ( 
-        <>
-            <Drawer
+	return (
+		<>
+			<Drawer
 				title={title}
 				width={500}
-				onClose={onClose}
+				onClose={handleCloseForm}
 				open={open}
 				bodyStyle={{
 					paddingBotton: 80
 				}}
 				extra={
 					<Space>
-						<Button onClick={onClose}>Cerrar</Button>
+						<Button onClick={handleCloseForm}>Cerrar</Button>
 						<Button
 							type='primary'
 							onClick={handleSubmit}
@@ -125,7 +120,7 @@ const ItemsForm = ({
 					layout='vertical'
 					requiredMark
 				>
-					<Form.Item name='id'>
+					<Form.Item name='id' style={{ display: 'none' }}>
 						<Input type='hidden' />
 					</Form.Item>
 					<Row gutter={16}>
@@ -149,27 +144,6 @@ const ItemsForm = ({
 							</Form.Item>
 						</Col>
 					</Row>
-					{/* <Row gutter={16}>
-						<Col span={24}>
-							<Form.Item
-								name='unidadMedida'
-								label='Unidad de Medida'
-								rules={[
-									{
-										required: true,
-										message: 'Debe ingresar una unidad de medida'
-									}
-								]}
-								hasFeedback
-							>
-								<Input
-									style={{ width: '100%' }}
-									autoComplete='off'
-									placeholder='Ingresar una unidad de medida'
-								/>
-							</Form.Item>
-						</Col>
-					</Row> */}
 					<Row gutter={16}>
 						<Col span={24}>
 							<Form.Item
@@ -184,10 +158,9 @@ const ItemsForm = ({
 								hasFeedback
 							>
 								<Select
-									defaultValue=" "
-									placeholder='Seleccione una unidad de medida'
+									placeholder='Seleccionar'
 									options={unidadMedidaItems.map(x => {
-										return { value: x.key, label: x.nombre }
+										return { value: x.key, label: x.text }
 									})}
 								></Select>
 							</Form.Item>
@@ -225,15 +198,21 @@ const ItemsForm = ({
 									}
 								]}
 							>
-								<Input
+								{/* <Input
 									style={{ width: '100%' }}
 									autoComplete='off'
 									placeholder='Ingresar una descripcion'
+								/> */}
+								<Input.TextArea
+									placeholder='Ingresar una descripción'
+									rows={3}
+									showCount
+									maxLength={500}
 								/>
 							</Form.Item>
 						</Col>
 					</Row>
-                    <Row gutter={16}>
+					<Row gutter={16}>
 						<Col span={24}>
 							<Form.Item
 								name='familia'
@@ -247,16 +226,15 @@ const ItemsForm = ({
 								hasFeedback
 							>
 								<Select
-									defaultValue=" "
-									placeholder='Seleccione una familia'
+									placeholder='Seleccionar'
 									options={familiaItems.map(x => {
-										return { value: x.key, label: x.nombre }
+										return { value: x.key, label: x.text }
 									})}
 								></Select>
 							</Form.Item>
 						</Col>
 					</Row>
-                    <Row gutter={16}>
+					<Row gutter={16}>
 						<Col span={24}>
 							<Form.Item
 								name='tipoArticulo'
@@ -270,10 +248,9 @@ const ItemsForm = ({
 								hasFeedback
 							>
 								<Select
-									defaultValue=" "
-									placeholder='Seleccione un tipo de articulo'
+									placeholder='Seleccionar'
 									options={tipoArticuloItems.map(x => {
-										return { value: x.key, label: x.nombre }
+										return { value: x.key, label: x.text }
 									})}
 								></Select>
 							</Form.Item>
@@ -281,9 +258,8 @@ const ItemsForm = ({
 					</Row>
 				</Form>
 			</Drawer>
-        </>
-    );
-
+		</>
+	)
 }
- 
-export default ItemsForm;
+
+export default ItemsForm
