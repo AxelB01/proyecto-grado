@@ -12,7 +12,7 @@ import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { sleep } from '../functions/sleep'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
-import './DefaultContentStyle.css'
+import '../styles/DefaultContentStyle.css'
 import UserForm from './UserForm'
 
 const USERS_DATA_URL = '/api/usuarios/getUsuarios'

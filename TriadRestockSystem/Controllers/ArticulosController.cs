@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Linq;
 using TriadRestockSystem.Security;
+using TriadRestockSystem.ViewModels;
 using TriadRestockSystemData.Data;
 using TriadRestockSystemData.Data.Models;
-using TriadRestockSystemData.Data.ViewModels;
 
 namespace TriadRestockSystem.Controllers
 {
@@ -29,28 +27,32 @@ namespace TriadRestockSystem.Controllers
         [HttpGet("getArticulos")]
         public ActionResult GetArticulos()
         {
-            var result = _dbContext.Articulos
-                 .Select(x => new
+            var result = _dbContext.ArticulosGetAll()
+                 .Select(a => new
                  {
-                     Key = x.IdArticulo,
-                     Id = x.IdArticulo,
-                     x.IdUnidadMedida,
-                     x.Codigo,
-                     x.Nombre,
-                     x.Descripcion,
-                     x.IdFamilia,
-                     x.IdTipoArticulo,
-                     Fecha = x.FechaCreacion.ToString("dd/MM/yyyy HH:mm:ss"),
-                     CreadoPor = x.CreadoPorNavigation.Login
+                     Id = a.IdArticulo,
+                     a.Codigo,
+                     a.Nombre,
+                     a.Descripcion,
+                     a.IdUnidadMedida,
+                     a.UnidadMedida,
+                     a.CodigoUnidadMedida,
+                     a.IdFamilia,
+                     a.Familia,
+                     a.IdTipoArticulo,
+                     a.Tipo,
+                     a.IdCreadoPor,
+                     a.CreadoPor,
+                     Fecha = a.FechaCreacion.ToString("dd/MM/yyyy")
                  })
                  .ToList();
             return Ok(result);
         }
 
-   
+
 
         [HttpGet("getUnidadMedida")]
-        public IActionResult GetUnidadMedida() 
+        public IActionResult GetUnidadMedida()
         {
             var response = _dbContext.UnidadesMedidas
                 .Select(v => new
@@ -59,7 +61,7 @@ namespace TriadRestockSystem.Controllers
                     Nombre = v.UnidadMedida
                 })
                 .ToList();
-            return Ok(new {items = response});
+            return Ok(new { items = response });
         }
 
         [HttpGet("getFamilia")]
@@ -77,7 +79,7 @@ namespace TriadRestockSystem.Controllers
         }
 
         [HttpGet("getTipoArticulo")]
-        public IActionResult GetTipoArticulo() 
+        public IActionResult GetTipoArticulo()
         {
             var response = _dbContext.TiposArticulos
                 .Select(b => new
@@ -86,11 +88,11 @@ namespace TriadRestockSystem.Controllers
                     Nombre = b.Tipo
                 })
                 .ToList();
-            return Ok(new {items = response});
+            return Ok(new { items = response });
         }
 
         [HttpPost("guardarArticulo")]
-        public IActionResult GuardarArticulo(vmArticulo model) 
+        public IActionResult GuardarArticulo(vmItem model)
         {
             var login = HttpContext.Items["Username"] as string;
             var pass = HttpContext.Items["Password"] as string;
@@ -108,16 +110,11 @@ namespace TriadRestockSystem.Controllers
                     .Include(v => v.IdFamiliaNavigation)
                     .Include(v => v.IdTipoArticuloNavigation)
                     .FirstOrDefault(v => v.IdArticulo == model.IdArticulo);
+
                     if (articulo == null)
                     {
                         articulo = new Articulo
                         {
-                            Codigo = model.Codigo,
-                            Nombre = model.Nombre,
-                            //IdUnidadMedida = model.IdArticulo,
-                            //IdTipoArticulo = model.IdTipoArticulo,
-                            //IdFamilia = model.IdFamilia,
-                            Descripcion = model.Descripcion,
                             CreadoPor = user!.IdUsuario,
                             FechaCreacion = DateTime.Now,
 
@@ -126,28 +123,22 @@ namespace TriadRestockSystem.Controllers
                     }
                     else
                     {
-                        //articulo.Familia = model.Familia;
                         articulo.ModificadoPor = user!.IdUsuario;
                         articulo.FechaModificacion = DateTime.Now;
                     }
 
-                    //var newUnidadMedida = _dbContext.UnidadesMedidas
-                    //        .Where(r => model.IdUnidad.Equals(r.IdUnidadMedida));
+                    articulo.Nombre = model.Nombre;
+                    articulo.Codigo = model.Codigo;
+                    articulo.Descripcion = model.Descripcion;
                     articulo.IdUnidadMedida = model.IdUnidadMedida;
-
-                    //var newFamilia =_dbContext.FamiliasArticulos
-                    //        .Where(r => model.IdFamilia.Equals(r.IdFamilia));
                     articulo.IdFamilia = model.IdFamilia;
-
-                    //var newTipoArticulo = _dbContext.TiposArticulos
-                    //        .Where(r => model.IdTipoArticulo.Equals(r.IdTipoArticulo));
                     articulo.IdTipoArticulo = model.IdTipoArticulo;
 
                     _dbContext.SaveChanges();
                     dbTran.Commit();
                     return Ok();
                 }
-                 catch (Exception e)
+                catch (Exception e)
                 {
                     dbTran.Rollback();
                     return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
@@ -161,17 +152,15 @@ namespace TriadRestockSystem.Controllers
         [HttpGet("getArticulo")]
         public IActionResult GetArticulo(int id)
         {
-           Articulo? articulo = _dbContext.Articulos
-                //.Include(x => x.IdUnidadMedida)
-                //.Include(x => x.IdTipoArticulo)
-                //.Include(x => x.IdFamilia)
-                .FirstOrDefault(x => x.IdArticulo == id);
-            if (articulo != null) 
+            Articulo? articulo = _dbContext.Articulos
+                 .FirstOrDefault(x => x.IdArticulo == id);
+
+            if (articulo != null)
             {
-                vmArticulo vm = new()
+                vmItem vm = new()
                 {
                     IdArticulo = articulo.IdArticulo,
-                    IdUnidadMedida = articulo.IdUnidadMedida, 
+                    IdUnidadMedida = articulo.IdUnidadMedida,
                     Nombre = articulo.Nombre,
                     Codigo = articulo.Codigo,
                     Descripcion = articulo.Descripcion,
@@ -185,7 +174,7 @@ namespace TriadRestockSystem.Controllers
             {
                 return NotFound();
             }
-            
+
         }
     }
 }

@@ -156,6 +156,11 @@ const Families = () => {
 			...getColumnSearchProps('familia')
 		},
 		{
+			title: 'Total artículos',
+			dataIndex: 'totalArticulos',
+			key: 'totalArticulos'
+		},
+		{
 			title: 'Fecha de creación',
 			dataIndex: 'fecha',
 			key: 'fecha'
@@ -164,7 +169,8 @@ const Families = () => {
 			title: 'Creado por',
 			dataIndex: 'creadoPor',
 			key: 'creadoPor',
-			...getColumnSearchProps('creadoPor')
+			...getColumnSearchProps('creadoPor'),
+			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
 		},
 		{
 			title: 'Acciones',
@@ -187,6 +193,7 @@ const Families = () => {
 			const response = await axiosPrivate.get(FAMILIES_DATA_URL)
 			const data = response?.data
 			setData(data)
+			console.log(data)
 		} catch (error) {
 			console.log(error)
 		}

@@ -12,9 +12,12 @@
 	margin-bottom: 0.5rem;
 }
 
+.btn-container button {
+	margin-right: 1rem;
+}
+
 .table-container {
 	flex: 1;
-	
 }
 
 .content-header {

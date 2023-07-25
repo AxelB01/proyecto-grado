@@ -1,90 +1,93 @@
 import {
+	AuditOutlined,
 	EditOutlined,
-	FileAddOutlined,
-	SearchOutlined,
-	SolutionOutlined
+	MoneyCollectOutlined,
+	PlusOutlined,
+	SearchOutlined
 } from '@ant-design/icons'
-import { Button, Empty, Input, Space, Table, Tag } from 'antd'
+import { Button, Empty, Input, Space, Table } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 import Highlighter from 'react-highlight-words'
-import { useNavigate } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
+import { createCostCenterModel } from '../functions/constructors'
 import { sleep } from '../functions/sleep'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
+import CostsCentersForm from './CostsCentersForm'
 
-const customNoDataText = (
-	<Empty
-		image={Empty.PRESENTED_IMAGE_SIMPLE}
-		description='No existen registros'
-	/>
-)
+const CENTROS_COSTOS_URL = '/api/centrosCostos/getCostsCentersData'
+const CENTRO_COSTO_GET = '/api/centrosCostos/getCentroCostos'
 
-const GET_REQUESTS_LIST = 'api/solicitudes/getSolicitudes'
-
-const Requests = () => {
+const CostsCenters = () => {
 	const { validLogin } = useContext(AuthContext)
 	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
-	const navigate = useNavigate()
 
 	const axiosPrivate = useAxiosPrivate()
-
-	const [requests, setRequests] = useState([])
+	const navigate = useNavigate()
+	const [costsCenters, setCostsCenters] = useState([])
+	const [open, setOpen] = useState(false)
+	const [formLoading, setFormLoading] = useState(false)
 	const [loading, setLoading] = useState({})
 
-	const handleEditRequest = rowId => {
+	const [initialValues, setInitialValues] = useState(createCostCenterModel())
+
+	const handleEditCostCenter = rowId => {
 		setLoading(prevState => ({
 			...prevState,
 			[rowId]: true
 		}))
-		navigate('/request', { state: rowId })
+		getCostCenter(rowId)
 	}
 
-	const getRequestsList = async () => {
-		try {
-			const response = await axiosPrivate.get(GET_REQUESTS_LIST)
+	const handleOpen = value => {
+		setOpen(value)
+		if (!value) {
+			setInitialValues(createCostCenterModel())
+		}
+	}
 
-			if (response?.status === 200) {
-				const data = response.data
-				console.log(data.map(e => e.key))
-				setRequests(data)
-			}
+	const handleLoading = value => {
+		setFormLoading(value)
+	}
+
+	const getCostCenter = async id => {
+		try {
+			const response = await axiosPrivate.get(CENTRO_COSTO_GET + `?id=${id}`)
+			const data = response?.data
+			const model = createCostCenterModel()
+			model.IdCentroCosto = data.idCentroCosto
+			model.Nombre = data.nombre
+			model.Cuenta = data.cuenta
+			setInitialValues(model)
 		} catch (error) {
 			console.log(error)
 		}
 	}
 
 	useEffect(() => {
-		document.title = 'Solicitudes'
-		async function waitForUpdate() {
-			await sleep(1000)
+		const getCostCenters = async () => {
+			try {
+				const response = await axiosPrivate.get(CENTROS_COSTOS_URL)
+				setCostsCenters(response?.data)
+			} catch (error) {
+				console.log(error)
+			}
 		}
+		getCostCenters()
+	}, [axiosPrivate, open])
 
-		if (!validLogin) {
-			waitForUpdate()
-			handleLayout(false)
-			navigate('/login')
-		} else {
-			handleLayout(true)
-			const breadcrumbItems = [
-				{
-					title: (
-						<a onClick={() => navigate('/requests')}>
-							<span className='breadcrumb-item'>
-								<SolutionOutlined />
-								<span className='breadcrumb-item-title'>Solicitudes</span>
-							</span>
-						</a>
-					)
-				}
-			]
-			handleBreadcrumb(breadcrumbItems)
-			getRequestsList()
+	useEffect(() => {
+		const { IdCentroCosto } = initialValues
+		if (IdCentroCosto !== 0) {
+			setOpen(true)
+			setLoading(prevState => ({
+				...prevState,
+				[IdCentroCosto]: false
+			}))
 		}
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [initialValues])
 
 	// Custom Filter
 	const [searchText, setSearchText] = useState('')
@@ -203,117 +206,125 @@ const Requests = () => {
 
 	const columns = [
 		{
-			title: 'Número',
-			dataIndex: 'numero',
-			key: 'numero',
-			...getColumnSearchProps('numero')
+			title: 'Código',
+			dataIndex: 'id',
+			key: 'id',
+			...getColumnSearchProps('id')
 		},
 		{
-			title: 'Centro de costos',
-			dataIndex: 'centroCosto',
-			key: 'centroCosto',
-			...getColumnSearchProps('centroCosto')
+			title: 'Nombre',
+			dataIndex: 'nombre',
+			key: 'nombre',
+			...getColumnSearchProps('nombre')
 		},
 		{
-			title: 'Fecha',
-			dataIndex: 'fecha',
-			key: 'fecha',
-			...getColumnSearchProps('fecha')
+			title: 'Cuenta',
+			dataIndex: 'cuenta',
+			key: 'cuenta',
+			...getColumnSearchProps('cuenta')
 		},
 		{
-			title: 'Estado',
-			dataIndex: 'estado',
-			key: 'estado',
-			filters: [
-				{
-					text: 'Borrador',
-					value: 'Borrador'
-				}
-			],
-			filterMode: 'tree',
-			filterSearch: false,
-			render: state => (
-				<>
-					{
-						<Tag
-							color={
-								state === 'Borrador'
-									? 'geekblue'
-									: state === 'Aprobada'
-									? 'green'
-									: 'volcano'
-							}
-							key={state}
-						>
-							{state.toUpperCase()}
-						</Tag>
-					}
-				</>
-			)
-		},
-		{
-			title: 'Creado por',
+			title: 'Creador',
 			dataIndex: 'creadoPor',
 			key: 'creadoPor',
 			...getColumnSearchProps('creadoPor'),
-			render: state => (
-				<>
-					<span style={{ color: 'blue' }}>{state}</span>
-				</>
-			)
+			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
+		},
+		{
+			title: 'Fecha de creación',
+			dataIndex: 'fecha',
+			key: 'fecha'
 		},
 		{
 			title: 'Acciones',
-			key: 'accion',
+			key: 'action',
 			render: (_, record) => (
 				<Space size='middle' align='center'>
 					<Button
 						icon={<EditOutlined />}
-						onClick={() => handleEditRequest(record.key)}
-						loading={loading[record.key]}
+						loading={loading[record.id]}
+						onClick={() => handleEditCostCenter(record.id)}
 					>
-						{loading[record.key] ? 'Cargando' : 'Editar'}
+						Editar
+					</Button>
+					<Button icon={<AuditOutlined />} onClick={() => {}}>
+						Historial
 					</Button>
 				</Space>
 			)
 		}
 	]
 
+	useEffect(() => {
+		document.title = 'Centros de costos'
+		async function waitForUpdate() {
+			await sleep(1000)
+		}
+
+		if (!validLogin) {
+			waitForUpdate()
+			handleLayout(false)
+			navigate('/login')
+		} else {
+			handleLayout(true)
+
+			const breadcrumbItems = [
+				{
+					title: (
+						<a onClick={() => navigate('/costsCenters')}>
+							<span className='breadcrumb-item'>
+								<MoneyCollectOutlined />
+								<span className='breadcrumb-item-title'>Centros de costos</span>
+							</span>
+						</a>
+					)
+				}
+			]
+
+			handleBreadcrumb(breadcrumbItems)
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
+
+	const customNoDataText = (
+		<Empty
+			image={Empty.PRESENTED_IMAGE_SIMPLE}
+			description='No existen registros'
+		/>
+	)
+
 	return (
 		<>
 			<div className='page-content-container'>
+				<CostsCentersForm
+					open={open}
+					handleOpen={handleOpen}
+					loading={formLoading}
+					handleLoading={handleLoading}
+					initialValues={initialValues}
+				/>
 				<div className='btn-container'>
 					<Button
+						style={{
+							display: 'flex',
+							alignItems: 'center'
+						}}
 						type='primary'
-						icon={<FileAddOutlined />}
-						onClick={() => navigate('/request')}
+						icon={<PlusOutlined />}
+						onClick={() => handleOpen(true)}
 					>
-						Nueva solicitud
+						Nuevo Centro de costos
 					</Button>
 				</div>
 				<div className='table-container'>
 					<Table
 						columns={columns}
-						dataSource={requests}
+						dataSource={costsCenters}
 						pagination={{
-							total: requests.length,
-							showTotal: () => `${requests.length} registros en total`,
+							total: costsCenters.length,
+							showTotal: () => `${costsCenters.length} registros en total`,
 							defaultPageSize: 10,
 							defaultCurrent: 1
-						}}
-						rowKey={record => record.key}
-						expandable={{
-							expandedRowRender: record => (
-								<p
-									style={{
-										margin: 0
-									}}
-								>
-									{record.justificacion}
-								</p>
-							),
-							expandIconColumnIndex: -1,
-							expandedRowKeys: requests.map(e => e.key)
 						}}
 						locale={{
 							emptyText: customNoDataText
@@ -325,4 +336,4 @@ const Requests = () => {
 	)
 }
 
-export default Requests
+export default CostsCenters

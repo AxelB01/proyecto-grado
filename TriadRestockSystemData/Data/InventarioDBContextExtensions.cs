@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Data;
+using TriadRestockSystem.ViewModels;
 using TriadRestockSystemData.Data.ViewModels;
 
 namespace TriadRestockSystemData.Data
@@ -33,6 +34,27 @@ namespace TriadRestockSystemData.Data
         {
             return context.Database.GetDbConnection()
                 .QueryFirst<string>($"SELECT dbo.DocumentoGetNumero({tipoDocumento})", transaction: context.Database.CurrentTransaction!.GetDbTransaction(), commandType: CommandType.Text);
+        }
+
+        public static IList<vmCentroCosto> CentrosCostosGetAll(this InventarioDBContext context)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmCentroCosto>("CentrosCostosGetAll", commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
+
+        public static IList<vmArticulo> ArticulosGetAll(this InventarioDBContext context)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmArticulo>("ArticulosGetAll", commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
+
+        public static IList<vmCatalogo> CatalogosGetAll(this InventarioDBContext context)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmCatalogo>("CatalogosGetAll", commandType: CommandType.StoredProcedure)
+                .ToList();
         }
 
     }
