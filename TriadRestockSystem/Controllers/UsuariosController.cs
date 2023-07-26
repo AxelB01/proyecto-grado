@@ -36,7 +36,7 @@ namespace TriadRestockSystem.Controllers
                     u.Login,
                     u.Estado,
                     u.CreadoPor,
-                    Fecha = u.FechaCreacion.ToString("dd/MM/yyyy HH:mm:ss")
+                    Fecha = u.FechaCreacion.ToString("dd/MM/yyyy")
                 })
                 .ToList();
 

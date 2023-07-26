@@ -3,9 +3,9 @@ import { useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
+import '../styles/Login.css'
 import CustomFooter from './CustomFooter'
 import Loader from './Loader'
-import './Login.css'
 import LoginForm from './LoginForm'
 
 const { Content, Footer } = Layout

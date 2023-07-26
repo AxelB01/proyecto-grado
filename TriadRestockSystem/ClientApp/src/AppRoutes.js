@@ -1,3 +1,4 @@
+import CostsCenters from './components/CostsCenters'
 import Families from './components/Families'
 import Home from './components/Home'
 import Login from './components/Login'
@@ -52,13 +53,7 @@ const AppRoutes = [
 		index: false,
 		path: '/items',
 		element: <Items />
-	},
-	{
-		index: false,
-		path: '/catalogs',
-		element: <Catalogs />
 	}
-
 ]
 
 export default AppRoutes

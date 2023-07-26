@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { isStringEmpty } from '../functions/validation'
+import '../styles/CustomLayout.css'
 import CustomFooter from './CustomFooter'
-import './CustomLayout.css'
 import MenuItems from './MenuItems'
 
 const { Header, Content, Footer, Sider } = Layout
@@ -56,8 +56,9 @@ const CustomLayout = ({ children }) => {
 			case 6:
 				path = '/requests'
 				break
-			
-
+			case 9:
+				path = '/costsCenters'
+				break
 			default:
 				break
 		}

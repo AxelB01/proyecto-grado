@@ -31,8 +31,8 @@ import { isObjectNotEmpty, isStringEmpty } from '../functions/validation'
 import useCostCenters from '../hooks/useCostCenters'
 import useItems from '../hooks/useItems'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
-import './DefaultContentStyle.css'
-import './Requests.css'
+import '../styles/DefaultContentStyle.css'
+import '../styles/Request.css'
 
 const antIcon = (
 	<LoadingOutlined

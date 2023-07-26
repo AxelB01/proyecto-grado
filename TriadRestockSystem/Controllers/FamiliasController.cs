@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TriadRestockSystem.Security;
 using TriadRestockSystemData.Data;
 using TriadRestockSystemData.Data.Models;
@@ -27,12 +28,14 @@ namespace TriadRestockSystem.Controllers
         public IActionResult GetFamilias()
         {
             var result = _db.FamiliasArticulos
+                .Include(x => x.Articulos)
                 .Select(x => new
                 {
                     Key = x.IdFamilia,
                     Id = x.IdFamilia,
                     x.Familia,
-                    Fecha = x.FechaCreacion.ToString("dd/mm/yyyy hh:mm:ss"),
+                    TotalArticulos = x.Articulos.Count,
+                    Fecha = x.FechaCreacion.ToString("dd/MM/yyyy"),
                     CreadoPor = x.CreadoPorNavigation.Login
                 })
                 .ToList();

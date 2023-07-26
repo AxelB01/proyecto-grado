@@ -6,7 +6,7 @@ import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { createLoginModel } from '../functions/constructors'
 import { isStringEmpty } from '../functions/validation'
-import './LoginForm.css'
+import '../styles/LoginForm.css'
 
 const USER_REGEX = /^[a-zA-Z][a-zA-Z ]{4,}$/
 const LOGIN_URL = 'api/auth/login'

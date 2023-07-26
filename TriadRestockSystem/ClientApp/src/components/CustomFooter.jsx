@@ -4,7 +4,7 @@ import {
 	LinkedinFilled,
 	TwitterSquareFilled
 } from '@ant-design/icons'
-import './CustomFooter.css'
+import '../styles/CustomFooter.css'
 
 const CustomFooter = () => {
 	return (

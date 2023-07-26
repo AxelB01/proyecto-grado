@@ -1,5 +1,5 @@
 import { Layout, Spin } from 'antd'
-import './Loader.css'
+import '../styles/Loader.css'
 
 const { Content } = Layout
 
