@@ -5,6 +5,7 @@ import Request from './components/Request'
 import Requests from './components/Requests'
 import Users from './components/Users'
 import Items from './components/Items'
+import Catalogs from './components/Catalogs'
 
 const AppRoutes = [
 	{
@@ -51,6 +52,11 @@ const AppRoutes = [
 		index: false,
 		path: '/items',
 		element: <Items />
+	},
+	{
+		index: false,
+		path: '/catalogs',
+		element: <Catalogs />
 	}
 
 ]
