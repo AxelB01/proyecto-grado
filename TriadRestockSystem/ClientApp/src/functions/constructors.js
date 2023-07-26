@@ -67,3 +67,11 @@ export const createRequestModel = () => {
 		Detalles: []
 	}
 }
+export const createCatalogsModel = () => {
+	return {
+		IdCatalogo: 0,
+		Catalogo: '',
+		CreadoPor: null,
+		FechaCreacion: null
+	}
+}
