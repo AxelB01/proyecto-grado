@@ -35,7 +35,7 @@ namespace TriadRestockSystem.Controllers
                     Id = x.IdFamilia,
                     x.Familia,
                     TotalArticulos = x.Articulos.Count,
-                    Fecha = x.FechaCreacion.ToString("dd/mm/yyyy"),
+                    Fecha = x.FechaCreacion.ToString("dd/MM/yyyy"),
                     CreadoPor = x.CreadoPorNavigation.Login
                 })
                 .ToList();

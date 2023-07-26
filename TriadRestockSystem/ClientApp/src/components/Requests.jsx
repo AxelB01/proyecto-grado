@@ -1,16 +1,19 @@
 import {
 	EditOutlined,
 	FileAddOutlined,
+	ReloadOutlined,
 	SearchOutlined,
 	SolutionOutlined
 } from '@ant-design/icons'
 import { Button, Empty, Input, Space, Table, Tag } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
-import Highlighter from 'react-highlight-words'
+// import Highlighter from 'react-highlight-words'
+import moment from 'moment'
 import { useNavigate } from 'react-router'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { sleep } from '../functions/sleep'
+import useDocumentStates from '../hooks/useDocumentStates'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
 
@@ -32,6 +35,8 @@ const Requests = () => {
 
 	const [requests, setRequests] = useState([])
 	const [loading, setLoading] = useState({})
+
+	const documentoEstados = useDocumentStates()
 
 	const handleEditRequest = rowId => {
 		setLoading(prevState => ({
@@ -86,21 +91,35 @@ const Requests = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
+	const tableRef = useRef()
+	const [tableKey, setTableKey] = useState(Date.now())
+
+	const handleFiltersReset = () => {
+		if (tableRef.current) {
+			columns.forEach(column => {
+				console.log(column)
+				column.filteredValue = null
+			})
+		}
+
+		setTableKey(Date.now())
+	}
+
 	// Custom Filter
-	const [searchText, setSearchText] = useState('')
-	const [searchColumn, setSearchedColumn] = useState('')
+	// const [searchText, setSearchText] = useState('')
+	// const [searchColumn, setSearchedColumn] = useState('')
 	const searchInput = useRef(null)
 	const handleSearch = (selectedKeys, confirm, dataIndex) => {
 		confirm()
-		setSearchText(selectedKeys[0])
-		setSearchedColumn(dataIndex)
+		// setSearchText(selectedKeys[0])
+		// setSearchedColumn(dataIndex)
 	}
 
 	const handleReset = (clearFilters, confirm, dataIndex) => {
 		clearFilters()
 		confirm()
-		setSearchText('')
-		setSearchedColumn(dataIndex)
+		// setSearchText('')
+		// setSearchedColumn(dataIndex)
 	}
 
 	const getColumnSearchProps = dataIndex => ({
@@ -155,8 +174,8 @@ const Requests = () => {
 							confirm({
 								closeDropdown: false
 							})
-							setSearchText(selectedKeys[0])
-							setSearchedColumn(dataIndex)
+							// setSearchText(selectedKeys[0])
+							// setSearchedColumn(dataIndex)
 						}}
 					>
 						Filtrar
@@ -182,21 +201,21 @@ const Requests = () => {
 			if (visible) {
 				setTimeout(() => searchInput.current?.select(), 100)
 			}
-		},
-		render: text =>
-			searchColumn === dataIndex ? (
-				<Highlighter
-					highlightStyle={{
-						backgroundColor: '#ffc069',
-						padding: 0
-					}}
-					searchWords={[searchText]}
-					autoEscape
-					textToHighlight={text ? text.toString() : ''}
-				/>
-			) : (
-				text
-			)
+		}
+		// render: text =>
+		// 	searchColumn === dataIndex ? (
+		// 		<Highlighter
+		// 			highlightStyle={{
+		// 				backgroundColor: '#ffc069',
+		// 				padding: 0
+		// 			}}
+		// 			searchWords={[searchText]}
+		// 			autoEscape
+		// 			textToHighlight={text ? text.toString() : ''}
+		// 		/>
+		// 	) : (
+		// 		text
+		// 	)
 	})
 
 	// Custom Filter
@@ -218,20 +237,27 @@ const Requests = () => {
 			title: 'Fecha',
 			dataIndex: 'fecha',
 			key: 'fecha',
-			...getColumnSearchProps('fecha')
+			sorter: (a, b) =>
+				moment(a.fecha, 'DD/MM/YYYY').unix() -
+				moment(b.fecha, 'DD/MM/YYYY').unix(),
+			sortDirections: ['ascend', 'descend']
 		},
 		{
 			title: 'Estado',
 			dataIndex: 'estado',
 			key: 'estado',
-			filters: [
-				{
-					text: 'Borrador',
-					value: 'Borrador'
-				}
-			],
-			filterMode: 'tree',
-			filterSearch: false,
+			filters: documentoEstados.map(d => {
+				return { text: d.text, value: d.text }
+			}),
+			onFilter: (value, record) => record.estado.indexOf(value) === 0,
+			// filters: [
+			// 	{
+			// 		text: 'Borrador',
+			// 		value: 'Borrador'
+			// 	}
+			// ],
+			// filterMode: 'tree',
+			// filterSearch: false,
 			render: state => (
 				<>
 					{
@@ -284,6 +310,16 @@ const Requests = () => {
 			<div className='page-content-container'>
 				<div className='btn-container'>
 					<Button
+						style={{
+							display: 'flex',
+							alignItems: 'center'
+						}}
+						icon={<ReloadOutlined />}
+						onClick={handleFiltersReset}
+					>
+						Limpiar Filtros
+					</Button>
+					<Button
 						type='primary'
 						icon={<FileAddOutlined />}
 						onClick={() => navigate('/request')}
@@ -293,6 +329,8 @@ const Requests = () => {
 				</div>
 				<div className='table-container'>
 					<Table
+						key={tableKey}
+						ref={tableRef}
 						columns={columns}
 						dataSource={requests}
 						pagination={{

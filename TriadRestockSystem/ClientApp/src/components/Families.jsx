@@ -1,12 +1,15 @@
 import {
 	EditOutlined,
+	ReloadOutlined,
 	SearchOutlined,
 	UserAddOutlined
 } from '@ant-design/icons'
 import { Button, Input, Space, Table } from 'antd'
 import { useEffect, useRef, useState } from 'react'
-import Highlighter from 'react-highlight-words'
+// import Highlighter from 'react-highlight-words'
+import moment from 'moment'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
+import '../styles/DefaultContentStyle.css'
 import FamiliesForm from './FamiliesForm'
 
 const FAMILIES_DATA_URL = '/api/familias/getFamilias'
@@ -19,20 +22,34 @@ const Families = () => {
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
 
-	const [searchText, setSearchText] = useState('')
-	const [searchColumn, setSearchedColumn] = useState('')
+	const tableRef = useRef()
+	const [tableKey, setTableKey] = useState(Date.now())
+
+	const handleFiltersReset = () => {
+		if (tableRef.current) {
+			columns.forEach(column => {
+				console.log(column)
+				column.filteredValue = null
+			})
+		}
+
+		setTableKey(Date.now())
+	}
+
+	// const [searchText, setSearchText] = useState('')
+	// const [searchColumn, setSearchedColumn] = useState('')
 	const searchInput = useRef(null)
 	const handleSearch = (selectedKeys, confirm, dataIndex) => {
 		confirm()
-		setSearchText(selectedKeys[0])
-		setSearchedColumn(dataIndex)
+		// setSearchText(selectedKeys[0])
+		// setSearchedColumn(dataIndex)
 	}
 
 	const handleReset = (clearFilters, confirm, dataIndex) => {
 		clearFilters()
 		confirm()
-		setSearchText('')
-		setSearchedColumn(dataIndex)
+		// setSearchText('')
+		// setSearchedColumn(dataIndex)
 	}
 
 	const getColumnSearchProps = dataIndex => ({
@@ -87,8 +104,8 @@ const Families = () => {
 							confirm({
 								closeDropdown: false
 							})
-							setSearchText(selectedKeys[0])
-							setSearchedColumn(dataIndex)
+							// setSearchText(selectedKeys[0])
+							// setSearchedColumn(dataIndex)
 						}}
 					>
 						Filtrar
@@ -114,21 +131,21 @@ const Families = () => {
 			if (visible) {
 				setTimeout(() => searchInput.current?.select(), 100)
 			}
-		},
-		render: text =>
-			searchColumn === dataIndex ? (
-				<Highlighter
-					highlightStyle={{
-						backgroundColor: '#ffc069',
-						padding: 0
-					}}
-					searchWords={[searchText]}
-					autoEscape
-					textToHighlight={text ? text.toString() : ''}
-				/>
-			) : (
-				text
-			)
+		}
+		// render: text =>
+		// 	searchColumn === dataIndex ? (
+		// 		<Highlighter
+		// 			highlightStyle={{
+		// 				backgroundColor: '#ffc069',
+		// 				padding: 0
+		// 			}}
+		// 			searchWords={[searchText]}
+		// 			autoEscape
+		// 			textToHighlight={text ? text.toString() : ''}
+		// 		/>
+		// 	) : (
+		// 		text
+		// 	)
 	})
 
 	const [familyFormInitialValues, setFamiliesFormInitialValues] = useState({
@@ -163,7 +180,11 @@ const Families = () => {
 		{
 			title: 'Fecha de creación',
 			dataIndex: 'fecha',
-			key: 'fecha'
+			key: 'fecha',
+			sorter: (a, b) =>
+				moment(a.fecha, 'DD/MM/YYYY').unix() -
+				moment(b.fecha, 'DD/MM/YYYY').unix(),
+			sortDirections: ['ascend', 'descend']
 		},
 		{
 			title: 'Creado por',
@@ -248,6 +269,16 @@ const Families = () => {
 			/>
 			<div className='btn-container'>
 				<Button
+					style={{
+						display: 'flex',
+						alignItems: 'center'
+					}}
+					icon={<ReloadOutlined />}
+					onClick={handleFiltersReset}
+				>
+					Limpiar Filtros
+				</Button>
+				<Button
 					type='primary'
 					icon={<UserAddOutlined />}
 					onClick={handleResetFamiliesForm}
@@ -258,6 +289,8 @@ const Families = () => {
 
 			<div className='table-container'>
 				<Table
+					key={tableKey}
+					ref={tableRef}
 					columns={columns}
 					dataSource={data}
 					pagination={{

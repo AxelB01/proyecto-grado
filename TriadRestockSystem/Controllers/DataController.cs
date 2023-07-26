@@ -73,5 +73,33 @@ namespace TriadRestockSystem.Controllers
 
             return Ok(new { items = response });
         }
+
+        [HttpGet("getEstadosDocumentos")]
+        public IActionResult GetEstadosDocumentos()
+        {
+            var response = _db.EstadosDocumentos
+                .Select(e => new
+                {
+                    Key = e.IdEstado,
+                    Text = e.Estado
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
+
+        [HttpGet("getEstadosUsuarios")]
+        public IActionResult GetEstadosUsuarios()
+        {
+            var response = _db.EstadosUsuarios
+                .Select(e => new
+                {
+                    Key = e.IdEstado,
+                    Text = e.Estado
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
     }
 }

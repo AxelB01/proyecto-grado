@@ -1,17 +1,20 @@
 import {
 	EditOutlined,
+	ReloadOutlined,
 	SearchOutlined,
 	UserAddOutlined,
 	UserOutlined
 } from '@ant-design/icons'
 import { Button, Empty, Input, Space, Table, Tag } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
-import Highlighter from 'react-highlight-words'
+// import Highlighter from 'react-highlight-words'
+import moment from 'moment'
 import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { sleep } from '../functions/sleep'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
+import useUserStates from '../hooks/useUserStates'
 import '../styles/DefaultContentStyle.css'
 import UserForm from './UserForm'
 
@@ -29,6 +32,8 @@ const Users = () => {
 	const [loading, setLoading] = useState(false)
 	const [rolesItems, setRolesItems] = useState([])
 	const [centrosCostosItems, setCentrosCostosItems] = useState([])
+
+	const usuarioEstados = useUserStates()
 
 	// User Form
 	const [open, setOpen] = useState(false)
@@ -111,21 +116,35 @@ const Users = () => {
 	}
 	// User Form
 
+	const tableRef = useRef()
+	const [tableKey, setTableKey] = useState(Date.now())
+
+	const handleFiltersReset = () => {
+		if (tableRef.current) {
+			columns.forEach(column => {
+				console.log(column)
+				column.filteredValue = null
+			})
+		}
+
+		setTableKey(Date.now())
+	}
+
 	// Custom Filter
-	const [searchText, setSearchText] = useState('')
-	const [searchColumn, setSearchedColumn] = useState('')
+	// const [searchText, setSearchText] = useState('')
+	// const [searchColumn, setSearchedColumn] = useState('')
 	const searchInput = useRef(null)
 	const handleSearch = (selectedKeys, confirm, dataIndex) => {
 		confirm()
-		setSearchText(selectedKeys[0])
-		setSearchedColumn(dataIndex)
+		// setSearchText(selectedKeys[0])
+		// setSearchedColumn(dataIndex)
 	}
 
 	const handleReset = (clearFilters, confirm, dataIndex) => {
 		clearFilters()
 		confirm()
-		setSearchText('')
-		setSearchedColumn(dataIndex)
+		// setSearchText('')
+		// setSearchedColumn(dataIndex)
 	}
 
 	const getColumnSearchProps = dataIndex => ({
@@ -180,8 +199,8 @@ const Users = () => {
 							confirm({
 								closeDropdown: false
 							})
-							setSearchText(selectedKeys[0])
-							setSearchedColumn(dataIndex)
+							// setSearchText(selectedKeys[0])
+							// setSearchedColumn(dataIndex)
 						}}
 					>
 						Filtrar
@@ -207,21 +226,21 @@ const Users = () => {
 			if (visible) {
 				setTimeout(() => searchInput.current?.select(), 100)
 			}
-		},
-		render: text =>
-			searchColumn === dataIndex ? (
-				<Highlighter
-					highlightStyle={{
-						backgroundColor: '#ffc069',
-						padding: 0
-					}}
-					searchWords={[searchText]}
-					autoEscape
-					textToHighlight={text ? text.toString() : ''}
-				/>
-			) : (
-				text
-			)
+		}
+		// render: text =>
+		// 	searchColumn === dataIndex ? (
+		// 		<Highlighter
+		// 			highlightStyle={{
+		// 				backgroundColor: '#ffc069',
+		// 				padding: 0
+		// 			}}
+		// 			searchWords={[searchText]}
+		// 			autoEscape
+		// 			textToHighlight={text ? text.toString() : ''}
+		// 		/>
+		// 	) : (
+		// 		text
+		// 	)
 	})
 
 	// Custom Filter
@@ -249,19 +268,23 @@ const Users = () => {
 			title: 'Estado',
 			dataIndex: 'estado',
 			key: 'estado',
-			filters: [
-				{
-					text: 'Activo',
-					value: 'Activo'
-				},
-				{
-					text: 'Inactivo',
-					value: 'Inactivo'
-				}
-			],
-			filterMode: 'tree',
-			filterSearch: false,
-			onFilter: (value, record) => record.estado.includes(value),
+			filters: usuarioEstados.map(u => {
+				return { text: u.text, value: u.text }
+			}),
+			onFilter: (value, record) => record.estado.indexOf(value) === 0,
+			// filters: [
+			// 	{
+			// 		text: 'Activo',
+			// 		value: 'Activo'
+			// 	},
+			// 	{
+			// 		text: 'Inactivo',
+			// 		value: 'Inactivo'
+			// 	}
+			// ],
+			// filterMode: 'tree',
+			// filterSearch: false,
+			// onFilter: (value, record) => record.estado.includes(value),
 			render: state => (
 				<>
 					{
@@ -278,7 +301,11 @@ const Users = () => {
 		{
 			title: 'Fecha de creación',
 			dataIndex: 'fecha',
-			key: 'fecha'
+			key: 'fecha',
+			sorter: (a, b) =>
+				moment(a.fecha, 'DD/MM/YYYY').unix() -
+				moment(b.fecha, 'DD/MM/YYYY').unix(),
+			sortDirections: ['ascend', 'descend']
 		},
 		{
 			title: 'Creado por',
@@ -389,6 +416,16 @@ const Users = () => {
 			<div className='page-content-container'>
 				<div className='btn-container'>
 					<Button
+						style={{
+							display: 'flex',
+							alignItems: 'center'
+						}}
+						icon={<ReloadOutlined />}
+						onClick={handleFiltersReset}
+					>
+						Limpiar Filtros
+					</Button>
+					<Button
 						type='primary'
 						icon={<UserAddOutlined />}
 						onClick={handleResetUserForm}
@@ -399,6 +436,8 @@ const Users = () => {
 
 				<div className='table-container'>
 					<Table
+						key={tableKey}
+						ref={tableRef}
 						columns={columns}
 						dataSource={data}
 						pagination={{

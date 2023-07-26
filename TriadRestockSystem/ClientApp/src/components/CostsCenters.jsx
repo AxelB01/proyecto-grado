@@ -3,11 +3,13 @@ import {
 	EditOutlined,
 	MoneyCollectOutlined,
 	PlusOutlined,
+	ReloadOutlined,
 	SearchOutlined
 } from '@ant-design/icons'
 import { Button, Empty, Input, Space, Table } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
-import Highlighter from 'react-highlight-words'
+// import Highlighter from 'react-highlight-words'
+import moment from 'moment'
 import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
@@ -90,20 +92,34 @@ const CostsCenters = () => {
 	}, [initialValues])
 
 	// Custom Filter
-	const [searchText, setSearchText] = useState('')
-	const [searchColumn, setSearchedColumn] = useState('')
+	// const [searchText, setSearchText] = useState('')
+	// const [searchColumn, setSearchedColumn] = useState('')
 	const searchInput = useRef(null)
 	const handleSearch = (selectedKeys, confirm, dataIndex) => {
 		confirm()
-		setSearchText(selectedKeys[0])
-		setSearchedColumn(dataIndex)
+		// setSearchText(selectedKeys[0])
+		// setSearchedColumn(dataIndex)
 	}
 
 	const handleReset = (clearFilters, confirm, dataIndex) => {
 		clearFilters()
 		confirm()
-		setSearchText('')
-		setSearchedColumn(dataIndex)
+		// setSearchText('')
+		// setSearchedColumn(dataIndex)
+	}
+
+	const tableRef = useRef()
+	const [tableKey, setTableKey] = useState(Date.now())
+
+	const handleFiltersReset = () => {
+		if (tableRef.current) {
+			columns.forEach(column => {
+				console.log(column)
+				column.filteredValue = null
+			})
+		}
+
+		setTableKey(Date.now())
 	}
 
 	const getColumnSearchProps = dataIndex => ({
@@ -158,8 +174,8 @@ const CostsCenters = () => {
 							confirm({
 								closeDropdown: false
 							})
-							setSearchText(selectedKeys[0])
-							setSearchedColumn(dataIndex)
+							// setSearchText(selectedKeys[0])
+							// setSearchedColumn(dataIndex)
 						}}
 					>
 						Filtrar
@@ -185,21 +201,21 @@ const CostsCenters = () => {
 			if (visible) {
 				setTimeout(() => searchInput.current?.select(), 100)
 			}
-		},
-		render: text =>
-			searchColumn === dataIndex ? (
-				<Highlighter
-					highlightStyle={{
-						backgroundColor: '#ffc069',
-						padding: 0
-					}}
-					searchWords={[searchText]}
-					autoEscape
-					textToHighlight={text ? text.toString() : ''}
-				/>
-			) : (
-				text
-			)
+		}
+		// render: text =>
+		// 	searchColumn === dataIndex ? (
+		// 		<Highlighter
+		// 			highlightStyle={{
+		// 				backgroundColor: '#ffc069',
+		// 				padding: 0
+		// 			}}
+		// 			searchWords={[searchText]}
+		// 			autoEscape
+		// 			textToHighlight={text ? text.toString() : ''}
+		// 		/>
+		// 	) : (
+		// 		text
+		// 	)
 	})
 
 	// Custom Filter
@@ -233,7 +249,11 @@ const CostsCenters = () => {
 		{
 			title: 'Fecha de creación',
 			dataIndex: 'fecha',
-			key: 'fecha'
+			key: 'fecha',
+			sorter: (a, b) =>
+				moment(a.fecha, 'DD/MM/YYYY').unix() -
+				moment(b.fecha, 'DD/MM/YYYY').unix(),
+			sortDirections: ['ascend', 'descend']
 		},
 		{
 			title: 'Acciones',
@@ -309,6 +329,16 @@ const CostsCenters = () => {
 							display: 'flex',
 							alignItems: 'center'
 						}}
+						icon={<ReloadOutlined />}
+						onClick={handleFiltersReset}
+					>
+						Limpiar Filtros
+					</Button>
+					<Button
+						style={{
+							display: 'flex',
+							alignItems: 'center'
+						}}
 						type='primary'
 						icon={<PlusOutlined />}
 						onClick={() => handleOpen(true)}
@@ -318,6 +348,8 @@ const CostsCenters = () => {
 				</div>
 				<div className='table-container'>
 					<Table
+						key={tableKey}
+						ref={tableRef}
 						columns={columns}
 						dataSource={costsCenters}
 						pagination={{
