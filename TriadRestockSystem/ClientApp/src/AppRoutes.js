@@ -51,9 +51,15 @@ const AppRoutes = [
 	},
 	{
 		index: false,
-		path: '/items',
-		element: <Items />
-	}
+		path: '/catalogs',
+		element: <Catalogs />
+	},
+	{
+		index: false,
+		path: '/costsCenters',
+		element: <CostsCenters />
+	},
+
 ]
 
 export default AppRoutes
