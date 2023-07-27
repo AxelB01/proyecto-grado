@@ -50,6 +50,9 @@ const CustomLayout = ({ children }) => {
 			case 4:
 				path = '/items'
 				break
+			case 5:
+				path = '/catalogs'
+				break
 			case 6:
 				path = '/requests'
 				break
