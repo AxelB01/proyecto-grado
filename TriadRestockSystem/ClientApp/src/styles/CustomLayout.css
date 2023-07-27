@@ -53,3 +53,12 @@
 .breadcrumb-item-title {
 	margin-left: 0.25rem;
 }
+
+.site-layout {
+	margin-left: 220px; /* Set the initial width of the Sider */
+	transition: margin-left 0.3s;
+}
+
+.site-layout.collapsed {
+	margin-left: 80px; /* Set the width of the Sider when collapsed */
+}

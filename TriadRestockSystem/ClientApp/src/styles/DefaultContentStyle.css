@@ -8,8 +8,20 @@
 .btn-container {
 	display: flex;
 	flex-direction: row;
-	justify-content: end;
-	margin-bottom: 0.5rem;
+	margin-bottom: 2rem;
+	justify-content: space-between;
+}
+
+.btn-container .right {
+	display: flex;
+	flex-direction: row;
+	justify-self: start;
+}
+
+.btn-container .left {
+	display: flex;
+	flex-direction: row;
+	justify-self: end;
 }
 
 .btn-container button {

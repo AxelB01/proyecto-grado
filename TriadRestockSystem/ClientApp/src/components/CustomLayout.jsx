@@ -74,9 +74,16 @@ const CustomLayout = ({ children }) => {
 		<>
 			<Layout style={{ minHeight: '100vh' }}>
 				<Sider
+					style={{
+						overflow: 'auto',
+						height: '100vh',
+						position: 'fixed',
+						left: 0
+					}}
 					width={220}
 					collapsible
 					collapsed={collapsed}
+					collapsedWidth={80}
 					onCollapse={() => handleSlider()}
 					theme='light'
 				>
@@ -95,7 +102,7 @@ const CustomLayout = ({ children }) => {
 						onClick={handleMenuOption}
 					></Menu>
 				</Sider>
-				<Layout>
+				<Layout className={`site-layout ${collapsed ? 'collapsed' : ''}`}>
 					<Header style={{ padding: 0, height: '3.5rem', background: '#FFF' }}>
 						{!isStringEmpty(username) && (
 							<div className='header-container'>
@@ -125,7 +132,7 @@ const CustomLayout = ({ children }) => {
 							style={{
 								padding: 24,
 								height: '95%',
-								width: '100%',
+								// width: '100%',
 								background: '#FFF'
 							}}
 						>
