@@ -79,11 +79,3 @@ export const createCostCenterModel = () => {
 		FechaModificacion: ''
 	}
 }
-export const createCatalogsModel = () => {
-	return {
-		IdCatalogo: 0,
-		Catalogo: '',
-		CreadoPor: null,
-		FechaCreacion: null
-	}
-}

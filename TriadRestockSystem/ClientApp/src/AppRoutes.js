@@ -1,12 +1,11 @@
 import CostsCenters from './components/CostsCenters'
 import Families from './components/Families'
 import Home from './components/Home'
+import Items from './components/Items'
 import Login from './components/Login'
 import Request from './components/Request'
 import Requests from './components/Requests'
 import Users from './components/Users'
-import Items from './components/Items'
-import Catalogs from './components/Catalogs'
 
 const AppRoutes = [
 	{
@@ -51,8 +50,8 @@ const AppRoutes = [
 	},
 	{
 		index: false,
-		path: '/items',
-		element: <Items />
+		path: '/costsCenters',
+		element: <CostsCenters />
 	}
 ]
 
