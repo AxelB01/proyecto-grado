@@ -14,8 +14,7 @@ const context =  [
     "/api/familias",
     "/api/solicitudes",
     "/api/articulos",
-    "/api/centrosCostos"
-    "/api/articulos",
+    "/api/centrosCostos",
     "/api/catalogos"
 ];
 

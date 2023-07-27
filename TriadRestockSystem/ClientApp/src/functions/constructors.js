@@ -82,7 +82,7 @@ export const createCostCenterModel = () => {
 export const createCatalogsModel = () => {
 	return {
 		IdCatalogo: 0,
-		Catalogo: '',
+		Nombre: '',
 		CreadoPor: null,
 		FechaCreacion: null
 	}
