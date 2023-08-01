@@ -3,13 +3,11 @@ import {
 	EditOutlined,
 	MoneyCollectOutlined,
 	PlusOutlined,
-	ReloadOutlined,
-	SearchOutlined
+	ReloadOutlined
 } from '@ant-design/icons'
-import { Button, Empty, Input, Space, Table } from 'antd'
+import { Button, Col, Row, Space, Statistic } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
-import moment from 'moment'
 import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
@@ -18,6 +16,7 @@ import { sleep } from '../functions/sleep'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
 import CostsCentersForm from './CostsCentersForm'
+import CustomSimpleTable from './CustomSimpleTable'
 
 const CENTROS_COSTOS_URL = '/api/centrosCostos/getCostsCentersData'
 const CENTRO_COSTO_GET = '/api/centrosCostos/getCentroCostos'
@@ -91,23 +90,6 @@ const CostsCenters = () => {
 		}
 	}, [initialValues])
 
-	// Custom Filter
-	// const [searchText, setSearchText] = useState('')
-	// const [searchColumn, setSearchedColumn] = useState('')
-	const searchInput = useRef(null)
-	const handleSearch = (selectedKeys, confirm, dataIndex) => {
-		confirm()
-		// setSearchText(selectedKeys[0])
-		// setSearchedColumn(dataIndex)
-	}
-
-	const handleReset = (clearFilters, confirm, dataIndex) => {
-		clearFilters()
-		confirm()
-		// setSearchText('')
-		// setSearchedColumn(dataIndex)
-	}
-
 	const tableRef = useRef()
 	const [tableKey, setTableKey] = useState(Date.now())
 
@@ -122,138 +104,38 @@ const CostsCenters = () => {
 		setTableKey(Date.now())
 	}
 
-	const getColumnSearchProps = dataIndex => ({
-		filterDropdown: ({
-			setSelectedKeys,
-			selectedKeys,
-			confirm,
-			clearFilters,
-			close
-		}) => (
-			<div style={{ padding: 8 }} onKeyDown={e => e.stopPropagation()}>
-				<Input
-					ref={searchInput}
-					placeholder={`Buscar por ${dataIndex}`}
-					value={selectedKeys[0]}
-					onChange={e =>
-						setSelectedKeys(e.target.value ? [e.target.value] : [])
-					}
-					onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-					style={{
-						marginBottom: 8,
-						display: 'block'
-					}}
-				/>
-				<Space>
-					<Button
-						type='primary'
-						onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-						icon={<SearchOutlined />}
-						size='small'
-						style={{
-							width: 90
-						}}
-					>
-						Buscar
-					</Button>
-					<Button
-						onClick={() =>
-							clearFilters && handleReset(clearFilters, confirm, dataIndex)
-						}
-						size='small'
-						style={{
-							width: 90
-						}}
-					>
-						Limpiar
-					</Button>
-					<Button
-						type='link'
-						size='small'
-						onClick={() => {
-							confirm({
-								closeDropdown: false
-							})
-							// setSearchText(selectedKeys[0])
-							// setSearchedColumn(dataIndex)
-						}}
-					>
-						Filtrar
-					</Button>
-					<Button
-						type='link'
-						size='small'
-						onClick={() => {
-							close()
-						}}
-					>
-						Cerrar
-					</Button>
-				</Space>
-			</div>
-		),
-		filterIcon: filtered => (
-			<SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
-		),
-		onFilter: (value, record) =>
-			record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-		onFilterDropdownOpenChange: visible => {
-			if (visible) {
-				setTimeout(() => searchInput.current?.select(), 100)
-			}
-		}
-		// render: text =>
-		// 	searchColumn === dataIndex ? (
-		// 		<Highlighter
-		// 			highlightStyle={{
-		// 				backgroundColor: '#ffc069',
-		// 				padding: 0
-		// 			}}
-		// 			searchWords={[searchText]}
-		// 			autoEscape
-		// 			textToHighlight={text ? text.toString() : ''}
-		// 		/>
-		// 	) : (
-		// 		text
-		// 	)
-	})
-
-	// Custom Filter
-
 	const columns = [
 		{
 			title: 'Código',
 			dataIndex: 'id',
 			key: 'id',
-			...getColumnSearchProps('id')
+			filterType: 'text search'
 		},
 		{
 			title: 'Nombre',
 			dataIndex: 'nombre',
 			key: 'nombre',
-			...getColumnSearchProps('nombre')
+			filterType: 'text search'
 		},
 		{
 			title: 'Cuenta',
 			dataIndex: 'cuenta',
 			key: 'cuenta',
-			...getColumnSearchProps('cuenta')
+			filterType: 'text search'
 		},
 		{
 			title: 'Creador',
 			dataIndex: 'creadoPor',
 			key: 'creadoPor',
-			...getColumnSearchProps('creadoPor'),
+			filterType: 'text search',
 			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
 		},
 		{
 			title: 'Fecha de creación',
 			dataIndex: 'fecha',
 			key: 'fecha',
-			sorter: (a, b) =>
-				moment(a.fecha, 'DD/MM/YYYY').unix() -
-				moment(b.fecha, 'DD/MM/YYYY').unix(),
-			sortDirections: ['ascend', 'descend']
+			filterType: 'date sorter',
+			dateFormat: 'DD/MM/YYYY'
 		},
 		{
 			title: 'Acciones',
@@ -306,13 +188,6 @@ const CostsCenters = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
-	const customNoDataText = (
-		<Empty
-			image={Empty.PRESENTED_IMAGE_SIMPLE}
-			description='No existen registros'
-		/>
-	)
-
 	return (
 		<>
 			<div className='page-content-container'>
@@ -323,44 +198,50 @@ const CostsCenters = () => {
 					handleLoading={handleLoading}
 					initialValues={initialValues}
 				/>
+				<div className='info-container'>
+					<Row align='end'>
+						<Col span={3}>
+							<Statistic
+								style={{
+									textAlign: 'end'
+								}}
+								title='Centros de costos'
+								value={costsCenters.length}
+							/>
+						</Col>
+					</Row>
+				</div>
 				<div className='btn-container'>
-					<Button
-						style={{
-							display: 'flex',
-							alignItems: 'center'
-						}}
-						icon={<ReloadOutlined />}
-						onClick={handleFiltersReset}
-					>
-						Limpiar Filtros
-					</Button>
-					<Button
-						style={{
-							display: 'flex',
-							alignItems: 'center'
-						}}
-						type='primary'
-						icon={<PlusOutlined />}
-						onClick={() => handleOpen(true)}
-					>
-						Nuevo Centro de costos
-					</Button>
+					<div className='right'>
+						<Button
+							style={{
+								display: 'flex',
+								alignItems: 'center'
+							}}
+							type='primary'
+							icon={<PlusOutlined />}
+							onClick={() => handleOpen(true)}
+						>
+							Nuevo Centro de costos
+						</Button>
+						<Button
+							style={{
+								display: 'flex',
+								alignItems: 'center'
+							}}
+							icon={<ReloadOutlined />}
+							onClick={handleFiltersReset}
+						>
+							Limpiar Filtros
+						</Button>
+					</div>
 				</div>
 				<div className='table-container'>
-					<Table
-						key={tableKey}
-						ref={tableRef}
+					<CustomSimpleTable
+						tableKey={tableKey}
+						tableRef={tableRef}
+						data={costsCenters}
 						columns={columns}
-						dataSource={costsCenters}
-						pagination={{
-							total: costsCenters.length,
-							showTotal: () => `${costsCenters.length} registros en total`,
-							defaultPageSize: 10,
-							defaultCurrent: 1
-						}}
-						locale={{
-							emptyText: customNoDataText
-						}}
 					/>
 				</div>
 			</div>

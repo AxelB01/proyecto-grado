@@ -1,7 +1,7 @@
 import { Button, Col, Form, Input, Modal, Row } from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import LayoutContext from '../context/LayoutContext'
-import { createCatalogsModel } from '../functions/constructors'
+import { createCatalogModel } from '../functions/constructors'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 
 const CATALOGS_SAVE = '/api/catalogos/guardarCatalogo'
@@ -20,7 +20,7 @@ const CatalogsForm = ({
 	const [title, setTitle] = useState('Nuevo catalogo de articulos')
 
 	useEffect(() => {
-		const { IdCatalogos,Nombre } = initialValues
+		const { IdCatalogos, Nombre } = initialValues
 		form.setFieldsValue({
 			id: IdCatalogos,
 			nombre: Nombre
@@ -33,7 +33,7 @@ const CatalogsForm = ({
 		}
 	}, [form, initialValues, open])
 
-	const saveCatalogs = async model => {
+	const saveCatalog = async model => {
 		try {
 			const response = await axiosPrivate.post(CATALOGS_SAVE, model)
 			if (response?.status === 200) {
@@ -52,10 +52,10 @@ const CatalogsForm = ({
 	}
 
 	const onFinish = values => {
-		const model = createCatalogsModel()
-		model.IdCatalogo = values.id
+		const model = createCatalogModel()
+		model.Id = values.id
 		model.Nombre = values.nombre
-		saveCatalogs(model)
+		saveCatalog(model)
 	}
 
 	const onFinishFailed = values => {

@@ -1,12 +1,12 @@
 import { Button, Col, Drawer, Form, Input, Row, Space } from 'antd'
-import { useEffect } from 'react'
+import { useContext, useEffect } from 'react'
+import LayoutContext from '../context/LayoutContext'
 import { createFamiliesModel } from '../functions/constructors'
-import createNotification from '../functions/notification'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 
 // const { Option } = Select
 
-const INPUT_TEXT_NAME_REGEX = /^[A-Za-zñÑ\s]+$/
+const INPUT_TEXT_NAME_REGEX = /^[a-zA-ZñáéíóúÁÉÍÓÚ\s]+$/
 const SAVE_FAMILIES_URL = '/api/familias/guardarFamilia'
 
 const FamiliesForm = ({
@@ -19,6 +19,9 @@ const FamiliesForm = ({
 	handleLoading
 }) => {
 	// const { roles, centrosCostos } = initialValues
+
+	const { openMessage } = useContext(LayoutContext)
+
 	const axiosPrivate = useAxiosPrivate()
 
 	const [form] = Form.useForm()
@@ -46,11 +49,7 @@ const FamiliesForm = ({
 		try {
 			const response = await axiosPrivate.post(SAVE_FAMILIES_URL, model)
 			if (response?.status === 200) {
-				createNotification(
-					'success',
-					'Guardado!',
-					'La familia ha sido guardado correctamente'
-				)
+				openMessage('success', 'Familia guardada')
 				onClose()
 				getFamilyData()
 			}

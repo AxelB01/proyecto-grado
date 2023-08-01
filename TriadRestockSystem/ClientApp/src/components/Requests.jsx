@@ -2,27 +2,20 @@ import {
 	EditOutlined,
 	FileAddOutlined,
 	ReloadOutlined,
-	SearchOutlined,
 	SolutionOutlined
 } from '@ant-design/icons'
-import { Button, Empty, Input, Space, Table, Tag } from 'antd'
+import { Button, Space, Tag } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
-import moment from 'moment'
 import { useNavigate } from 'react-router'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { sleep } from '../functions/sleep'
+import useCostCenters from '../hooks/useCostCenters'
 import useDocumentStates from '../hooks/useDocumentStates'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
-
-const customNoDataText = (
-	<Empty
-		image={Empty.PRESENTED_IMAGE_SIMPLE}
-		description='No existen registros'
-	/>
-)
+import CustomSimpleTable from './CustomSimpleTable'
 
 const GET_REQUESTS_LIST = 'api/solicitudes/getSolicitudes'
 
@@ -37,6 +30,7 @@ const Requests = () => {
 	const [loading, setLoading] = useState({})
 
 	const documentoEstados = useDocumentStates()
+	const centrosCostos = useCostCenters()
 
 	const handleEditRequest = rowId => {
 		setLoading(prevState => ({
@@ -105,159 +99,44 @@ const Requests = () => {
 		setTableKey(Date.now())
 	}
 
-	// Custom Filter
-	// const [searchText, setSearchText] = useState('')
-	// const [searchColumn, setSearchedColumn] = useState('')
-	const searchInput = useRef(null)
-	const handleSearch = (selectedKeys, confirm, dataIndex) => {
-		confirm()
-		// setSearchText(selectedKeys[0])
-		// setSearchedColumn(dataIndex)
-	}
-
-	const handleReset = (clearFilters, confirm, dataIndex) => {
-		clearFilters()
-		confirm()
-		// setSearchText('')
-		// setSearchedColumn(dataIndex)
-	}
-
-	const getColumnSearchProps = dataIndex => ({
-		filterDropdown: ({
-			setSelectedKeys,
-			selectedKeys,
-			confirm,
-			clearFilters,
-			close
-		}) => (
-			<div style={{ padding: 8 }} onKeyDown={e => e.stopPropagation()}>
-				<Input
-					ref={searchInput}
-					placeholder={`Buscar por ${dataIndex}`}
-					value={selectedKeys[0]}
-					onChange={e =>
-						setSelectedKeys(e.target.value ? [e.target.value] : [])
-					}
-					onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-					style={{
-						marginBottom: 8,
-						display: 'block'
-					}}
-				/>
-				<Space>
-					<Button
-						type='primary'
-						onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-						icon={<SearchOutlined />}
-						size='small'
-						style={{
-							width: 90
-						}}
-					>
-						Buscar
-					</Button>
-					<Button
-						onClick={() =>
-							clearFilters && handleReset(clearFilters, confirm, dataIndex)
-						}
-						size='small'
-						style={{
-							width: 90
-						}}
-					>
-						Limpiar
-					</Button>
-					<Button
-						type='link'
-						size='small'
-						onClick={() => {
-							confirm({
-								closeDropdown: false
-							})
-							// setSearchText(selectedKeys[0])
-							// setSearchedColumn(dataIndex)
-						}}
-					>
-						Filtrar
-					</Button>
-					<Button
-						type='link'
-						size='small'
-						onClick={() => {
-							close()
-						}}
-					>
-						Cerrar
-					</Button>
-				</Space>
-			</div>
-		),
-		filterIcon: filtered => (
-			<SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
-		),
-		onFilter: (value, record) =>
-			record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-		onFilterDropdownOpenChange: visible => {
-			if (visible) {
-				setTimeout(() => searchInput.current?.select(), 100)
-			}
-		}
-		// render: text =>
-		// 	searchColumn === dataIndex ? (
-		// 		<Highlighter
-		// 			highlightStyle={{
-		// 				backgroundColor: '#ffc069',
-		// 				padding: 0
-		// 			}}
-		// 			searchWords={[searchText]}
-		// 			autoEscape
-		// 			textToHighlight={text ? text.toString() : ''}
-		// 		/>
-		// 	) : (
-		// 		text
-		// 	)
-	})
-
-	// Custom Filter
-
 	const columns = [
 		{
 			title: 'Número',
 			dataIndex: 'numero',
 			key: 'numero',
-			...getColumnSearchProps('numero')
+			width: 150,
+			fixed: 'left',
+			filterType: 'text search'
 		},
 		{
 			title: 'Centro de costos',
 			dataIndex: 'centroCosto',
 			key: 'centroCosto',
-			...getColumnSearchProps('centroCosto')
+			fixed: 'left',
+			filterType: 'custom filter',
+			data: centrosCostos
 		},
 		{
 			title: 'Fecha',
 			dataIndex: 'fecha',
 			key: 'fecha',
-			sorter: (a, b) =>
-				moment(a.fecha, 'DD/MM/YYYY').unix() -
-				moment(b.fecha, 'DD/MM/YYYY').unix(),
-			sortDirections: ['ascend', 'descend']
+			width: 120,
+			filterType: 'date sorter',
+			dateFormat: 'DD/MM/YYYY'
+		},
+		{
+			title: 'Justificación',
+			dataIndex: 'justificacion',
+			key: 'justificacion',
+			width: 500,
+			filterType: 'text search'
 		},
 		{
 			title: 'Estado',
 			dataIndex: 'estado',
 			key: 'estado',
-			filters: documentoEstados.map(d => {
-				return { text: d.text, value: d.text }
-			}),
-			onFilter: (value, record) => record.estado.indexOf(value) === 0,
-			// filters: [
-			// 	{
-			// 		text: 'Borrador',
-			// 		value: 'Borrador'
-			// 	}
-			// ],
-			// filterMode: 'tree',
-			// filterSearch: false,
+			filterType: 'custom filter',
+			data: documentoEstados,
 			render: state => (
 				<>
 					{
@@ -281,16 +160,13 @@ const Requests = () => {
 			title: 'Creado por',
 			dataIndex: 'creadoPor',
 			key: 'creadoPor',
-			...getColumnSearchProps('creadoPor'),
-			render: state => (
-				<>
-					<span style={{ color: 'blue' }}>{state}</span>
-				</>
-			)
+			filterType: 'text search',
+			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
 		},
 		{
 			title: 'Acciones',
 			key: 'accion',
+			fixed: 'right',
 			render: (_, record) => (
 				<Space size='middle' align='center'>
 					<Button
@@ -309,26 +185,35 @@ const Requests = () => {
 		<>
 			<div className='page-content-container'>
 				<div className='btn-container'>
-					<Button
-						style={{
-							display: 'flex',
-							alignItems: 'center'
-						}}
-						icon={<ReloadOutlined />}
-						onClick={handleFiltersReset}
-					>
-						Limpiar Filtros
-					</Button>
-					<Button
-						type='primary'
-						icon={<FileAddOutlined />}
-						onClick={() => navigate('/request')}
-					>
-						Nueva solicitud
-					</Button>
+					<div className='right'>
+						<Button
+							type='primary'
+							icon={<FileAddOutlined />}
+							onClick={() => navigate('/request')}
+						>
+							Nueva solicitud
+						</Button>
+						<Button
+							style={{
+								display: 'flex',
+								alignItems: 'center'
+							}}
+							icon={<ReloadOutlined />}
+							onClick={handleFiltersReset}
+						>
+							Limpiar Filtros
+						</Button>
+					</div>
 				</div>
 				<div className='table-container'>
-					<Table
+					<CustomSimpleTable
+						tableKey={tableKey}
+						tableRef={tableRef}
+						data={requests}
+						columns={columns}
+						scrollable={true}
+					/>
+					{/* <Table
 						key={tableKey}
 						ref={tableRef}
 						columns={columns}
@@ -356,7 +241,7 @@ const Requests = () => {
 						locale={{
 							emptyText: customNoDataText
 						}}
-					/>
+					/> */}
 				</div>
 			</div>
 		</>

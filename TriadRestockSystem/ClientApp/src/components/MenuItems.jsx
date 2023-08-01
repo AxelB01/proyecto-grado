@@ -9,6 +9,7 @@ import {
 	ShareAltOutlined,
 	SolutionOutlined,
 	TagsOutlined,
+	TeamOutlined,
 	UserOutlined
 } from '@ant-design/icons'
 
@@ -27,7 +28,6 @@ const getItem = (label, key, icon, children, type) => {
 }
 
 const MenuItems = [
-	{ type: 'divider' },
 	getItem('Inicio', '0', <HomeOutlined style={iconStyle} />),
 	{ type: 'divider' },
 	getItem('Almacenes', '2', <AppstoreAddOutlined style={iconStyle} />),
@@ -37,13 +37,13 @@ const MenuItems = [
 	{ type: 'divider' },
 	getItem('Solicitudes', '6', <SolutionOutlined style={iconStyle} />),
 	getItem('Requisiciones', '7', <FileSearchOutlined style={iconStyle} />),
+	getItem('Proveedores', '10', <TeamOutlined style={iconStyle} />),
 	getItem('Órdenes de compra', '8', <FileDoneOutlined style={iconStyle} />),
 	{ type: 'divider' },
 	getItem('Configuración', 'sub1', <SettingOutlined style={iconStyle} />, [
 		getItem('Usuarios', '1', <UserOutlined style={iconStyle} />),
 		getItem('Centros de costo', '9', <MoneyCollectOutlined style={iconStyle} />)
-	]),
-	{ type: 'divider' }
+	])
 ]
 
 export default MenuItems

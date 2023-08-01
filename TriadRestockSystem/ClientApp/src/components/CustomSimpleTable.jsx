@@ -4,7 +4,14 @@ import locale from 'antd/lib/locale/es_ES'
 import moment from 'moment'
 import { useRef } from 'react'
 
-const CustomSimpleTable = ({ tableKey, tableRef, data, columns }) => {
+const CustomSimpleTable = ({
+	tableKey,
+	tableRef,
+	tableState,
+	data,
+	columns,
+	scrollable
+}) => {
 	const customNoDataText = (
 		<Empty
 			image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -141,17 +148,22 @@ const CustomSimpleTable = ({ tableKey, tableRef, data, columns }) => {
 
 	// Add Custom Filters
 
+	const scroll = scrollable
+		? {
+				x: 1500,
+				y: 500
+		  }
+		: {}
+
 	return (
 		<>
 			<Table
 				key={tableKey}
 				ref={tableRef}
+				loading={tableState}
 				dataSource={data}
 				columns={customColumns}
-				scroll={{
-					x: 1500,
-					y: 500
-				}}
+				scroll={scroll}
 				pagination={{
 					total: data.length,
 					showTotal: () => `${data.length} registros en total`,

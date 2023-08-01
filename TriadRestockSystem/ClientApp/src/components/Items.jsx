@@ -36,6 +36,7 @@ const Items = () => {
 	const tipoArticuloItems = useItemsTypes()
 	const unidadMedidaItems = useMeasurementUnits()
 
+	const [tableState, setTableState] = useState(true)
 	const [tableLoading, setTableLoading] = useState({})
 
 	const handleEditRequest = rowId => {
@@ -101,6 +102,7 @@ const Items = () => {
 				const response = await axiosPrivate.get(ITEMS_DATA_URL)
 				const data = response?.data
 				setData(data)
+				setTableState(false)
 			} catch (error) {
 				console.log(error)
 			}
@@ -128,7 +130,7 @@ const Items = () => {
 			title: 'Nombre',
 			dataIndex: 'nombre',
 			key: 'nombre',
-			width: 0,
+			width: 200,
 			fixed: 'left',
 			filterType: 'text search'
 		},
@@ -143,13 +145,14 @@ const Items = () => {
 			title: 'Descripcion',
 			dataIndex: 'descripcion',
 			key: 'descripcion',
-			width: 0,
+			width: 400,
 			filterType: 'text search'
 		},
 		{
 			title: 'Familia',
 			dataIndex: 'familia',
 			key: 'familia',
+			width: 200,
 			filterType: 'custom filter',
 			data: familiaItems
 		},
@@ -157,6 +160,7 @@ const Items = () => {
 			title: 'Tipo',
 			dataIndex: 'tipo',
 			key: 'tipo',
+			width: 200,
 			filterType: 'custom filter',
 			data: tipoArticuloItems
 		},
@@ -164,6 +168,7 @@ const Items = () => {
 			title: 'Fecha de creación',
 			dataIndex: 'fecha',
 			key: 'fecha',
+			width: 120,
 			filterType: 'date sorter',
 			dateFormat: 'DD/MM/YYYY'
 		},
@@ -284,8 +289,10 @@ const Items = () => {
 				<CustomSimpleTable
 					tableKey={tableKey}
 					tableRef={tableRef}
+					tableState={tableState}
 					data={data}
 					columns={columns}
+					scrollable={true}
 				/>
 			</div>
 		</>
