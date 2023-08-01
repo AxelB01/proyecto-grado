@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TriadRestockSystem.Security;
+using TriadRestockSystem.ViewModels;
 using TriadRestockSystemData.Data;
 using TriadRestockSystemData.Data.Models;
 using TriadRestockSystemData.Data.ViewModels;
@@ -40,7 +40,7 @@ namespace TriadRestockSystem.Controllers
         }
 
         [HttpPost("guardarCatalogo")]
-        public IActionResult GuardarCatalogos(vmCatalogo model)
+        public IActionResult GuardarCatalogos(vmCatalog model)
         {
             var login = HttpContext.Items["Username"] as string;
             var pass = HttpContext.Items["Password"] as string;
@@ -49,12 +49,12 @@ namespace TriadRestockSystem.Controllers
 
             if (user != null)
             {
-                Catalogo? catalogo = _db.Catalogos.FirstOrDefault(v => v.IdCatalogo == model.IdCatalogo);
+                Catalogo? catalogo = _db.Catalogos.FirstOrDefault(v => v.IdCatalogo == model.Id);
                 if (catalogo == null)
                 {
                     catalogo = new Catalogo
                     {
-                        Nombre = model!.Nombre,
+                        Nombre = model.Nombre,
                         CreadoPor = user.IdUsuario,
                         FechaCreacion = DateTime.Now,
                     };
