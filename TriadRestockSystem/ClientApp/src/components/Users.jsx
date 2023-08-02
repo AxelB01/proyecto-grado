@@ -1,14 +1,12 @@
 import {
 	EditOutlined,
 	ReloadOutlined,
-	SearchOutlined,
 	UserAddOutlined,
 	UserOutlined
 } from '@ant-design/icons'
-import { Button, Empty, Input, Space, Table, Tag } from 'antd'
+import { Button, Col, Row, Space, Statistic, Tag } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
-import moment from 'moment'
 import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
@@ -16,6 +14,7 @@ import { sleep } from '../functions/sleep'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import useUserStates from '../hooks/useUserStates'
 import '../styles/DefaultContentStyle.css'
+import CustomSimpleTable from './CustomSimpleTable'
 import UserForm from './UserForm'
 
 const USERS_DATA_URL = '/api/usuarios/getUsuarios'
@@ -130,161 +129,34 @@ const Users = () => {
 		setTableKey(Date.now())
 	}
 
-	// Custom Filter
-	// const [searchText, setSearchText] = useState('')
-	// const [searchColumn, setSearchedColumn] = useState('')
-	const searchInput = useRef(null)
-	const handleSearch = (selectedKeys, confirm, dataIndex) => {
-		confirm()
-		// setSearchText(selectedKeys[0])
-		// setSearchedColumn(dataIndex)
-	}
-
-	const handleReset = (clearFilters, confirm, dataIndex) => {
-		clearFilters()
-		confirm()
-		// setSearchText('')
-		// setSearchedColumn(dataIndex)
-	}
-
-	const getColumnSearchProps = dataIndex => ({
-		filterDropdown: ({
-			setSelectedKeys,
-			selectedKeys,
-			confirm,
-			clearFilters,
-			close
-		}) => (
-			<div style={{ padding: 8 }} onKeyDown={e => e.stopPropagation()}>
-				<Input
-					ref={searchInput}
-					placeholder={`Buscar por ${dataIndex}`}
-					value={selectedKeys[0]}
-					onChange={e =>
-						setSelectedKeys(e.target.value ? [e.target.value] : [])
-					}
-					onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-					style={{
-						marginBottom: 8,
-						display: 'block'
-					}}
-				/>
-				<Space>
-					<Button
-						type='primary'
-						onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-						icon={<SearchOutlined />}
-						size='small'
-						style={{
-							width: 90
-						}}
-					>
-						Buscar
-					</Button>
-					<Button
-						onClick={() =>
-							clearFilters && handleReset(clearFilters, confirm, dataIndex)
-						}
-						size='small'
-						style={{
-							width: 90
-						}}
-					>
-						Limpiar
-					</Button>
-					<Button
-						type='link'
-						size='small'
-						onClick={() => {
-							confirm({
-								closeDropdown: false
-							})
-							// setSearchText(selectedKeys[0])
-							// setSearchedColumn(dataIndex)
-						}}
-					>
-						Filtrar
-					</Button>
-					<Button
-						type='link'
-						size='small'
-						onClick={() => {
-							close()
-						}}
-					>
-						Cerrar
-					</Button>
-				</Space>
-			</div>
-		),
-		filterIcon: filtered => (
-			<SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
-		),
-		onFilter: (value, record) =>
-			record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-		onFilterDropdownOpenChange: visible => {
-			if (visible) {
-				setTimeout(() => searchInput.current?.select(), 100)
-			}
-		}
-		// render: text =>
-		// 	searchColumn === dataIndex ? (
-		// 		<Highlighter
-		// 			highlightStyle={{
-		// 				backgroundColor: '#ffc069',
-		// 				padding: 0
-		// 			}}
-		// 			searchWords={[searchText]}
-		// 			autoEscape
-		// 			textToHighlight={text ? text.toString() : ''}
-		// 		/>
-		// 	) : (
-		// 		text
-		// 	)
-	})
-
-	// Custom Filter
-
 	const columns = [
 		{
 			title: 'Código',
 			dataIndex: 'id',
 			key: 'id',
-			...getColumnSearchProps('id')
+			width: 150,
+			fixed: 'left',
+			filterType: 'text search'
 		},
 		{
 			title: 'Nombre',
 			dataIndex: 'nombre',
 			key: 'nombre',
-			...getColumnSearchProps('nombre')
+			fixed: 'left',
+			filterType: 'text search'
 		},
 		{
 			title: 'Login',
 			dataIndex: 'login',
 			key: 'login',
-			...getColumnSearchProps('login')
+			filterType: 'text search'
 		},
 		{
 			title: 'Estado',
 			dataIndex: 'estado',
 			key: 'estado',
-			filters: usuarioEstados.map(u => {
-				return { text: u.text, value: u.text }
-			}),
-			onFilter: (value, record) => record.estado.indexOf(value) === 0,
-			// filters: [
-			// 	{
-			// 		text: 'Activo',
-			// 		value: 'Activo'
-			// 	},
-			// 	{
-			// 		text: 'Inactivo',
-			// 		value: 'Inactivo'
-			// 	}
-			// ],
-			// filterMode: 'tree',
-			// filterSearch: false,
-			// onFilter: (value, record) => record.estado.includes(value),
+			filterType: 'custom filter',
+			data: usuarioEstados,
 			render: state => (
 				<>
 					{
@@ -302,20 +174,20 @@ const Users = () => {
 			title: 'Fecha de creación',
 			dataIndex: 'fecha',
 			key: 'fecha',
-			sorter: (a, b) =>
-				moment(a.fecha, 'DD/MM/YYYY').unix() -
-				moment(b.fecha, 'DD/MM/YYYY').unix(),
-			sortDirections: ['ascend', 'descend']
+			filterType: 'date sorter',
+			dateFormat: 'DD/MM/YYYY'
 		},
 		{
 			title: 'Creado por',
 			dataIndex: 'creadoPor',
 			key: 'creadoPor',
-			...getColumnSearchProps('creadoPor')
+			filterType: 'text search',
+			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
 		},
 		{
 			title: 'Acciones',
 			key: 'accion',
+			fixed: 'right',
 			render: (_, record) => (
 				<Space size='middle' align='center'>
 					<Button
@@ -393,13 +265,6 @@ const Users = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
-	const customNoDataText = (
-		<Empty
-			image={Empty.PRESENTED_IMAGE_SIMPLE}
-			description='No existen registros'
-		/>
-	)
-
 	return (
 		<>
 			<UserForm
@@ -413,42 +278,67 @@ const Users = () => {
 				loading={loading}
 				handleLoading={setLoading}
 			/>
+			<div className='info-container'>
+				<Row align='end'>
+					<Col span={3}>
+						<Statistic
+							style={{
+								textAlign: 'end'
+							}}
+							title='Usuarios Activos'
+							value={data.filter(u => u.estado === 'Activo').length}
+						/>
+					</Col>
+					<Col span={3}>
+						<Statistic
+							style={{
+								textAlign: 'end'
+							}}
+							title='Usuarios Inactivos'
+							value={data.filter(u => u.estado === 'Inactivo').length}
+						/>
+					</Col>
+					<Col span={3}>
+						<Statistic
+							style={{
+								textAlign: 'end'
+							}}
+							title='Total Usuarios'
+							value={data.length}
+						/>
+					</Col>
+				</Row>
+			</div>
 			<div className='page-content-container'>
 				<div className='btn-container'>
-					<Button
-						style={{
-							display: 'flex',
-							alignItems: 'center'
-						}}
-						icon={<ReloadOutlined />}
-						onClick={handleFiltersReset}
-					>
-						Limpiar Filtros
-					</Button>
-					<Button
-						type='primary'
-						icon={<UserAddOutlined />}
-						onClick={handleResetUserForm}
-					>
-						Nuevo usuario
-					</Button>
+					<div className='right'>
+						<Button
+							type='primary'
+							icon={<UserAddOutlined />}
+							onClick={handleResetUserForm}
+						>
+							Nuevo usuario
+						</Button>
+						<Button
+							style={{
+								display: 'flex',
+								alignItems: 'center'
+							}}
+							icon={<ReloadOutlined />}
+							onClick={handleFiltersReset}
+						>
+							Limpiar Filtros
+						</Button>
+					</div>
 				</div>
 
 				<div className='table-container'>
-					<Table
-						key={tableKey}
-						ref={tableRef}
+					<CustomSimpleTable
+						tableKey={tableKey}
+						tableRef={tableRef}
+						data={data}
 						columns={columns}
-						dataSource={data}
-						pagination={{
-							total: data.length,
-							showTotal: () => `${data.length} registros en total`,
-							defaultPageSize: 10,
-							defaultCurrent: 1
-						}}
-						locale={{
-							emptyText: customNoDataText
-						}}
+						scrollable={true}
 					/>
 				</div>
 			</div>

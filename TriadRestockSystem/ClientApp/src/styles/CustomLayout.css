@@ -20,6 +20,15 @@
 	height: auto;
 }
 
+.site-layout {
+	margin-left: 220px;
+	transition: margin-left 0.3s;
+}
+
+.site-layout.collapsed {
+	margin-left: 80px;
+}
+
 .header-container {
 	display: flex;
 	flex-direction: row;

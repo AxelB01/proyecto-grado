@@ -1,15 +1,14 @@
 import {
 	EditOutlined,
 	ReloadOutlined,
-	SearchOutlined,
 	UserAddOutlined
 } from '@ant-design/icons'
-import { Button, Input, Space, Table } from 'antd'
+import { Button, Space, Statistic } from 'antd'
 import { useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
-import moment from 'moment'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
+import CustomSimpleTable from './CustomSimpleTable'
 import FamiliesForm from './FamiliesForm'
 
 const FAMILIES_DATA_URL = '/api/familias/getFamilias'
@@ -36,118 +35,6 @@ const Families = () => {
 		setTableKey(Date.now())
 	}
 
-	// const [searchText, setSearchText] = useState('')
-	// const [searchColumn, setSearchedColumn] = useState('')
-	const searchInput = useRef(null)
-	const handleSearch = (selectedKeys, confirm, dataIndex) => {
-		confirm()
-		// setSearchText(selectedKeys[0])
-		// setSearchedColumn(dataIndex)
-	}
-
-	const handleReset = (clearFilters, confirm, dataIndex) => {
-		clearFilters()
-		confirm()
-		// setSearchText('')
-		// setSearchedColumn(dataIndex)
-	}
-
-	const getColumnSearchProps = dataIndex => ({
-		filterDropdown: ({
-			setSelectedKeys,
-			selectedKeys,
-			confirm,
-			clearFilters,
-			close
-		}) => (
-			<div style={{ padding: 8 }} onKeyDown={e => e.stopPropagation()}>
-				<Input
-					ref={searchInput}
-					placeholder={`Buscar por ${dataIndex}`}
-					value={selectedKeys[0]}
-					onChange={e =>
-						setSelectedKeys(e.target.value ? [e.target.value] : [])
-					}
-					onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-					style={{
-						marginBottom: 8,
-						display: 'block'
-					}}
-				/>
-				<Space>
-					<Button
-						type='primary'
-						onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-						icon={<SearchOutlined />}
-						size='small'
-						style={{
-							width: 90
-						}}
-					>
-						Buscar
-					</Button>
-					<Button
-						onClick={() =>
-							clearFilters && handleReset(clearFilters, confirm, dataIndex)
-						}
-						size='small'
-						style={{
-							width: 90
-						}}
-					>
-						Limpiar
-					</Button>
-					<Button
-						type='link'
-						size='small'
-						onClick={() => {
-							confirm({
-								closeDropdown: false
-							})
-							// setSearchText(selectedKeys[0])
-							// setSearchedColumn(dataIndex)
-						}}
-					>
-						Filtrar
-					</Button>
-					<Button
-						type='link'
-						size='small'
-						onClick={() => {
-							close()
-						}}
-					>
-						Cerrar
-					</Button>
-				</Space>
-			</div>
-		),
-		filterIcon: filtered => (
-			<SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
-		),
-		onFilter: (value, record) =>
-			record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
-		onFilterDropdownOpenChange: visible => {
-			if (visible) {
-				setTimeout(() => searchInput.current?.select(), 100)
-			}
-		}
-		// render: text =>
-		// 	searchColumn === dataIndex ? (
-		// 		<Highlighter
-		// 			highlightStyle={{
-		// 				backgroundColor: '#ffc069',
-		// 				padding: 0
-		// 			}}
-		// 			searchWords={[searchText]}
-		// 			autoEscape
-		// 			textToHighlight={text ? text.toString() : ''}
-		// 		/>
-		// 	) : (
-		// 		text
-		// 	)
-	})
-
 	const [familyFormInitialValues, setFamiliesFormInitialValues] = useState({
 		id: 0,
 		nombre: ''
@@ -164,13 +51,15 @@ const Families = () => {
 			title: 'Código',
 			dataIndex: 'id',
 			key: 'id',
-			...getColumnSearchProps('id')
+			fixed: 'left',
+			filterType: 'text search'
 		},
 		{
 			title: 'Nombre',
 			dataIndex: 'familia',
 			key: 'familia',
-			...getColumnSearchProps('familia')
+			fixed: 'left',
+			filterType: 'text search'
 		},
 		{
 			title: 'Total artículos',
@@ -181,21 +70,20 @@ const Families = () => {
 			title: 'Fecha de creación',
 			dataIndex: 'fecha',
 			key: 'fecha',
-			sorter: (a, b) =>
-				moment(a.fecha, 'DD/MM/YYYY').unix() -
-				moment(b.fecha, 'DD/MM/YYYY').unix(),
-			sortDirections: ['ascend', 'descend']
+			filterType: 'date sorter',
+			dateFormat: 'DD/MM/YYYY'
 		},
 		{
 			title: 'Creado por',
 			dataIndex: 'creadoPor',
 			key: 'creadoPor',
-			...getColumnSearchProps('creadoPor'),
+			ilterType: 'text search',
 			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
 		},
 		{
 			title: 'Acciones',
 			key: 'accion',
+			fixed: 'right',
 			render: (_, record) => (
 				<Space size='middle' align='center'>
 					<Button
@@ -267,38 +155,41 @@ const Families = () => {
 				loading={loading}
 				handleLoading={setLoading}
 			/>
+			<div className='info-continer'>
+				<Statistic
+					style={{ textAlign: 'end' }}
+					title='Familias'
+					value={data.length}
+				/>
+			</div>
 			<div className='btn-container'>
-				<Button
-					style={{
-						display: 'flex',
-						alignItems: 'center'
-					}}
-					icon={<ReloadOutlined />}
-					onClick={handleFiltersReset}
-				>
-					Limpiar Filtros
-				</Button>
-				<Button
-					type='primary'
-					icon={<UserAddOutlined />}
-					onClick={handleResetFamiliesForm}
-				>
-					Nuevo familia
-				</Button>
+				<div className='right'>
+					<Button
+						type='primary'
+						icon={<UserAddOutlined />}
+						onClick={handleResetFamiliesForm}
+					>
+						Nuevo familia
+					</Button>
+					<Button
+						style={{
+							display: 'flex',
+							alignItems: 'center'
+						}}
+						icon={<ReloadOutlined />}
+						onClick={handleFiltersReset}
+					>
+						Limpiar Filtros
+					</Button>
+				</div>
 			</div>
 
 			<div className='table-container'>
-				<Table
-					key={tableKey}
-					ref={tableRef}
+				<CustomSimpleTable
+					tableKey={tableKey}
+					tableRef={tableRef}
+					data={data}
 					columns={columns}
-					dataSource={data}
-					pagination={{
-						total: data.length,
-						showTotal: () => `${data.length} registros en total`,
-						defaultPageSize: 10,
-						defaultCurrent: 1
-					}}
 				/>
 			</div>
 		</>

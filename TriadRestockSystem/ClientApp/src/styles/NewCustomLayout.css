@@ -1,0 +1,87 @@
+.layout {
+	min-height: 100vh;
+}
+
+.header {
+	background: white;
+	padding: 0;
+}
+
+/* CSS for the layout */
+.ant-layout {
+	position: relative;
+}
+
+/* CSS to fix the header at the top */
+.ant-layout-header {
+	position: fixed;
+	width: 100%;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	padding: 0 24px;
+	background: #fff;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* CSS to adjust content position below the fixed header */
+.ant-layout-content {
+	margin-top: 64px;
+}
+
+/* CSS to show collapsed sidebar icon */
+.trigger {
+	font-size: 18px;
+	line-height: 64px;
+	padding: 0 24px;
+	cursor: pointer;
+	transition: color 0.3s;
+}
+
+.trigger:hover {
+	color: #1890ff;
+}
+
+/* CSS for the logo */
+.logo {
+	height: 32px;
+	margin-right: 20px;
+	color: #fff;
+	font-size: 20px;
+	font-weight: bold;
+}
+
+/* CSS for the collapsible sidebar */
+.ant-layout-sider-collapsed {
+	position: fixed;
+	z-index: 2;
+}
+
+/* CSS to enable scrollbar for the collapsed sidebar */
+.ant-layout-sider-collapsed .ant-layout-sider-children {
+	overflow-y: auto;
+}
+
+/* CSS to ensure proper width of the collapsed sidebar */
+.ant-layout-sider-collapsed .ant-layout-sider {
+	width: 80px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-align: center;
+}
+
+.logo-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	max-width: 100%;
+	min-height: 3.5rem;
+}
+
+.logo {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 2.5rem;
+	min-height: auto;
+}
