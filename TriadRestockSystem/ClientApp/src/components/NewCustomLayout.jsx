@@ -70,9 +70,6 @@ const NewCustomLayout = ({ children }) => {
 		const handleScroll = () => {
 			const scrollTop = window.scrollY || document.documentElement.scrollTop
 			setIsSiderFixed(scrollTop >= 65)
-			if (scrollTop >= 65) {
-				console.log('trigger')
-			}
 		}
 
 		window.addEventListener('scroll', handleScroll)

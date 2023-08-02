@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TriadRestockSystem.Security;
 using TriadRestockSystem.ViewModels;
 using TriadRestockSystemData.Data;
 using TriadRestockSystemData.Data.Models;
-using TriadRestockSystemData.Data.ViewModels;
 
 namespace TriadRestockSystem.Controllers
 {
@@ -32,8 +32,10 @@ namespace TriadRestockSystem.Controllers
                     Key = x.IdCatalogo,
                     Id = x.IdCatalogo,
                     x.Nombre,
+                    CreadoPor = x.CreadoPorNavigation.Login,
                     Fecha = x.FechaCreacion.ToString("dd/MM/yyyy"),
-                    CreadoPor = x.CreadoPorNavigation.Login
+                    TotalArticulos = x.IdArticulos.Count,
+                    Articulos = _db.Catalogos.First(c => c.IdCatalogo == x.IdCatalogo).IdArticulos.Select(a => a.IdArticulo).ToList()
                 })
                 .ToList();
             return Ok(result);
@@ -73,6 +75,34 @@ namespace TriadRestockSystem.Controllers
             return Unauthorized();
         }
 
+        [HttpPost("guardarArticulosCatalogo")]
+        public IActionResult GuardarArticulosCatalogo(vmCatalog model)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                Catalogo? catalogo = _db.Catalogos
+                    .Include(c => c.IdArticulos)
+                    .FirstOrDefault(c => c.IdCatalogo == model.Id);
+                if (catalogo != null)
+                {
+                    var nuevosArticulos = _db.Articulos
+                        .Where(a => model.Detalle.Contains(a.IdArticulo))
+                        .ToList();
+                    catalogo.IdArticulos = nuevosArticulos;
+                    _db.SaveChanges();
+                    return Ok();
+                }
+                return BadRequest();
+            }
+
+            return Unauthorized();
+        }
+
         [HttpGet("getCatalogo")]
         public IActionResult GetCatalogo(int id)
         {
@@ -81,9 +111,9 @@ namespace TriadRestockSystem.Controllers
 
             if (catalogo != null)
             {
-                vmCatalogo vm = new()
+                vmCatalog vm = new()
                 {
-                    IdCatalogo = catalogo.IdCatalogo,
+                    Id = catalogo.IdCatalogo,
                     Nombre = catalogo.Nombre
                 };
                 return Ok(vm);

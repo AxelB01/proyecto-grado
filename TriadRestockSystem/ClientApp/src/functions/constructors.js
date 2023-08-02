@@ -85,3 +85,11 @@ export const createCatalogModel = () => {
 		Nombre: ''
 	}
 }
+
+export const createCatalogItemsModel = () => {
+	return {
+		Id: 0,
+		Nombre: '',
+		Detalle: []
+	}
+}

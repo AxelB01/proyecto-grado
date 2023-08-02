@@ -101,5 +101,21 @@ namespace TriadRestockSystem.Controllers
 
             return Ok(new { items = response });
         }
+
+        [HttpGet("getArticulosList")]
+        public IActionResult GetArticulosList()
+        {
+            var response = _db.ArticulosGetList()
+                .Select(x => new
+                {
+                    Key = x.IdArticulo,
+                    Text = $"{x.Nombre} ({x.UnidadMedida})",
+                    ShortText = x.Nombre,
+                    Stock = x.Existencias
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
     }
 }

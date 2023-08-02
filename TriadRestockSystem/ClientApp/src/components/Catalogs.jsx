@@ -11,11 +11,16 @@ import { useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
-import { createCatalogModel } from '../functions/constructors'
+import {
+	createCatalogItemsModel,
+	createCatalogModel
+} from '../functions/constructors'
 import { sleep } from '../functions/sleep'
+import useItems from '../hooks/useItems'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
 import CatalogsForm from './CatalogsForm'
+import CatalogsItemsForm from './CatalogsItemsForm'
 import CustomSimpleTable from './CustomSimpleTable'
 
 const CATALOGOS_GET = '/api/catalogos/getCatalogo'
@@ -28,11 +33,21 @@ const Catalogs = () => {
 	const axiosPrivate = useAxiosPrivate()
 	const navigate = useNavigate()
 	const [catalogs, setCatalogs] = useState([])
+
 	const [open, setOpen] = useState(false)
 	const [formLoading, setFormLoading] = useState(false)
 	const [loading, setLoading] = useState({})
 
+	const [openItemsForm, setOpenItemsForm] = useState(false)
+	const [itemsFormLoading, setItemsFormLoading] = useState(false)
+	const [loading2, setLoading2] = useState({})
+	const itemsList = useItems()
+
 	const [initialValues, setInitialValues] = useState(createCatalogModel())
+
+	const [catalogItemsInitialValues, setCatalogItemsInitialValues] = useState(
+		createCatalogItemsModel()
+	)
 
 	const handleEditCatalogs = rowId => {
 		setLoading(prevState => ({
@@ -53,17 +68,48 @@ const Catalogs = () => {
 		setFormLoading(value)
 	}
 
-	const getCatalogs = async id => {
+	const handleEditCatalogsItems = record => {
+		setLoading2(prevState => ({
+			...prevState,
+			[record.id]: true
+		}))
+		getCatalogItems(record)
+	}
+
+	const handleOpenItemsForm = value => {
+		setOpenItemsForm(value)
+		if (!value) {
+			setInitialValues(createCatalogItemsModel())
+		}
+	}
+
+	const handleLoadingCatalogsItems = value => {
+		setItemsFormLoading(value)
+	}
+
+	const getCatalog = async id => {
 		try {
 			const response = await axiosPrivate.get(CATALOGOS_GET + `?id=${id}`)
 			const data = response?.data
 			const model = createCatalogModel()
-			model.IdCatalogo = data.idCatalogo
+			model.Id = data.id
 			model.Nombre = data.nombre
 			setInitialValues(model)
+			setLoading(prevState => ({
+				...prevState,
+				[id]: false
+			}))
 		} catch (error) {
 			console.log(error)
 		}
+	}
+
+	const getCatalogItems = record => {
+		const model = createCatalogItemsModel()
+		model.Id = record.id
+		model.Nombre = record.nombre
+		model.Detalle = record.articulos
+		setCatalogItemsInitialValues(model)
 	}
 
 	useEffect(() => {
@@ -71,12 +117,14 @@ const Catalogs = () => {
 			try {
 				const response = await axiosPrivate.get(CATALOGOS_URL)
 				setCatalogs(response?.data)
+				setTableState(false)
 			} catch (error) {
 				console.log(error)
 			}
 		}
+
 		getCatalogs()
-	}, [axiosPrivate, open])
+	}, [axiosPrivate, open, openItemsForm])
 
 	useEffect(() => {
 		const { Id } = initialValues
@@ -88,6 +136,25 @@ const Catalogs = () => {
 			}))
 		}
 	}, [initialValues])
+
+	useEffect(() => {
+		const { Id } = catalogItemsInitialValues
+		if (Id !== 0) {
+			setOpenItemsForm(true)
+			setLoading2(prevState => ({
+				...prevState,
+				[Id]: false
+			}))
+		}
+	}, [catalogItemsInitialValues])
+
+	useEffect(() => {
+		if (!openItemsForm) {
+			setCatalogItemsInitialValues(createCatalogItemsModel())
+		}
+	}, [openItemsForm])
+
+	const [tableState, setTableState] = useState(true)
 
 	const tableRef = useRef()
 	const [tableKey, setTableKey] = useState(Date.now())
@@ -117,6 +184,13 @@ const Catalogs = () => {
 			filterType: 'text search'
 		},
 		{
+			title: 'Total Artículos',
+			dataIndex: 'totalArticulos',
+			key: 'totalArticulos',
+			filterType: 'sorter',
+			sortKey: 'totalArticulos'
+		},
+		{
 			title: 'Creador',
 			dataIndex: 'creadoPor',
 			key: 'creadoPor',
@@ -142,7 +216,11 @@ const Catalogs = () => {
 					>
 						Editar
 					</Button>
-					<Button icon={<TagsOutlined />} onClick={() => {}}>
+					<Button
+						icon={<TagsOutlined />}
+						loading={loading2[record.id]}
+						onClick={() => handleEditCatalogsItems(record)}
+					>
 						Artículos
 					</Button>
 				</Space>
@@ -191,6 +269,14 @@ const Catalogs = () => {
 					handleLoading={handleLoading}
 					initialValues={initialValues}
 				/>
+				<CatalogsItemsForm
+					open={openItemsForm}
+					handleOpen={handleOpenItemsForm}
+					loading={itemsFormLoading}
+					handleLoading={handleLoadingCatalogsItems}
+					source={itemsList.items}
+					initialValues={catalogItemsInitialValues}
+				/>
 				<div className='info-container'>
 					<Row align='end'>
 						<Col span={3}>
@@ -233,6 +319,7 @@ const Catalogs = () => {
 					<CustomSimpleTable
 						tableKey={tableKey}
 						tableRef={tableRef}
+						tableState={tableState}
 						data={catalogs}
 						columns={columns}
 					/>
