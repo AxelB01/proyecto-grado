@@ -7,6 +7,7 @@ import Requests from './components/Requests'
 import Users from './components/Users'
 import Items from './components/Items'
 import Catalogs from './components/Catalogs'
+import Suppliers from './components/Suppliers'
 
 const AppRoutes = [
 	{
@@ -59,6 +60,11 @@ const AppRoutes = [
 		path: '/costsCenters',
 		element: <CostsCenters />
 	},
+	{
+		index: false,
+		path: '/suppliers',
+		element: <Suppliers />
+	}
 
 ]
 

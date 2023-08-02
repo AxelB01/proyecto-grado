@@ -22,7 +22,7 @@ const items = [
 ]
 
 const NewCustomLayout = ({ children }) => {
-	const { username, destroyStoredAuth } = useContext(AuthContext)
+	const {  destroyStoredAuth } = useContext(AuthContext)
 	const { active, collapsed, breadcrumb, handleSlider } =
 		useContext(LayoutContext)
 	const navigate = useNavigate()
