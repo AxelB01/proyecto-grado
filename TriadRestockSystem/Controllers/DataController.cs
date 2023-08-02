@@ -101,5 +101,18 @@ namespace TriadRestockSystem.Controllers
 
             return Ok(new { items = response });
         }
+        [HttpGet("getPaises")]
+        public IActionResult GetPaises()
+        {
+            var response = _db.Paises
+                .Select(e => new
+                {
+                    Key = e.IdPais, 
+                    Text = e.Pais
+                })
+                .ToList();
+            return Ok(new { items = response });
+        }
+
     }
 }

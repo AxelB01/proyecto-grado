@@ -85,3 +85,21 @@ export const createCatalogModel = () => {
 		Nombre: ''
 	}
 }
+
+export const createSuppliersModel = () => {
+	return{
+		Id: 0,
+		IdEstado: 0,
+		Nombre: '',
+		RNC: '',
+		IdPais: 0,
+		Direccion: '',
+		CodigoPostal: '',
+		Telefono: '',
+		Correo: '',
+		FechaUltimaCompra: '',
+		CreadoPor: '',
+		FechaCreacion: ''
+		
+	}
+}
