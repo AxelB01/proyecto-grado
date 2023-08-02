@@ -22,7 +22,7 @@ const items = [
 ]
 
 const NewCustomLayout = ({ children }) => {
-	const {  destroyStoredAuth } = useContext(AuthContext)
+	const { destroyStoredAuth } = useContext(AuthContext)
 	const { active, collapsed, breadcrumb, handleSlider } =
 		useContext(LayoutContext)
 	const navigate = useNavigate()
@@ -59,6 +59,9 @@ const NewCustomLayout = ({ children }) => {
 			case 9:
 				path = '/costsCenters'
 				break
+			case 10:
+				path = '/suppliers'
+				break
 			default:
 				break
 		}
@@ -70,9 +73,6 @@ const NewCustomLayout = ({ children }) => {
 		const handleScroll = () => {
 			const scrollTop = window.scrollY || document.documentElement.scrollTop
 			setIsSiderFixed(scrollTop >= 65)
-			if (scrollTop >= 65) {
-				console.log('trigger')
-			}
 		}
 
 		window.addEventListener('scroll', handleScroll)

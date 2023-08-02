@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import useAxiosPrivate from './usePrivateAxios'
 
-const GET_ITEMS_LIST = '/api/solicitudes/getArticulosList'
+const GET_ITEMS_LIST = '/api/data/getArticulosList'
 
 const useItems = () => {
 	const [data, setData] = useState([])

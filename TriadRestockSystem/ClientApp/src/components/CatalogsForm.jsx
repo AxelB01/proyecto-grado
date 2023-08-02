@@ -20,20 +20,23 @@ const CatalogsForm = ({
 	const [title, setTitle] = useState('Nuevo catalogo de articulos')
 
 	useEffect(() => {
-		const { IdCatalogos, Nombre } = initialValues
+		const { Id, Nombre } = initialValues
 		form.setFieldsValue({
-			id: IdCatalogos,
+			id: Id,
 			nombre: Nombre
 		})
 
 		setTitle('Nuevo catalogo de articulos')
 
-		if (IdCatalogos !== 0) {
+		if (Id !== 0) {
 			setTitle('Editar  catalogo de articulos')
 		}
 	}, [form, initialValues, open])
 
 	const saveCatalog = async model => {
+		// console.log(model)
+		// handleLoading(false)
+		// handleOpen(false)
 		try {
 			const response = await axiosPrivate.post(CATALOGS_SAVE, model)
 			if (response?.status === 200) {
