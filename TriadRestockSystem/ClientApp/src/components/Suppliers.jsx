@@ -3,21 +3,20 @@ import {
 	ReloadOutlined,
 	UserAddOutlined
 } from '@ant-design/icons'
-import { Button, Space, Statistic,Tag } from 'antd'
+import { Button, Space, Statistic, Tag } from 'antd'
 import { useEffect, useRef, useState } from 'react'
+import useCountries from '../hooks/useCountries'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
+import useSupplierStates from '../hooks/useSupplierStates'
 import '../styles/DefaultContentStyle.css'
 import CustomSimpleTable from './CustomSimpleTable'
 import SuppliersForm from './SuppliersForm'
-import useCountries from '../hooks/useCountries'
 
 const SUPPLIERS_DATA_URL = '/api/proveedores/getProveedores'
 const GET_SUPPLIER_DATA = '/api/proveedores/getProveedor'
 
-
 const Suppliers = () => {
-
-    const [title, setTitle] = useState('')
+	const [title, setTitle] = useState('')
 	const axiosPrivate = useAxiosPrivate()
 	const [data, setData] = useState([])
 	const [open, setOpen] = useState(false)
@@ -25,7 +24,7 @@ const Suppliers = () => {
 
 	const tableRef = useRef()
 	const [tableKey, setTableKey] = useState(Date.now())
-    const handleFiltersReset = () => {
+	const handleFiltersReset = () => {
 		if (tableRef.current) {
 			columns.forEach(column => {
 				console.log(column)
@@ -36,7 +35,8 @@ const Suppliers = () => {
 		setTableKey(Date.now())
 	}
 
-    const paisesItems = useCountries()
+	const paisesItems = useCountries()
+	const estadosProveedores = useSupplierStates()
 
 	const [suppliersFormInitialValues, setSuppliersFormInitialValues] = useState({
 		id: 0,
@@ -48,13 +48,13 @@ const Suppliers = () => {
 		codigoPostal: '',
 		telefono: '',
 		correo: '',
-		fechaUltimaCompra: '',
-
+		fechaUltimaCompra: ''
 	})
 
 	useEffect(() => {
 		document.title = 'Suplidores'
 		getSuppliersData()
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	const columns = [
@@ -65,29 +65,10 @@ const Suppliers = () => {
 			fixed: 'left',
 			filterType: 'text search'
 		},
-        {
-			title: 'Estado',
-			dataIndex: 'estado',
-			key: 'estado',
-			filterType: 'custom filter',
-			// data: usuarioEstados,
-			render: state => (
-				<>
-					{
-						<Tag
-							color={state === 'Inactivo' ? 'volcano' : 'geekblue'}
-							key={state}
-						>
-							{state.toUpperCase()}
-						</Tag>
-					}
-				</>
-			)
-		},
 		{
 			title: 'Nombre',
-			dataIndex: 'familia',
-			key: 'familia',
+			dataIndex: 'nombre',
+			key: 'nombre',
 			fixed: 'left',
 			filterType: 'text search'
 		},
@@ -95,45 +76,49 @@ const Suppliers = () => {
 			title: 'RNC',
 			dataIndex: 'rnc',
 			key: 'rnc',
-            fixed: 'left',
-            filterType: 'text search'
-		},
-        {
-			title: 'Pais',
-			dataIndex: 'pais',
-			key: 'pais',
 			fixed: 'left',
 			filterType: 'text search'
 		},
-        {
+		{
+			title: 'Estado',
+			dataIndex: 'estado',
+			key: 'estado',
+			filterType: 'custom filter',
+			data: estadosProveedores,
+			render: text => <>{<Tag key={text}>{text.toUpperCase()}</Tag>}</>
+		},
+		{
+			title: 'Pais',
+			dataIndex: 'pais',
+			key: 'pais',
+			filterType: 'text search'
+		},
+		{
 			title: 'Direccion',
 			dataIndex: 'direccion',
 			key: 'direccion',
 			width: 400,
 			filterType: 'text search'
 		},
-        {
+		{
 			title: 'Codigo postal',
 			dataIndex: 'codigoPostal',
 			key: 'codigoPostal',
-			fixed: 'left',
 			filterType: 'text search'
 		},
-        {
+		{
 			title: 'Telefono',
 			dataIndex: 'telefono',
 			key: 'telefono',
-			fixed: 'left',
 			filterType: 'text search'
 		},
-        {
+		{
 			title: 'Correo electronico',
 			dataIndex: 'correoElectronico',
 			key: 'correoElectronico',
-			fixed: 'left',
 			filterType: 'text search'
 		},
-        {
+		{
 			title: 'Fecha de ultima compra',
 			dataIndex: 'fechaUltimaCompra',
 			key: 'fechaUltimaCompra',
@@ -195,14 +180,14 @@ const Suppliers = () => {
 		setSuppliersFormInitialValues({
 			id: 0,
 			IdEstado: 0,
-		    Nombre: '',
-		    RNC: '',
-		    IdPais: 0,
-            Direccion: '',
-            CodigoPostal: '',
-            Telefono: '',
-            Correo: '',
-            FechaUltimaCompra: '',
+			Nombre: '',
+			RNC: '',
+			IdPais: 0,
+			Direccion: '',
+			CodigoPostal: '',
+			Telefono: '',
+			Correo: '',
+			FechaUltimaCompra: ''
 		})
 		setTitle('Registrar Suplidor')
 		showSuppliersForm()
@@ -212,8 +197,8 @@ const Suppliers = () => {
 		try {
 			const editSupplierUrl = `${GET_SUPPLIER_DATA}?id=${key}`
 			const respose = await axiosPrivate.get(editSupplierUrl)
-			
-            const { idFamilia, familia } = respose?.data
+
+			const { idFamilia, familia } = respose?.data
 			const model = {
 				id: idFamilia,
 				familia
@@ -227,14 +212,14 @@ const Suppliers = () => {
 		}
 	}
 
-    return(
-        <>
-            <SuppliersForm
+	return (
+		<>
+			<SuppliersForm
 				title={title}
 				open={open}
 				onClose={closeSuppliersForm}
 				getSuppliersData={getSuppliersData}
-                paisesItems={paisesItems}
+				paisesItems={paisesItems}
 				initialValues={suppliersFormInitialValues}
 				loading={loading}
 				handleLoading={setLoading}
@@ -274,9 +259,10 @@ const Suppliers = () => {
 					tableRef={tableRef}
 					data={data}
 					columns={columns}
+					scrollable={true}
 				/>
 			</div>
-        </>
-    )
+		</>
+	)
 }
 export default Suppliers

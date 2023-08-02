@@ -1,4 +1,9 @@
-﻿namespace TriadRestockSystem.Controllers
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using TriadRestockSystem.Security;
+using TriadRestockSystemData.Data;
+
+namespace TriadRestockSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -112,6 +117,7 @@
 
             return Ok(new { items = response });
         }
+
         [HttpGet("getPaises")]
         public IActionResult GetPaises()
         {
@@ -122,6 +128,20 @@
                     Text = e.Pais
                 })
                 .ToList();
+            return Ok(new { items = response });
+        }
+
+        [HttpGet("getEstadosProveedores")]
+        public IActionResult GetEstadosProveedores()
+        {
+            var response = _db.EstadosProveedores
+                .Select(e => new
+                {
+                    Key = e.IdEstado,
+                    Text = e.Estado
+                })
+                .ToList();
+
             return Ok(new { items = response });
         }
 

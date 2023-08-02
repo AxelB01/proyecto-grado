@@ -22,7 +22,7 @@ const items = [
 ]
 
 const NewCustomLayout = ({ children }) => {
-	const {  destroyStoredAuth } = useContext(AuthContext)
+	const { destroyStoredAuth } = useContext(AuthContext)
 	const { active, collapsed, breadcrumb, handleSlider } =
 		useContext(LayoutContext)
 	const navigate = useNavigate()
@@ -58,6 +58,9 @@ const NewCustomLayout = ({ children }) => {
 				break
 			case 9:
 				path = '/costsCenters'
+				break
+			case 10:
+				path = '/suppliers'
 				break
 			default:
 				break
