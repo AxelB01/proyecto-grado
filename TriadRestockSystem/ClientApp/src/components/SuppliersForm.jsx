@@ -1,10 +1,9 @@
-import { Button, Col, DatePicker, Drawer, Form, Input, Row, Select, Space, Switch } from 'antd'
+import { Button, Col, Drawer, Form, Input, Row, Select, Space, Switch } from 'antd'
 import { useContext, useEffect,useState } from 'react'
 import LayoutContext from '../context/LayoutContext'
 import { createSuppliersModel } from '../functions/constructors'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 
-// const INPUT_TEXT_NAME_REGEX = /^[a-zA-ZñáéíóúÁÉÍÓÚ\s]+$/
 const SAVE_SUPPLIERS_URL = '/api/proveedores/guardarProveedores'
 
 const SuppliersForm = ({
@@ -12,6 +11,7 @@ const SuppliersForm = ({
 	open,
 	onClose,
 	getSuppliersData,
+	tipoProveedorItem,
     paisesItems,
 	initialValues,
 	loading,
@@ -26,7 +26,7 @@ const SuppliersForm = ({
 		console.log(initialValues)
 		const { id, IdEstado,Nombre,
             RNC,IdPais,Direccion,CodigoPostal,
-            Telefono,Correo,FechaUltimaCompra, CreadoPor, FechaCreacion } = initialValues
+            Telefono,Correo,FechaUltimaCompra, CreadoPor } = initialValues
 		form.setFieldsValue({
 			id,
 			IdEstado,
@@ -39,7 +39,7 @@ const SuppliersForm = ({
             Correo,
             FechaUltimaCompra,
 			CreadoPor,
-			FechaCreacion
+			
 		})
 		setSwitchValue(IdEstado === 1)
 
@@ -81,14 +81,16 @@ const SuppliersForm = ({
 	const onFinish = values => {
 		const model = createSuppliersModel()
 		model.Id = values.id
-		model.Nombre = values.Nombre
-        model.RNC = values.RNC
-        model.IdPais = values.IdPais
-        model.Direccion = values.Direccion
-        model.CodigoPostal = values.CodigoPostal
-        model.Telefono = values.Telefono
-        model.Correo = values.Correo
-        model.FechaUltimaCompra = values.FechaUltimaCompra
+		model.Nombre = values.nombre
+		model.IdEstado = values.estado ? 1 : 2
+		model.IdTipoProveedor = values.tipoProveedor
+        model.RNC = values.rnc
+        model.IdPais = values.idPais
+        model.Direccion = values.direccion
+        model.CodigoPostal = values.codigoPostal
+        model.Telefono = values.telefono
+        model.Correo = values.correo
+        // model.FechaUltimaCompra = values.FechaUltimaCompra
 
 		saveSuppliers(model)
 	}
@@ -164,6 +166,28 @@ const SuppliersForm = ({
 					<Row gutter={16}>
 						<Col span={24}>
 							<Form.Item
+								name='tipoProveedor'
+								label='Tipo'
+								rules={[
+									{
+										required: true,
+										message: 'Debe seleccionar un tipo'
+									}
+								]}
+								hasFeedback
+							>
+								<Select
+									placeholder='Seleccionar'
+									options={tipoProveedorItem.map(x => {
+										return { value: x.key, label: x.text }
+									})}
+								></Select>
+							</Form.Item>
+						</Col>
+					</Row>
+					<Row gutter={16}>
+						<Col span={24}>
+							<Form.Item
 								name='rnc'
 								label='RNC'
 								rules={[
@@ -184,7 +208,7 @@ const SuppliersForm = ({
                     <Row gutter={16}>
 						<Col span={24}>
 							<Form.Item
-								name='pais'
+								name='idPais'
 								label='Pais'
 								rules={[
 									{
@@ -280,26 +304,6 @@ const SuppliersForm = ({
 									style={{ width: '100%' }}
 									autoComplete='off'
 									placeholder='Ingresar un correo'
-								/>
-							</Form.Item>
-						</Col>
-					</Row>
-                    <Row gutter={16}>
-						<Col span={24}>
-							<Form.Item
-								name='rnc'
-								label='RNC'
-								rules={[
-									{
-										required: true,
-										message: 'Debe ingresar una fecha'
-									}
-								]}
-							>
-								<DatePicker
-									style={{ width: '100%' }}
-									autoComplete='off'
-									placeholder='Ingresar una fecha'
 								/>
 							</Form.Item>
 						</Col>

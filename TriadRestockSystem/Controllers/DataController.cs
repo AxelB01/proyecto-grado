@@ -73,6 +73,19 @@ namespace TriadRestockSystem.Controllers
 
             return Ok(new { items = response });
         }
+        [HttpGet("getTipoProveedor")]
+        public IActionResult GetTipoProveedor()
+        {
+            var response = _db.TiposProveedores
+                .Select(t => new
+                {
+                    Key = t.IdTipoProveedor,
+                    Text = t.TipoProveedor
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
 
         [HttpGet("getEstadosDocumentos")]
         public IActionResult GetEstadosDocumentos()
