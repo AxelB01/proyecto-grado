@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TriadRestockSystem.Security;
 using TriadRestockSystem.ViewModels;
 using TriadRestockSystemData.Data;
@@ -35,13 +36,13 @@ namespace TriadRestockSystem.Controllers
                     Id = x.IdProveedor,
                     x.Nombre,
                     x.IdEstado,
+                    x.IdTipoProveedor,
                     x.Rnc,
                     x.IdPais,
                     x.Direccion,
                     x.CodigoPostal,
                     x.Telefono,
                     x.CorreoElectronico,
-                    x.FechaCreacion,
                     Fecha = x.FechaCreacion.ToString("dd/MM/yyyy"),
                     CreadoPor = x.CreadoPorNavigation.Login
                 })
@@ -52,7 +53,7 @@ namespace TriadRestockSystem.Controllers
         [HttpGet("getProveedor")]
         public IActionResult GetProveedor(int id)
         {
-            var proveedor = _db.Proveedores
+            Proveedore? proveedor = _db.Proveedores
                 .FirstOrDefault(u => u.IdProveedor == id);
 
             if (proveedor != null)
@@ -61,13 +62,14 @@ namespace TriadRestockSystem.Controllers
                 {
                     Id = proveedor.IdProveedor,
                     Nombre = proveedor.Nombre,
+                    IdEstado = proveedor.IdEstado,
+                    IdTipoProveedor = proveedor.IdTipoProveedor,
 		            RNC = proveedor.Rnc,
 		            IdPais = proveedor.IdPais,
 		            Direccion = proveedor.Direccion,
 		            CodigoPostal = proveedor.CodigoPostal,
 		            Telefono = proveedor.Telefono,
 		            Correo = proveedor.CorreoElectronico,
-		            FechaUltimaCompra = proveedor.FechaUltimaCompra
                 };
                 return Ok(vm);
             }
@@ -76,7 +78,7 @@ namespace TriadRestockSystem.Controllers
         }
 
         [HttpPost("guardarProveedores")]
-        public IActionResult GuardarProveedores(vmProveedores model)
+        public IActionResult GuardarProveedores(vmSuppliers model)
         {
             var login = HttpContext.Items["Username"] as string;
             var pass = HttpContext.Items["Password"] as string;
@@ -92,13 +94,13 @@ namespace TriadRestockSystem.Controllers
                     {
                         Nombre = model.Nombre,
                         IdEstado = model.IdEstado,
+                        IdTipoProveedor = model.IdTipoProveedor,
                         Rnc = model.RNC,
                         IdPais = model.IdPais,
                         Direccion = model.Direccion,
                         CodigoPostal = model.CodigoPostal,
                         Telefono = model.Telefono,
                         CorreoElectronico = model.Correo,
-                        FechaUltimaCompra = model.FechaUltimaCompra,
                         CreadoPor = user.IdUsuario,
                         FechaCreacion = DateTime.Now,
                     };

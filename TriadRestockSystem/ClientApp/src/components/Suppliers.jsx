@@ -6,6 +6,7 @@ import {
 import { Button, Space, Statistic, Tag } from 'antd'
 import { useEffect, useRef, useState } from 'react'
 import useCountries from '../hooks/useCountries'
+import useSuppliersTypes from '../hooks/useSuppliersTypes'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import useSupplierStates from '../hooks/useSupplierStates'
 import '../styles/DefaultContentStyle.css'
@@ -37,6 +38,7 @@ const Suppliers = () => {
 
 	const paisesItems = useCountries()
 	const estadosProveedores = useSupplierStates()
+	const tipoProveedores = useSuppliersTypes()
 
 	const [suppliersFormInitialValues, setSuppliersFormInitialValues] = useState({
 		id: 0,
@@ -80,30 +82,38 @@ const Suppliers = () => {
 			filterType: 'text search'
 		},
 		{
+			title: 'Tipo',
+			dataIndex: 'tipoProveedor',
+			key: 'tipoProveedor',
+			filterType: 'text search'
+		},
+		{
 			title: 'Estado',
 			dataIndex: 'estado',
 			key: 'estado',
 			filterType: 'custom filter',
 			data: estadosProveedores,
-			render: text => <>{<Tag key={text}>{text.toUpperCase()}</Tag>}</>
+			//render: text => (<>{<Tag key={text}>{text.toUpperCase()}</Tag>}</>)
 		},
 		{
 			title: 'Pais',
 			dataIndex: 'pais',
 			key: 'pais',
+			width: 100,
 			filterType: 'text search'
 		},
 		{
 			title: 'Direccion',
 			dataIndex: 'direccion',
 			key: 'direccion',
-			width: 400,
+			width: 300,
 			filterType: 'text search'
 		},
 		{
 			title: 'Codigo postal',
 			dataIndex: 'codigoPostal',
 			key: 'codigoPostal',
+			width: 100,
 			filterType: 'text search'
 		},
 		{
@@ -116,20 +126,22 @@ const Suppliers = () => {
 			title: 'Correo electronico',
 			dataIndex: 'correoElectronico',
 			key: 'correoElectronico',
+			width: 100,
 			filterType: 'text search'
 		},
-		{
-			title: 'Fecha de ultima compra',
-			dataIndex: 'fechaUltimaCompra',
-			key: 'fechaUltimaCompra',
-			filterType: 'date sorter',
-			dateFormat: 'DD/MM/YYYY'
-		},
+		// {
+		// 	title: 'Fecha de ultima compra',
+		// 	dataIndex: 'fechaUltimaCompra',
+		// 	key: 'fechaUltimaCompra',
+		// 	filterType: 'date sorter',
+		// 	dateFormat: 'DD/MM/YYYY'
+		// },
 		{
 			title: 'Fecha de creación',
 			dataIndex: 'fecha',
 			key: 'fecha',
 			filterType: 'date sorter',
+			// width: 200,
 			dateFormat: 'DD/MM/YYYY'
 		},
 		{
@@ -180,6 +192,7 @@ const Suppliers = () => {
 		setSuppliersFormInitialValues({
 			id: 0,
 			IdEstado: 0,
+			IdTipoProveedor: 0,
 			Nombre: '',
 			RNC: '',
 			IdPais: 0,
@@ -198,14 +211,32 @@ const Suppliers = () => {
 			const editSupplierUrl = `${GET_SUPPLIER_DATA}?id=${key}`
 			const respose = await axiosPrivate.get(editSupplierUrl)
 
-			const { idFamilia, familia } = respose?.data
+			const { Id,
+				IdEstado,
+				IdTipoProveedor,
+				Nombre,
+				RNC,
+				IdPais,
+				Direccion,
+				CodigoPostal,
+				Telefono,
+				Correo,
+				} = respose?.data
 			const model = {
-				id: idFamilia,
-				familia
+				id: Id,
+				idEstado:IdEstado,
+				tipoProveedor:IdTipoProveedor,
+				nombre:Nombre,
+				rnc:RNC,
+				idPais:IdPais,
+				direccion:Direccion,
+				codigoPostal:CodigoPostal,
+				telefono:Telefono,
+				correo:Correo
 			}
 
 			setSuppliersFormInitialValues({ ...model })
-			setTitle('Editar suplidor')
+			setTitle('Editar proveedor')
 			showSuppliersForm()
 		} catch (error) {
 			console.log(error)
@@ -219,6 +250,7 @@ const Suppliers = () => {
 				open={open}
 				onClose={closeSuppliersForm}
 				getSuppliersData={getSuppliersData}
+				tipoProveedorItem={tipoProveedores}
 				paisesItems={paisesItems}
 				initialValues={suppliersFormInitialValues}
 				loading={loading}
