@@ -10,6 +10,7 @@ namespace TriadRestockSystemData.Data.ViewModels
     {
         public int Id { get; set; }
 		public int IdEstado { get; set; }
+        public int IdTipoProveedor { get; set; }    
 		public string Nombre { get; set; } = string.Empty;
  		public string RNC { get; set; } = string.Empty;
 		public int IdPais { get; set; }
@@ -17,7 +18,7 @@ namespace TriadRestockSystemData.Data.ViewModels
 		public string? CodigoPostal { get; set; } = string.Empty;
 		public string Telefono { get; set; } = string.Empty;
 		public string? Correo { get; set; } = string.Empty;
-		public DateTime? FechaUltimaCompra { get; set; }
+		//public DateTime? FechaUltimaCompra { get; set; }
         public string CreadoPor { get; set; } = string.Empty;
         public DateTime FechaCreacion { get; set; }
         public int? IdModificadoPor { get; set; }

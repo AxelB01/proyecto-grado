@@ -73,6 +73,19 @@ namespace TriadRestockSystem.Controllers
 
             return Ok(new { items = response });
         }
+        [HttpGet("getTipoProveedor")]
+        public IActionResult GetTipoProveedor()
+        {
+            var response = _db.TiposProveedores
+                .Select(t => new
+                {
+                    Key = t.IdTipoProveedor,
+                    Text = t.TipoProveedor
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
 
         [HttpGet("getEstadosDocumentos")]
         public IActionResult GetEstadosDocumentos()
@@ -101,16 +114,47 @@ namespace TriadRestockSystem.Controllers
 
             return Ok(new { items = response });
         }
+
+        [HttpGet("getArticulosList")]
+        public IActionResult GetArticulosList()
+        {
+            var response = _db.ArticulosGetList()
+                .Select(x => new
+                {
+                    Key = x.IdArticulo,
+                    Text = $"{x.Nombre} ({x.UnidadMedida})",
+                    ShortText = x.Nombre,
+                    Stock = x.Existencias
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
+
         [HttpGet("getPaises")]
         public IActionResult GetPaises()
         {
             var response = _db.Paises
                 .Select(e => new
                 {
-                    Key = e.IdPais, 
+                    Key = e.IdPais,
                     Text = e.Pais
                 })
                 .ToList();
+            return Ok(new { items = response });
+        }
+
+        [HttpGet("getEstadosProveedores")]
+        public IActionResult GetEstadosProveedores()
+        {
+            var response = _db.EstadosProveedores
+                .Select(e => new
+                {
+                    Key = e.IdEstado,
+                    Text = e.Estado
+                })
+                .ToList();
+
             return Ok(new { items = response });
         }
 

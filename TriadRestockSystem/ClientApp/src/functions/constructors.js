@@ -86,10 +86,19 @@ export const createCatalogModel = () => {
 	}
 }
 
+export const createCatalogItemsModel = () => {
+	return {
+		Id: 0,
+		Nombre: '',
+		Detalle: []
+	}
+}
+
 export const createSuppliersModel = () => {
 	return{
 		Id: 0,
 		IdEstado: 0,
+		IdTipoProveedor: 0,
 		Nombre: '',
 		RNC: '',
 		IdPais: 0,
@@ -97,9 +106,6 @@ export const createSuppliersModel = () => {
 		CodigoPostal: '',
 		Telefono: '',
 		Correo: '',
-		FechaUltimaCompra: '',
-		CreadoPor: '',
-		FechaCreacion: ''
 		
 	}
 }

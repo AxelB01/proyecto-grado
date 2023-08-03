@@ -130,6 +130,12 @@ const CustomSimpleTable = ({
 					onFilter: (value, record) => record[column.key].indexOf(value) === 0
 				}
 				break
+			case 'sorter':
+				customColumn = {
+					...column,
+					sorter: (a, b) => a[column.sortKey] - b[column.sortKey]
+				}
+				break
 			case 'date sorter':
 				customColumn = {
 					...column,
