@@ -72,6 +72,7 @@ const CostsCenters = () => {
 			try {
 				const response = await axiosPrivate.get(CENTROS_COSTOS_URL)
 				setCostsCenters(response?.data)
+				setTableState(false)
 			} catch (error) {
 				console.log(error)
 			}
@@ -90,6 +91,7 @@ const CostsCenters = () => {
 		}
 	}, [initialValues])
 
+	const [tableState, setTableState] = useState(true)
 	const tableRef = useRef()
 	const [tableKey, setTableKey] = useState(Date.now())
 
@@ -240,6 +242,7 @@ const CostsCenters = () => {
 					<CustomSimpleTable
 						tableKey={tableKey}
 						tableRef={tableRef}
+						tableState={tableState}
 						data={costsCenters}
 						columns={columns}
 					/>

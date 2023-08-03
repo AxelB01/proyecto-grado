@@ -23,5 +23,6 @@
         public int IdArticulo { get; set; }
         public string Articulo { get; set; } = string.Empty;
         public int Cantidad { get; set; }
+        public int Existencia { get; set; } = 0;
     }
 }

@@ -21,6 +21,7 @@ const Families = () => {
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
 
+	const [tableState, setTableState] = useState(true)
 	const tableRef = useRef()
 	const [tableKey, setTableKey] = useState(Date.now())
 
@@ -102,7 +103,7 @@ const Families = () => {
 			const response = await axiosPrivate.get(FAMILIES_DATA_URL)
 			const data = response?.data
 			setData(data)
-			console.log(data)
+			setTableState(false)
 		} catch (error) {
 			console.log(error)
 		}
@@ -188,6 +189,7 @@ const Families = () => {
 				<CustomSimpleTable
 					tableKey={tableKey}
 					tableRef={tableRef}
+					tableState={tableState}
 					data={data}
 					columns={columns}
 				/>

@@ -1,8 +1,7 @@
 import {
 	EditOutlined,
 	FileAddOutlined,
-	ReloadOutlined,
-	SolutionOutlined
+	ReloadOutlined
 } from '@ant-design/icons'
 import { Button, Space, Tag } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
@@ -46,8 +45,8 @@ const Requests = () => {
 
 			if (response?.status === 200) {
 				const data = response.data
-				console.log(data.map(e => e.key))
 				setRequests(data)
+				setTableState(false)
 			}
 		} catch (error) {
 			console.log(error)
@@ -71,7 +70,7 @@ const Requests = () => {
 					title: (
 						<a onClick={() => navigate('/requests')}>
 							<span className='breadcrumb-item'>
-								<SolutionOutlined />
+								{/* <SolutionOutlined /> */}
 								<span className='breadcrumb-item-title'>Solicitudes</span>
 							</span>
 						</a>
@@ -85,6 +84,7 @@ const Requests = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
+	const [tableState, setTableState] = useState(true)
 	const tableRef = useRef()
 	const [tableKey, setTableKey] = useState(Date.now())
 
@@ -144,7 +144,9 @@ const Requests = () => {
 							color={
 								state === 'Borrador'
 									? 'geekblue'
-									: state === 'Aprobada'
+									: state === 'En proceso'
+									? 'yellow'
+									: state === 'Aprobado'
 									? 'green'
 									: 'volcano'
 							}
@@ -209,39 +211,11 @@ const Requests = () => {
 					<CustomSimpleTable
 						tableKey={tableKey}
 						tableRef={tableRef}
+						tableState={tableState}
 						data={requests}
 						columns={columns}
 						scrollable={true}
 					/>
-					{/* <Table
-						key={tableKey}
-						ref={tableRef}
-						columns={columns}
-						dataSource={requests}
-						pagination={{
-							total: requests.length,
-							showTotal: () => `${requests.length} registros en total`,
-							defaultPageSize: 10,
-							defaultCurrent: 1
-						}}
-						rowKey={record => record.key}
-						expandable={{
-							expandedRowRender: record => (
-								<p
-									style={{
-										margin: 0
-									}}
-								>
-									{record.justificacion}
-								</p>
-							),
-							expandIconColumnIndex: -1,
-							expandedRowKeys: requests.map(e => e.key)
-						}}
-						locale={{
-							emptyText: customNoDataText
-						}}
-					/> */}
 				</div>
 			</div>
 		</>

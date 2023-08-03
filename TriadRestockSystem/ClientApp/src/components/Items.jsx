@@ -1,9 +1,4 @@
-import {
-	EditOutlined,
-	PlusOutlined,
-	ReloadOutlined,
-	TagsOutlined
-} from '@ant-design/icons'
+import { EditOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { Button, Space, Statistic } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
@@ -83,7 +78,7 @@ const Items = () => {
 					title: (
 						<a onClick={() => navigate('/items')}>
 							<span className='breadcrumb-item'>
-								<TagsOutlined />
+								{/* <TagsOutlined /> */}
 								<span className='breadcrumb-item-title'>Artículos</span>
 							</span>
 						</a>

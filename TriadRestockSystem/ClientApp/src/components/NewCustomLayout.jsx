@@ -44,6 +44,9 @@ const NewCustomLayout = ({ children }) => {
 			case 1:
 				path = '/users'
 				break
+			case 2:
+				path = '/wharehouses'
+				break
 			case 3:
 				path = '/families'
 				break

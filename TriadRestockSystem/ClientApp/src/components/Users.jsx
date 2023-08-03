@@ -115,6 +115,7 @@ const Users = () => {
 	}
 	// User Form
 
+	const [tableState, setTableState] = useState(true)
 	const tableRef = useRef()
 	const [tableKey, setTableKey] = useState(Date.now())
 
@@ -206,6 +207,7 @@ const Users = () => {
 			const response = await axiosPrivate.get(USERS_DATA_URL)
 			const data = response?.data
 			setData(data)
+			setTableState(false)
 		} catch (error) {
 			console.log(error)
 		}
@@ -336,6 +338,7 @@ const Users = () => {
 					<CustomSimpleTable
 						tableKey={tableKey}
 						tableRef={tableRef}
+						tableState={tableState}
 						data={data}
 						columns={columns}
 						scrollable={true}
