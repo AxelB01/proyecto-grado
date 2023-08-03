@@ -1,4 +1,5 @@
 import {
+	CheckOutlined,
 	DeleteOutlined,
 	DownloadOutlined,
 	LoadingOutlined,
@@ -6,8 +7,7 @@ import {
 	PlusOutlined,
 	QuestionCircleOutlined,
 	SaveOutlined,
-	SendOutlined,
-	SolutionOutlined
+	SendOutlined
 } from '@ant-design/icons'
 import {
 	Button,
@@ -28,6 +28,7 @@ import LayoutContext from '../context/LayoutContext'
 import { createRequestModel } from '../functions/constructors'
 import { sleep } from '../functions/sleep'
 import { isObjectNotEmpty, isStringEmpty } from '../functions/validation'
+import useCatalogs from '../hooks/useCatalogs'
 import useCostCenters from '../hooks/useCostCenters'
 import useItems from '../hooks/useItems'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
@@ -45,29 +46,39 @@ const antIcon = (
 
 const GET_SINGLE_REQUEST = 'api/solicitudes/getSolicitud'
 const SAVE_REQUEST = 'api/solicitudes/guardarSolicitud'
+const SEND_REQUEST = 'api/solicitudes/enviarSolicitud'
+const APPROVE_REQUEST = 'api/solicitudes/aprobarSolicitud'
 
 const Request = () => {
 	const location = useLocation()
-	const { state } = location
+	const navigate = useNavigate()
+	const [customState, setCustomState] = useState(null)
 
 	const { validLogin } = useContext(AuthContext)
 	const { handleLayout, handleBreadcrumb, openMessage } =
 		useContext(LayoutContext)
-	const navigate = useNavigate()
 
-	const [edit] = useState(state !== undefined && state !== null)
+	const [edit, setEdit] = useState(
+		customState !== undefined && customState !== null
+	)
 	const [viewModel, setViewModel] = useState({})
-	const [loading, setLoading] = useState(state !== undefined && state !== null)
+	const [loading, setLoading] = useState(
+		customState !== undefined && customState !== null
+	)
 	const [requestCode, setRequestCode] = useState('Nueva solicitud')
 	const [requestState, setRequestState] = useState('')
 
 	const axiosPrivate = useAxiosPrivate()
 	const costCenters = useCostCenters()
 	const items = useItems()
+	const catalogs = useCatalogs().items
 
 	const [form] = Form.useForm()
 	const values = Form.useWatch([], form)
 	const [saving, setSaving] = useState(false)
+
+	const [sending, setSending] = useState(false)
+	const [approving, setApproving] = useState(false)
 
 	const [selectedItems, setSelectedItems] = useState([])
 	const [availableItems, setAvailableItems] = useState([])
@@ -80,7 +91,7 @@ const Request = () => {
 				title: (
 					<a onClick={() => navigate('/requests')}>
 						<span className='breadcrumb-item'>
-							<SolutionOutlined />
+							{/* <SolutionOutlined /> */}
 							<span className='breadcrumb-item-title'>Solicitudes</span>
 						</span>
 					</a>
@@ -88,10 +99,10 @@ const Request = () => {
 			}
 		]
 
-		if (state !== undefined && state !== null) {
+		if (customState !== undefined && customState !== null) {
 			try {
 				const response = await axiosPrivate.get(
-					GET_SINGLE_REQUEST + `?id=${state}`
+					GET_SINGLE_REQUEST + `?id=${customState}`
 				)
 				if (response?.status === 200) {
 					const data = response.data
@@ -137,7 +148,8 @@ const Request = () => {
 			const status = response?.status
 			if (status === 200) {
 				openMessage('success', 'Solicitud guardada correctamente')
-				navigate('/request', { state: response.data })
+				setCustomState(null)
+				navigate(location.pathname, { state: response.data })
 			}
 		} catch (error) {
 			console.log(error)
@@ -146,8 +158,104 @@ const Request = () => {
 		}
 	}
 
+	const sendRequest = async () => {
+		try {
+			setSending(true)
+			const id = values.idSolicitud
+			const response = await axiosPrivate.post(SEND_REQUEST, id)
+			const status = response?.status
+			if (status === 200) {
+				openMessage('success', 'Solicitud enviada')
+				setCustomState(null)
+				navigate(location.pathname, { state: id })
+			}
+		} catch (error) {
+			console.log(error)
+		} finally {
+			setSending(false)
+		}
+	}
+
+	const approveRequest = async () => {
+		try {
+			setApproving(true)
+			const id = values.idSolicitud
+			const response = await axiosPrivate.post(APPROVE_REQUEST, id)
+			const status = response?.status
+			if (status === 200) {
+				openMessage('success', 'Solicitud aprobada')
+				setCustomState(null)
+				navigate(location.pathname, { state: id })
+			}
+		} catch (error) {
+			console.log(error)
+		} finally {
+			setApproving(false)
+		}
+	}
+
+	const handleCatalogLoad = () => {
+		const id = form.getFieldValue('catalogo')
+		const idCatalogItems = catalogs.filter(c => c.key === id)[0].items
+
+		let formSelectedItems = form.getFieldValue('articulos')
+		const idFormSelectedItems = []
+
+		if (formSelectedItems != null) {
+			formSelectedItems.forEach(item => {
+				if (item.articulo.value === undefined) {
+					idFormSelectedItems.push(item.articulo)
+				}
+				idFormSelectedItems.push(item.articulo.value)
+			})
+		} else {
+			formSelectedItems = []
+		}
+
+		const idItemsToLoad = idCatalogItems.filter(
+			i => !idFormSelectedItems.includes(i)
+		)
+		const itemsToLoad = items.items.filter(item =>
+			idItemsToLoad.includes(item.key)
+		)
+
+		itemsToLoad.forEach(item => {
+			const element = {
+				articulo: {
+					value: item.key,
+					label: item.text
+				},
+				cantidad: 1,
+				existencia: item.stock
+			}
+
+			formSelectedItems.push(element)
+		})
+
+		form.setFieldsValue({
+			articulos: formSelectedItems
+		})
+
+		setSelectedItems(
+			formSelectedItems.map(item => {
+				if (item.articulo.value === undefined) {
+					return item.articulo
+				}
+				return item.articulo.value
+			})
+		)
+
+		form.resetFields(['catalogo'])
+	}
+
 	const handleFilterOption = (inputText, option) => {
 		return option.label.toLowerCase().indexOf(inputText.toLowerCase()) !== -1
+	}
+
+	const handleSelectChange = (index, value) => {
+		const existencia = items.items.filter(e => e.key === value)[0].stock
+		const formData = form.getFieldsValue()
+		formData.articulos[index].existencia = existencia
 	}
 
 	const handleSubmit = () => {
@@ -182,6 +290,11 @@ const Request = () => {
 	}
 
 	useEffect(() => {
+		const { state } = location
+		setCustomState(state)
+
+		setEdit(state !== undefined && state !== null)
+
 		document.title = 'Solicitud'
 		async function waitForUpdate() {
 			await sleep(1000)
@@ -193,10 +306,14 @@ const Request = () => {
 			navigate('/login')
 		} else {
 			handleLayout(true)
-			loadRequest()
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [location])
+
+	useEffect(() => {
+		loadRequest()
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [customState])
 
 	useEffect(() => {
 		if (isObjectNotEmpty(viewModel)) {
@@ -208,7 +325,8 @@ const Request = () => {
 						value: detalle.idArticulo,
 						label: detalle.articulo
 					},
-					cantidad: detalle.cantidad
+					cantidad: detalle.cantidad,
+					existencia: detalle.existencia
 				}
 			})
 			form.setFieldsValue({
@@ -248,7 +366,9 @@ const Request = () => {
 
 	useEffect(() => {
 		if (items !== undefined && selectedItems !== undefined) {
-			setAvailableItems(items?.filter(e => !selectedItems.includes(e.value)))
+			setAvailableItems(
+				items?.items?.filter(e => !selectedItems.includes(e.key))
+			)
 		}
 	}, [items, selectedItems])
 
@@ -280,7 +400,15 @@ const Request = () => {
 											alignItems: 'center',
 											marginLeft: '1rem'
 										}}
-										color={requestState === 'Borrador' ? 'geekblue' : 'volcano'}
+										color={
+											requestState === 'Borrador'
+												? 'geekblue'
+												: requestState === 'En proceso'
+												? 'yellow'
+												: requestState === 'Aprobado'
+												? 'green'
+												: 'volcano'
+										}
 									>
 										{requestState.toUpperCase()}
 									</Tag>
@@ -288,32 +416,62 @@ const Request = () => {
 							)}
 						</div>
 						<div>
-							<Button
-								icon={<SaveOutlined />}
-								type='primary'
-								loading={saving}
-								disabled={saving}
-								onClick={handleSubmit}
-							>
-								Guardar
-							</Button>
-							{edit ? (
+							{requestState !== 'Aprobado' ? (
+								<Button
+									icon={<SaveOutlined />}
+									type='primary'
+									loading={saving}
+									disabled={saving}
+									onClick={handleSubmit}
+								>
+									Guardar
+								</Button>
+							) : (
+								''
+							)}
+							{edit && requestState !== 'Aprobado' ? (
 								<>
-									<Popconfirm
-										title='Enviar solicitud'
-										description='¿Desea enviar esta solicitud?'
-										onConfirm={() => {}}
-										onCancel={() => {}}
-										okText='Enviar'
-										cancelText='Cancelar'
-									>
-										<Button
-											style={{ marginLeft: '0.95rem' }}
-											icon={<SendOutlined />}
-										>
-											Enviar
-										</Button>
-									</Popconfirm>
+									{requestState === 'Borrador' ? (
+										<>
+											<Popconfirm
+												title='Enviar solicitud'
+												description='¿Desea enviar esta solicitud?'
+												onConfirm={sendRequest}
+												onCancel={() => {}}
+												okText='Enviar'
+												cancelText='Cancelar'
+											>
+												<Button
+													style={{ marginLeft: '0.95rem' }}
+													icon={<SendOutlined />}
+													loading={sending}
+													disabled={sending}
+												>
+													Enviar
+												</Button>
+											</Popconfirm>
+										</>
+									) : (
+										<>
+											<Popconfirm
+												title='Aprobar solicitud'
+												description='¿Desea aprobar esta solicitud?'
+												onConfirm={approveRequest}
+												onCancel={() => {}}
+												okText='Aprobar'
+												cancelText='Cancelar'
+											>
+												<Button
+													style={{ marginLeft: '0.95rem' }}
+													icon={<CheckOutlined />}
+													loading={approving}
+													disabled={approving}
+												>
+													Aprobar
+												</Button>
+											</Popconfirm>
+										</>
+									)}
 									<Popconfirm
 										placement='topLeft'
 										title='Descartar solicitud'
@@ -402,18 +560,32 @@ const Request = () => {
 										>
 											<Select
 												showSearch
+												allowClear
 												filterOption={handleFilterOption}
 												placeholder='Seleccionar'
-												disabled
+												options={catalogs?.map(x => {
+													return { value: x.key, label: x.text }
+												})}
+												disabled={values?.centroCostos === undefined}
 											></Select>
 										</Form.Item>
 									</Col>
 									<Col span={3} style={{ marginTop: '1.85rem' }}>
-										<Button icon={<DownloadOutlined />}> Cargar</Button>
+										<Button
+											icon={<DownloadOutlined />}
+											onClick={handleCatalogLoad}
+											disabled={
+												values?.centroCostos === undefined ||
+												requestState === 'Aprobado'
+											}
+										>
+											{' '}
+											Cargar
+										</Button>
 									</Col>
 								</Row>
-								<Row gutter={16}>
-									<Col span={12}>
+								<Row gutter={8}>
+									<Col span={13}>
 										<Form.List
 											name='articulos'
 											rules={[
@@ -465,7 +637,10 @@ const Request = () => {
 																	}
 																]}
 																style={{
-																	width: '75%'
+																	// width: '50%',
+																	display: 'flex',
+																	flexDirection: 'row',
+																	justifyContent: 'space-between'
 																}}
 															>
 																<Select
@@ -474,12 +649,34 @@ const Request = () => {
 																	filterOption={handleFilterOption}
 																	placeholder='Seleccionar artículo'
 																	notFoundContent='No se encontró ningún artículo'
+																	onChange={value =>
+																		handleSelectChange(index, value)
+																	}
 																	options={availableItems?.map(item => {
 																		return {
-																			value: item.value,
+																			value: item.key,
 																			label: item.text
 																		}
 																	})}
+																	style={{
+																		minWidth: '23rem'
+																	}}
+																/>
+															</Form.Item>
+															<Form.Item
+																name={[name, 'existencia']}
+																style={{
+																	display: 'flex',
+																	flexDirection: 'row',
+																	justifyContent: 'center'
+																}}
+															>
+																<InputNumber
+																	value={form.getFieldValue([
+																		name,
+																		'existencia'
+																	])}
+																	disabled
 																/>
 															</Form.Item>
 															<Form.Item
@@ -488,7 +685,8 @@ const Request = () => {
 															>
 																<InputNumber min={1} defaultValue={1} />
 															</Form.Item>
-															{fields.length > 1 ? (
+															{fields.length > 1 &&
+															requestState !== 'Aprobado' ? (
 																<MinusCircleOutlined
 																	onClick={() => remove(name)}
 																/>

@@ -35,6 +35,10 @@
 	flex: 1;
 }
 
+content-container {
+	flex: 1;
+}
+
 .content-header {
 	display: flex;
 	flex-direction: row;

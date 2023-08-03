@@ -1,13 +1,14 @@
+import Catalogs from './components/Catalogs'
 import CostsCenters from './components/CostsCenters'
 import Families from './components/Families'
 import Home from './components/Home'
+import Items from './components/Items'
 import Login from './components/Login'
 import Request from './components/Request'
 import Requests from './components/Requests'
-import Users from './components/Users'
-import Items from './components/Items'
-import Catalogs from './components/Catalogs'
 import Suppliers from './components/Suppliers'
+import Users from './components/Users'
+import Wharehouses from './components/Wharehouses'
 
 const AppRoutes = [
 	{
@@ -64,8 +65,12 @@ const AppRoutes = [
 		index: false,
 		path: '/suppliers',
 		element: <Suppliers />
+	},
+	{
+		index: false,
+		path: '/wharehouses',
+		element: <Wharehouses />
 	}
-
 ]
 
 export default AppRoutes

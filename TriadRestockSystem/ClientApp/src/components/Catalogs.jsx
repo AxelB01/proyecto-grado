@@ -54,7 +54,7 @@ const Catalogs = () => {
 			...prevState,
 			[rowId]: true
 		}))
-		getCatalogs(rowId)
+		getCatalog(rowId)
 	}
 
 	const handleOpen = value => {
