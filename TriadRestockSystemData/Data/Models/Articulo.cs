@@ -30,6 +30,9 @@ public partial class Articulo
 
     public int IdTipoArticulo { get; set; }
 
+    [Column(TypeName = "decimal(18, 2)")]
+    public decimal? PrecioPorUnidad { get; set; }
+
     public int CreadoPor { get; set; }
 
     [Column(TypeName = "datetime")]

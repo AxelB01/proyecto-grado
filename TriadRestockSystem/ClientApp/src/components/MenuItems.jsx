@@ -1,5 +1,6 @@
 import {
 	AppstoreAddOutlined,
+	BankOutlined,
 	FileDoneOutlined,
 	FileSearchOutlined,
 	HomeOutlined,
@@ -42,6 +43,7 @@ const MenuItems = [
 	{ type: 'divider' },
 	getItem('Configuración', 'sub1', <SettingOutlined style={iconStyle} />, [
 		getItem('Usuarios', '1', <UserOutlined style={iconStyle} />),
+		getItem('Bancos', '11', <BankOutlined style={iconStyle} />),
 		getItem('Centros de costo', '9', <MoneyCollectOutlined style={iconStyle} />)
 	])
 ]

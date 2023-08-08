@@ -1,12 +1,12 @@
 import { Button, Col, Form, Input, Modal, Row } from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import LayoutContext from '../context/LayoutContext'
-import { createCatalogModel } from '../functions/constructors'
+import { createBankModel } from '../functions/constructors'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 
-const CATALOGS_SAVE = '/api/catalogos/guardarCatalogo'
+const BANK_SAVE = '/api/configuraciones/guardarBanco'
 
-const CatalogsForm = ({
+const BankForm = ({
 	initialValues,
 	open,
 	handleOpen,
@@ -17,7 +17,7 @@ const CatalogsForm = ({
 	const { openMessage } = useContext(LayoutContext)
 	const [form] = Form.useForm()
 
-	const [title, setTitle] = useState('Nuevo catalogo de articulos')
+	const [title, setTitle] = useState('Nuevo banco')
 
 	useEffect(() => {
 		const { Id, Nombre } = initialValues
@@ -26,23 +26,26 @@ const CatalogsForm = ({
 			nombre: Nombre
 		})
 
-		setTitle('Nuevo catalogo de articulos')
+		setTitle('Nuevo banco')
 
 		if (Id !== 0) {
-			setTitle('Editar  catalogo de articulos')
+			setTitle('Editar banco')
 		}
 	}, [form, initialValues, open])
 
-	const saveCatalog = async model => {
+	const saveBank = async model => {
 		try {
-			const response = await axiosPrivate.post(CATALOGS_SAVE, model)
+			const response = await axiosPrivate.post(BANK_SAVE, model)
 			if (response?.status === 200) {
-				openMessage('success', 'Catalogo guardado')
+				openMessage('success', 'Banco guardado')
 				handleLoading(false)
 				handleOpen(false)
 			}
 		} catch (error) {
 			console.log(error)
+			openMessage('error', 'Error procesando la solicitud...')
+			handleLoading(false)
+			handleOpen(false)
 		}
 	}
 
@@ -52,10 +55,10 @@ const CatalogsForm = ({
 	}
 
 	const onFinish = values => {
-		const model = createCatalogModel()
+		const model = createBankModel()
 		model.Id = values.id
 		model.Nombre = values.nombre
-		saveCatalog(model)
+		saveBank(model)
 	}
 
 	const onFinishFailed = values => {
@@ -92,7 +95,7 @@ const CatalogsForm = ({
 					form={form}
 					onFinish={onFinish}
 					onFinishFailed={onFinishFailed}
-					name='form_catalogs'
+					name='form_bank'
 					layout='vertical'
 					requiredMark
 				>
@@ -107,7 +110,7 @@ const CatalogsForm = ({
 								rules={[
 									{
 										required: true,
-										message: 'Debe ingresar el nombre del catalogo'
+										message: 'Debe ingresar el nombre del banco'
 									}
 								]}
 								hasFeedback
@@ -122,4 +125,4 @@ const CatalogsForm = ({
 	)
 }
 
-export default CatalogsForm
+export default BankForm

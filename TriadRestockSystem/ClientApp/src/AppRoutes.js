@@ -1,3 +1,4 @@
+import Banks from './components/Banks'
 import Catalogs from './components/Catalogs'
 import CostsCenters from './components/CostsCenters'
 import Families from './components/Families'
@@ -70,6 +71,11 @@ const AppRoutes = [
 		index: false,
 		path: '/wharehouses',
 		element: <Wharehouses />
+	},
+	{
+		index: false,
+		path: '/banks',
+		element: <Banks />
 	}
 ]
 

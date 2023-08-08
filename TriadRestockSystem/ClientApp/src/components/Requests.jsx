@@ -14,7 +14,7 @@ import useCostCenters from '../hooks/useCostCenters'
 import useDocumentStates from '../hooks/useDocumentStates'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
-import CustomSimpleTable from './CustomSimpleTable'
+import CustomTable from './CustomTable'
 
 const GET_REQUESTS_LIST = 'api/solicitudes/getSolicitudes'
 
@@ -208,7 +208,7 @@ const Requests = () => {
 					</div>
 				</div>
 				<div className='table-container'>
-					<CustomSimpleTable
+					<CustomTable
 						tableKey={tableKey}
 						tableRef={tableRef}
 						tableState={tableState}

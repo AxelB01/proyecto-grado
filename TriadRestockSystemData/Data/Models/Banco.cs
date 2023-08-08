@@ -6,16 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
-public partial class FamiliasArticulo
+public partial class Banco
 {
     [Key]
-    public int IdFamilia { get; set; }
+    public int IdBanco { get; set; }
 
     [StringLength(100)]
-    public string Familia { get; set; } = null!;
-
-    [StringLength(100)]
-    public string? Cuenta { get; set; }
+    public string Nombre { get; set; } = null!;
 
     public int CreadoPor { get; set; }
 
@@ -27,18 +24,14 @@ public partial class FamiliasArticulo
     [Column(TypeName = "datetime")]
     public DateTime? FechaModificacion { get; set; }
 
-    [InverseProperty("IdFamiliaNavigation")]
-    public virtual ICollection<Articulo> Articulos { get; set; } = new List<Articulo>();
-
     [ForeignKey("CreadoPor")]
-    [InverseProperty("FamiliasArticuloCreadoPorNavigations")]
+    [InverseProperty("BancoCreadoPorNavigations")]
     public virtual Usuario CreadoPorNavigation { get; set; } = null!;
 
-    [ForeignKey("Cuenta")]
-    [InverseProperty("FamiliasArticulos")]
-    public virtual CuentasBanco? CuentaNavigation { get; set; }
+    [InverseProperty("IdBancoNavigation")]
+    public virtual ICollection<CuentasBanco> CuentasBancos { get; set; } = new List<CuentasBanco>();
 
     [ForeignKey("ModificadoPor")]
-    [InverseProperty("FamiliasArticuloModificadoPorNavigations")]
+    [InverseProperty("BancoModificadoPorNavigations")]
     public virtual Usuario? ModificadoPorNavigation { get; set; }
 }

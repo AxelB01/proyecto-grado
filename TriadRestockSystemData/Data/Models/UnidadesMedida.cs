@@ -21,6 +21,24 @@ public partial class UnidadesMedida
     [Unicode(false)]
     public string? Codigo { get; set; }
 
+    public int? CreadoPor { get; set; }
+
+    [Column(TypeName = "datetime")]
+    public DateTime? FechaCreacion { get; set; }
+
+    public int? ModificadoPor { get; set; }
+
+    [Column(TypeName = "datetime")]
+    public DateTime? FechaModificacion { get; set; }
+
     [InverseProperty("IdUnidadMedidaNavigation")]
     public virtual ICollection<Articulo> Articulos { get; set; } = new List<Articulo>();
+
+    [ForeignKey("CreadoPor")]
+    [InverseProperty("UnidadesMedidaCreadoPorNavigations")]
+    public virtual Usuario? CreadoPorNavigation { get; set; }
+
+    [ForeignKey("ModificadoPor")]
+    [InverseProperty("UnidadesMedidaModificadoPorNavigations")]
+    public virtual Usuario? ModificadoPorNavigation { get; set; }
 }
