@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
-import CustomSimpleTable from './CustomSimpleTable'
+import CustomTable from './CustomTable'
 import FamiliesForm from './FamiliesForm'
 
 const FAMILIES_DATA_URL = '/api/familias/getFamilias'
@@ -186,7 +186,7 @@ const Families = () => {
 			</div>
 
 			<div className='table-container'>
-				<CustomSimpleTable
+				<CustomTable
 					tableKey={tableKey}
 					tableRef={tableRef}
 					tableState={tableState}

@@ -6,16 +6,27 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
-public partial class FamiliasArticulo
+public partial class Contacto
 {
     [Key]
-    public int IdFamilia { get; set; }
+    public int IdContacto { get; set; }
+
+    public int IdTipoContacto { get; set; }
+
+    [StringLength(50)]
+    public string Referencia { get; set; } = null!;
 
     [StringLength(100)]
-    public string Familia { get; set; } = null!;
+    public string Nombre { get; set; } = null!;
 
     [StringLength(100)]
-    public string? Cuenta { get; set; }
+    public string Cargo { get; set; } = null!;
+
+    [StringLength(50)]
+    public string Telefono { get; set; } = null!;
+
+    [StringLength(100)]
+    public string CorreoElectronico { get; set; } = null!;
 
     public int CreadoPor { get; set; }
 
@@ -27,18 +38,15 @@ public partial class FamiliasArticulo
     [Column(TypeName = "datetime")]
     public DateTime? FechaModificacion { get; set; }
 
-    [InverseProperty("IdFamiliaNavigation")]
-    public virtual ICollection<Articulo> Articulos { get; set; } = new List<Articulo>();
-
     [ForeignKey("CreadoPor")]
-    [InverseProperty("FamiliasArticuloCreadoPorNavigations")]
+    [InverseProperty("ContactoCreadoPorNavigations")]
     public virtual Usuario CreadoPorNavigation { get; set; } = null!;
 
-    [ForeignKey("Cuenta")]
-    [InverseProperty("FamiliasArticulos")]
-    public virtual CuentasBanco? CuentaNavigation { get; set; }
+    [ForeignKey("IdTipoContacto")]
+    [InverseProperty("Contactos")]
+    public virtual TiposContacto IdTipoContactoNavigation { get; set; } = null!;
 
     [ForeignKey("ModificadoPor")]
-    [InverseProperty("FamiliasArticuloModificadoPorNavigations")]
+    [InverseProperty("ContactoModificadoPorNavigations")]
     public virtual Usuario? ModificadoPorNavigation { get; set; }
 }

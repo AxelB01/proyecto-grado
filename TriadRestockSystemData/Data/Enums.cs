@@ -24,4 +24,10 @@
         OrdenCompra = 3,
         SolicitudDespacho = 4,
     }
+
+    public enum IdTipoContacto
+    {
+        Banco = 1,
+        Proveedor = 2,
+    }
 }

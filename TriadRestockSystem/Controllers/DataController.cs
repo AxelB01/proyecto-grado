@@ -173,5 +173,48 @@ namespace TriadRestockSystem.Controllers
             return Ok(new { items = response });
         }
 
+        [HttpGet("getBancos")]
+        public IActionResult GetBancos()
+        {
+            var response = _db.Bancos
+                .Select(b => new
+                {
+                    Key = b.IdBanco,
+                    Text = b.Nombre,
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
+
+        [HttpGet("getTiposBancosCuentas")]
+        public IActionResult GetTiposBancosCuentas()
+        {
+            var response = _db.TiposCuentas
+                .Select(t => new
+                {
+                    Key = t.IdTipoCuenta,
+                    Text = t.Tipo,
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
+
+        [HttpGet("getCuentasBancos")]
+        public IActionResult GetCuentasBancos()
+        {
+            var response = _db.CuentasBancos
+                .Select(c => new
+                {
+                    Key = c.Cuenta,
+                    BankId = c.IdBanco,
+                    Text = c.Descripcion,
+                    LongText = $"{c.Descripcion} | {c.Cuenta}"
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
     }
 }

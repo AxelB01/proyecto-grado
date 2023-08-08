@@ -3,14 +3,14 @@ import {
 	ReloadOutlined,
 	UserAddOutlined
 } from '@ant-design/icons'
-import { Button, Space, Statistic, Tag } from 'antd'
+import { Button, Space, Statistic } from 'antd'
 import { useEffect, useRef, useState } from 'react'
 import useCountries from '../hooks/useCountries'
-import useSuppliersTypes from '../hooks/useSuppliersTypes'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import useSupplierStates from '../hooks/useSupplierStates'
+import useSuppliersTypes from '../hooks/useSuppliersTypes'
 import '../styles/DefaultContentStyle.css'
-import CustomSimpleTable from './CustomSimpleTable'
+import CustomTable from './CustomTable'
 import SuppliersForm from './SuppliersForm'
 
 const SUPPLIERS_DATA_URL = '/api/proveedores/getProveedores'
@@ -92,8 +92,8 @@ const Suppliers = () => {
 			dataIndex: 'estado',
 			key: 'estado',
 			filterType: 'custom filter',
-			data: estadosProveedores,
-			//render: text => (<>{<Tag key={text}>{text.toUpperCase()}</Tag>}</>)
+			data: estadosProveedores
+			// render: text => (<>{<Tag key={text}>{text.toUpperCase()}</Tag>}</>)
 		},
 		{
 			title: 'Pais',
@@ -211,7 +211,8 @@ const Suppliers = () => {
 			const editSupplierUrl = `${GET_SUPPLIER_DATA}?id=${key}`
 			const respose = await axiosPrivate.get(editSupplierUrl)
 
-			const { Id,
+			const {
+				Id,
 				IdEstado,
 				IdTipoProveedor,
 				Nombre,
@@ -220,19 +221,19 @@ const Suppliers = () => {
 				Direccion,
 				CodigoPostal,
 				Telefono,
-				Correo,
-				} = respose?.data
+				Correo
+			} = respose?.data
 			const model = {
 				id: Id,
-				idEstado:IdEstado,
-				tipoProveedor:IdTipoProveedor,
-				nombre:Nombre,
-				rnc:RNC,
-				idPais:IdPais,
-				direccion:Direccion,
-				codigoPostal:CodigoPostal,
-				telefono:Telefono,
-				correo:Correo
+				idEstado: IdEstado,
+				tipoProveedor: IdTipoProveedor,
+				nombre: Nombre,
+				rnc: RNC,
+				idPais: IdPais,
+				direccion: Direccion,
+				codigoPostal: CodigoPostal,
+				telefono: Telefono,
+				correo: Correo
 			}
 
 			setSuppliersFormInitialValues({ ...model })
@@ -286,7 +287,7 @@ const Suppliers = () => {
 			</div>
 
 			<div className='table-container'>
-				<CustomSimpleTable
+				<CustomTable
 					tableKey={tableKey}
 					tableRef={tableRef}
 					data={data}

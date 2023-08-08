@@ -12,7 +12,7 @@ import useItemsTypes from '../hooks/useItemsTypes'
 import useMeasurementUnits from '../hooks/useMeasurementUnits'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
-import CustomSimpleTable from './CustomSimpleTable'
+import CustomTable from './CustomTable'
 import ItemsForm from './ItemsFrom'
 
 const ITEMS_DATA_URL = '/api/articulos/getArticulos'
@@ -281,7 +281,7 @@ const Items = () => {
 			</div>
 
 			<div className='table-container'>
-				<CustomSimpleTable
+				<CustomTable
 					tableKey={tableKey}
 					tableRef={tableRef}
 					tableState={tableState}
