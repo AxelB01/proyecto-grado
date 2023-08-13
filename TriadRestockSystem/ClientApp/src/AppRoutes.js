@@ -8,6 +8,7 @@ import Login from './components/Login'
 import Request from './components/Request'
 import Requests from './components/Requests'
 import Suppliers from './components/Suppliers'
+import Units from './components/Units'
 import Users from './components/Users'
 import Wharehouses from './components/Wharehouses'
 
@@ -76,6 +77,11 @@ const AppRoutes = [
 		index: false,
 		path: '/banks',
 		element: <Banks />
+	},
+	{
+		index: false,
+		path: '/units',
+		element: <Units/>
 	}
 ]
 
