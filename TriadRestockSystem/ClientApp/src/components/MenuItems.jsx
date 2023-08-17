@@ -9,7 +9,8 @@ import {
 	SolutionOutlined,
 	TagsOutlined,
 	TeamOutlined,
-	UserOutlined
+	UserOutlined,
+	GoldOutlined
 } from '@ant-design/icons'
 import RolesNames from '../config/roles'
 
@@ -121,6 +122,12 @@ const MenuItems = [
 		null,
 		[RolesNames.ADMINISTRADOR]
 	)
+	getItem('Configuración', 'sub1', <SettingOutlined style={iconStyle} />, [
+		getItem('Usuarios', '1', <UserOutlined style={iconStyle} />),
+		getItem('Bancos', '11', <BankOutlined style={iconStyle} />),
+		getItem('Centros de costo', '9', <MoneyCollectOutlined style={iconStyle} />),
+		getItem('Unidades y Recursos','12',<GoldOutlined style={iconStyle}/> )
+	])
 ]
 
 export default MenuItems

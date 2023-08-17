@@ -164,3 +164,77 @@ export const createInventoryEntryModel = () => {
 		Notas: ''
 	}
 }
+
+
+
+
+export const createItemsTypeModel = () => {
+	return {
+		Id: 0,
+		Nombre: ''
+	}
+}
+
+export const createContagsTypeModel = () => {
+	return {
+		Id: 0,
+		Nombre: ''
+	}
+}
+
+export const createAccountTypeModel = () => {
+	return {
+		Id: 0,
+		Nombre: ''
+	}
+}
+
+export const createDocumentTypeModel = () => {
+	return {
+		Id: 0,
+		Nombre: '',
+		Codigo: ''
+	}
+}
+
+export const createSuppliersTypeModel = () => {
+	return {
+		Id: 0,
+		Nombre: ''
+	}
+}
+
+export const createStoregeTypeModel = () => {
+	return {
+		Id: 0,
+		Nombre: ''
+	}
+}
+
+export const createUnitTypeModel = () => {
+	return {
+		Id: 0,
+		Nombre: '',
+		Codigo: '',
+	}
+}
+
+export const createBrandModel = () => {
+	return {
+		Id: 0,
+		Nombre: ''
+	}
+}
+export const createCountryModel = () => {
+	return {
+		Id: 0,
+		Nombre: ''
+	}
+}
+export const createRoleModel = () => {
+	return {
+		Id: 0,
+		Nombre: '',
+		Descripcion: ''
+	}
+}

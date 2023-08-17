@@ -1,0 +1,16 @@
+.card-container{
+    padding: 5px;
+    flex-direction: column;
+}
+.btn-container{
+    display: flex;
+    justify-content: flex-end;
+    margin: -5px;
+}
+
+.card-form{
+    width: 400px;
+    border-Style:'solid';
+    border-Color: '#4c96d7';
+    border-Width: 0.5
+}

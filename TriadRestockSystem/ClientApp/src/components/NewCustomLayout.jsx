@@ -69,6 +69,9 @@ const NewCustomLayout = ({ children }) => {
 			case 11:
 				path = '/banks'
 				break
+			case 12:
+				path = '/units'
+				break
 			default:
 				break
 		}

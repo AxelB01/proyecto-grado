@@ -5,6 +5,7 @@ using TriadRestockSystem.Security;
 using TriadRestockSystem.ViewModels;
 using TriadRestockSystemData.Data;
 using TriadRestockSystemData.Data.Models;
+using TriadRestockSystemData.Data.ViewModels;
 
 namespace TriadRestockSystem.Controllers
 {
@@ -252,6 +253,168 @@ namespace TriadRestockSystem.Controllers
             }
 
             return Unauthorized();
+        }
+
+
+        [HttpGet("getTipoArticulo")]
+        public IActionResult GetTipoArticulos(int id)
+        {
+            var tipoArticulo = _db.TiposArticulos
+                .FirstOrDefault(u => u.IdTipoArticulo == id);
+
+            if (tipoArticulo != null)
+            {
+                vmItemType vm = new()
+                {
+                    Id= tipoArticulo.IdTipoArticulo,
+                    Nombre = tipoArticulo.Tipo
+                };
+                return Ok(vm);
+            }
+
+            return NotFound();
+        }
+
+        [HttpGet("getTipoArticulos")]
+        public IActionResult GetTipoArticulos()
+        {
+            var result = _db.TiposArticulos
+                .Select(x => new
+                {
+                    Key = x.IdTipoArticulo,
+                    Id = x.IdTipoArticulo,
+                    Nombre = x.Tipo,
+                })
+                .ToList();
+            return Ok(result);
+        }
+
+        [HttpPost("guardarTipoArticulos")]
+        public IActionResult GuardarTipoArticulos(vmTipoArticulo model)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                var dbTran = _db.Database.BeginTransaction();
+                try
+                {
+                    TiposArticulo? tipoArticulo = _db.TiposArticulos.FirstOrDefault(c => c.IdTipoArticulo.Equals(model.Id));
+
+                    if (tipoArticulo == null)
+                    {
+                        tipoArticulo = new TiposArticulo
+                        {
+                            IdTipoArticulo = model.Id,
+                            Tipo = model.Nombre,
+
+                        };
+
+                        _db.TiposArticulos.Add(tipoArticulo);
+
+                    }
+
+                    _db.SaveChanges();
+                    dbTran.Commit();
+
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    dbTran.Rollback();
+                    return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
+                }
+            }
+
+            return Unauthorized();
+        }
+
+        [HttpPost("guardarUnidadMedida")]
+        public IActionResult GuardarUnidadMedida(vmUnidadMedida model)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                var dbTran = _db.Database.BeginTransaction();
+                try
+                {
+                    UnidadesMedida? unidadesMedida = _db.UnidadesMedidas.FirstOrDefault(c => c.IdUnidadMedida.Equals(model.Id));
+
+                    if (unidadesMedida == null)
+                    {
+                        unidadesMedida = new UnidadesMedida
+                        {
+                            IdUnidadMedida = model.Id,
+                            UnidadMedida = model.Nombre,
+                            Codigo = model.Codigo
+
+                        };
+
+                        _db.UnidadesMedidas.Add(unidadesMedida);
+
+                    }
+                    else
+                    {
+
+                    }
+
+                    _db.SaveChanges();
+                    dbTran.Commit();
+
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    dbTran.Rollback();
+                    return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
+                }
+            }
+
+            return Unauthorized();
+        }
+
+        [HttpGet("getUnidadesMedida")]
+        public IActionResult GetUnidadesMedida()
+        {
+            var result = _db.UnidadesMedidas
+                .Select(x => new
+                {
+                    Key = x.IdUnidadMedida,
+                    Id = x.IdUnidadMedida,
+                    Nombre = x.UnidadMedida,
+                    x.Codigo
+                })
+                .ToList();
+            return Ok(result);
+        }
+
+        [HttpGet("getUnidadMedida")]
+        public IActionResult GetUnidadMedida(int id)
+        {
+            var unidadMedida = _db.UnidadesMedidas
+                .FirstOrDefault(u => u.IdUnidadMedida == id);
+
+            if (unidadMedida != null)
+            {
+                vmUnidadMedida vm = new()
+                {
+                    Id = unidadMedida.IdUnidadMedida,
+                    Nombre = unidadMedida.UnidadMedida,
+                    Codigo = unidadMedida.Codigo
+                };
+                return Ok(vm);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
     }
 }
