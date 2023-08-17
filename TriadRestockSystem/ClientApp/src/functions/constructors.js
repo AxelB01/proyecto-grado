@@ -30,8 +30,8 @@ export const createFamiliesModel = () => {
 	return {
 		IdFamilia: 0,
 		Familia: '',
-		CreadoPor: null,
-		FechaCreacion: null
+		IdBanco: 0,
+		Cuenta: ''
 	}
 }
 
@@ -123,5 +123,44 @@ export const createBankAccountModel = () => {
 		IdBanco: 0,
 		IdTipoCuenta: 0,
 		Descripcion: ''
+	}
+}
+
+export const createWharehouseSectionModel = () => {
+	return {
+		IdAlmacen: 0,
+		IdSeccion: 0,
+		IdEstado: 0,
+		Seccion: '',
+		IdTipoZona: 0
+	}
+}
+
+export const createWharehouseSectionStockModel = () => {
+	return {
+		IdSeccion: 0,
+		IdEstanteria: 0,
+		IdEstado: 0,
+		Codigo: '',
+		IdArticulo: 0,
+		Maximo: 1,
+		Minimo: 1
+	}
+}
+
+export const createInventoryEntryModel = () => {
+	return {
+		IdInventario: 0,
+		IdArticulo: 0,
+		IdAlmacenSeccionEstanteria: 0,
+		IdOrdenCompra: 0,
+		NumeroSerie: '',
+		Modelo: '',
+		IdMarca: 0,
+		IdEstado: 0,
+		IdImpuesto: 0,
+		PrecioCompra: 0.0,
+		FechaVencimiento: '',
+		Notas: ''
 	}
 }

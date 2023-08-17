@@ -4,7 +4,11 @@ import {
 	UserAddOutlined
 } from '@ant-design/icons'
 import { Button, Space, Statistic } from 'antd'
-import { useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import AuthContext from '../context/AuthContext'
+import LayoutContext from '../context/LayoutContext'
+import { sleep } from '../functions/sleep'
 import useCountries from '../hooks/useCountries'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import useSupplierStates from '../hooks/useSupplierStates'
@@ -17,6 +21,10 @@ const SUPPLIERS_DATA_URL = '/api/proveedores/getProveedores'
 const GET_SUPPLIER_DATA = '/api/proveedores/getProveedor'
 
 const Suppliers = () => {
+	const { validLogin } = useContext(AuthContext)
+	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
+	const navigate = useNavigate()
+
 	const [title, setTitle] = useState('')
 	const axiosPrivate = useAxiosPrivate()
 	const [data, setData] = useState([])
@@ -52,12 +60,6 @@ const Suppliers = () => {
 		correo: '',
 		fechaUltimaCompra: ''
 	})
-
-	useEffect(() => {
-		document.title = 'Suplidores'
-		getSuppliersData()
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
 
 	const columns = [
 		{
@@ -243,6 +245,37 @@ const Suppliers = () => {
 			console.log(error)
 		}
 	}
+
+	useEffect(() => {
+		document.title = 'Proveedores'
+		async function waitForUpdate() {
+			await sleep(1000)
+		}
+
+		if (!validLogin) {
+			waitForUpdate()
+			handleLayout(false)
+			navigate('/login')
+		} else {
+			handleLayout(true)
+			getSuppliersData()
+
+			const breadcrumbItems = [
+				{
+					title: (
+						<a onClick={() => navigate('/suppliers')}>
+							<span className='breadcrumb-item'>
+								<span className='breadcrumb-item-title'>Proveedores</span>
+							</span>
+						</a>
+					)
+				}
+			]
+
+			handleBreadcrumb(breadcrumbItems)
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
 
 	return (
 		<>

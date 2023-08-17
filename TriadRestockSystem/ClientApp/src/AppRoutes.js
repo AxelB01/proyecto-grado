@@ -9,6 +9,7 @@ import Request from './components/Request'
 import Requests from './components/Requests'
 import Suppliers from './components/Suppliers'
 import Users from './components/Users'
+import Wharehouse from './components/Wharehouse'
 import Wharehouses from './components/Wharehouses'
 
 const AppRoutes = [
@@ -71,6 +72,11 @@ const AppRoutes = [
 		index: false,
 		path: '/wharehouses',
 		element: <Wharehouses />
+	},
+	{
+		index: false,
+		path: '/wharehouse',
+		element: <Wharehouse />
 	},
 	{
 		index: false,

@@ -4,7 +4,7 @@ import {
 	PlusOutlined,
 	ReloadOutlined
 } from '@ant-design/icons'
-import { Button, Col, Row, Space, Statistic } from 'antd'
+import { Button, Space, Statistic } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
 import { useNavigate } from 'react-router-dom'
@@ -223,18 +223,14 @@ const CostsCenters = () => {
 					banks={banks}
 					bankAccounts={banksAccounts}
 				/>
-				<div className='info-container'>
-					<Row align='end'>
-						<Col span={3}>
-							<Statistic
-								style={{
-									textAlign: 'end'
-								}}
-								title='Centros de costos'
-								value={costsCenters.length}
-							/>
-						</Col>
-					</Row>
+				<div className='info-container to-right'>
+					<Statistic
+						style={{
+							textAlign: 'end'
+						}}
+						title='Centros de costos'
+						value={costsCenters.length}
+					/>
 				</div>
 				<div className='btn-container'>
 					<div className='right'>

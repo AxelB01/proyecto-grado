@@ -1,12 +1,14 @@
-import { PlusOutlined } from '@ant-design/icons'
-import { Button, Card, List } from 'antd'
-import { useContext, useEffect, useState } from 'react'
+import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
+import { Avatar, Button, Progress, Space, Tag, Tooltip } from 'antd'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { sleep } from '../functions/sleep'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
+import useWharehouseStates from '../hooks/useWharehouseStates'
 import '../styles/DefaultContentStyle.css'
+import CustomTable from './CustomTable'
 
 const GET_WHAREHOUSES = 'api/almacenes/getAlmacenes'
 
@@ -18,6 +20,23 @@ const Wharehouses = () => {
 	const [data, setData] = useState([])
 	const [loading, setLoading] = useState(false)
 
+	const wharehouseStates = useWharehouseStates().items
+
+	const [tableState, setTableState] = useState(true)
+	// const [tableLoading, setTableLoading] = useState({})
+	const tableRef = useRef()
+	const [tableKey, setTableKey] = useState(Date.now())
+
+	const handleFiltersReset = () => {
+		if (tableRef.current) {
+			columns.forEach(column => {
+				console.log(column)
+				column.filteredValue = null
+			})
+		}
+		setTableKey(Date.now())
+	}
+
 	const getWharehouses = async () => {
 		try {
 			setLoading(true)
@@ -25,6 +44,7 @@ const Wharehouses = () => {
 			if (response?.status === 200) {
 				const responseData = response.data
 				setData(responseData)
+				setTableState(false)
 			}
 		} catch (error) {
 			console.log(error)
@@ -64,9 +84,106 @@ const Wharehouses = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
-	useEffect(() => {
-		console.log(data)
-	}, [data])
+	const columns = [
+		{
+			title: 'Nombre',
+			dataIndex: 'nombre',
+			key: 'nombre',
+			width: 300,
+			filterType: 'text search'
+		},
+		{
+			title: 'Estado',
+			dataIndex: 'estado',
+			key: 'estado',
+			width: 150,
+			filterType: 'custom filter',
+			data: wharehouseStates,
+			render: text => (
+				<Space
+					style={{
+						width: '100%',
+						display: 'flex',
+						flexDirection: 'row',
+						justifyContent: 'start'
+					}}
+				>
+					<Tag color={text === 'Activo' ? 'geekblue' : 'volcano'}>{text}</Tag>
+				</Space>
+			)
+		},
+		{
+			title: 'Personal',
+			dataIndex: 'personal',
+			key: 'personal',
+			render: data => (
+				<>
+					<Avatar.Group maxCount={5}>
+						{data.map(item => {
+							return (
+								<Tooltip
+									key={item.idUsuario}
+									title={`${item.nombre}, ${item.puesto}`}
+								>
+									<Avatar>{item.nombre[0]}</Avatar>
+								</Tooltip>
+							)
+						})}
+					</Avatar.Group>
+				</>
+			)
+		},
+		{
+			title: 'Despachos',
+			dataIndex: 'despachos',
+			render: (_, record) => (
+				<Tooltip title='3 Completadas / 3 En proceso / 6 Por hacer'>
+					<Progress
+						percent={60}
+						success={{ percent: 30 }}
+						status='active'
+						size='small'
+					/>
+				</Tooltip>
+			)
+		},
+		{
+			title: '',
+			dataIndex: 'accion',
+			width: 80,
+			render: (_, record) => (
+				<Space
+					size='middle'
+					align='center'
+					style={{
+						width: '100%',
+						display: 'flex',
+						flexDirection: 'row',
+						justifyContent: 'center'
+					}}
+				>
+					<Button
+						type='text'
+						onClick={() => navigate('/wharehouse', { state: record.key })}
+					>
+						Entrar
+					</Button>
+				</Space>
+			)
+		}
+	]
+
+	const expandedRowRender = record => {
+		return (
+			<p
+				style={{
+					margin: 0
+				}}
+			>
+				{record.descripcion}
+			</p>
+		)
+	}
 
 	return (
 		<>
@@ -76,10 +193,29 @@ const Wharehouses = () => {
 						<Button type='primary' icon={<PlusOutlined />} onClick={() => {}}>
 							Nuevo Almacén
 						</Button>
+						<Button
+							style={{
+								display: 'flex',
+								alignItems: 'center'
+							}}
+							icon={<ReloadOutlined />}
+							onClick={handleFiltersReset}
+						>
+							Limpiar Filtros
+						</Button>
 					</div>
 				</div>
 				<div className='content-container'>
-					<List
+					<CustomTable
+						tableKey={tableKey}
+						tableRef={tableRef}
+						tableState={tableState}
+						data={data}
+						columns={columns}
+						expandedRowRender={expandedRowRender}
+						scrollable={false}
+					/>
+					{/* <List
 						loading={loading}
 						itemLayout='horizontal'
 						dataSource={data}
@@ -112,7 +248,7 @@ const Wharehouses = () => {
 								</Card>
 							</List.Item>
 						)}
-					/>
+					/> */}
 				</div>
 			</div>
 		</>

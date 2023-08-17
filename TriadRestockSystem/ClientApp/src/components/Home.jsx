@@ -7,23 +7,36 @@ import Loader from './Loader'
 
 const Home = () => {
 	const { validLogin } = useContext(AuthContext)
-	const { handleLayout } = useContext(LayoutContext)
+	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
 	const navigate = useNavigate()
 	const [loaded, setLoaded] = useState(true)
 
 	useEffect(() => {
-		document.title = 'Home'
+		document.title = 'Inicio'
 		async function waitForUpdate() {
 			await sleep(1000)
 		}
 
-		if (!validLogin) {
+		if (!validLogin || validLogin == null || validLogin === undefined) {
 			waitForUpdate()
 			handleLayout(false)
 			navigate('/login')
 		} else {
 			handleLayout(true)
 			setLoaded(false)
+
+			const breadcrumbItems = [
+				{
+					title: (
+						<a onClick={() => navigate('/')}>
+							<span className='breadcrumb-item'>
+								<span className='breadcrumb-item-title'>Inicio</span>
+							</span>
+						</a>
+					)
+				}
+			]
+			handleBreadcrumb(breadcrumbItems)
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
