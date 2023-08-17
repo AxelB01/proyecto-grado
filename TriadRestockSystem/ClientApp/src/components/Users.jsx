@@ -14,7 +14,7 @@ import { sleep } from '../functions/sleep'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import useUserStates from '../hooks/useUserStates'
 import '../styles/DefaultContentStyle.css'
-import CustomSimpleTable from './CustomSimpleTable'
+import CustomTable from './CustomTable'
 import UserForm from './UserForm'
 
 const USERS_DATA_URL = '/api/usuarios/getUsuarios'
@@ -115,6 +115,7 @@ const Users = () => {
 	}
 	// User Form
 
+	const [tableState, setTableState] = useState(true)
 	const tableRef = useRef()
 	const [tableKey, setTableKey] = useState(Date.now())
 
@@ -206,6 +207,7 @@ const Users = () => {
 			const response = await axiosPrivate.get(USERS_DATA_URL)
 			const data = response?.data
 			setData(data)
+			setTableState(false)
 		} catch (error) {
 			console.log(error)
 		}
@@ -333,9 +335,10 @@ const Users = () => {
 				</div>
 
 				<div className='table-container'>
-					<CustomSimpleTable
+					<CustomTable
 						tableKey={tableKey}
 						tableRef={tableRef}
+						tableState={tableState}
 						data={data}
 						columns={columns}
 						scrollable={true}

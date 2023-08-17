@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
-import CustomSimpleTable from './CustomSimpleTable'
+import CustomTable from './CustomTable'
 import FamiliesForm from './FamiliesForm'
 
 const FAMILIES_DATA_URL = '/api/familias/getFamilias'
@@ -21,6 +21,7 @@ const Families = () => {
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
 
+	const [tableState, setTableState] = useState(true)
 	const tableRef = useRef()
 	const [tableKey, setTableKey] = useState(Date.now())
 
@@ -102,7 +103,7 @@ const Families = () => {
 			const response = await axiosPrivate.get(FAMILIES_DATA_URL)
 			const data = response?.data
 			setData(data)
-			console.log(data)
+			setTableState(false)
 		} catch (error) {
 			console.log(error)
 		}
@@ -185,9 +186,10 @@ const Families = () => {
 			</div>
 
 			<div className='table-container'>
-				<CustomSimpleTable
+				<CustomTable
 					tableKey={tableKey}
 					tableRef={tableRef}
+					tableState={tableState}
 					data={data}
 					columns={columns}
 				/>

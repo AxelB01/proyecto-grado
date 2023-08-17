@@ -57,5 +57,11 @@ namespace TriadRestockSystemData.Data
                 .ToList();
         }
 
+        public static IList<vmAlmacen> AlmacenesGetAll(this InventarioDBContext context)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmAlmacen>("AlmacenesGetAll", commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
     }
 }

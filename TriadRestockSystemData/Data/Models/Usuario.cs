@@ -71,6 +71,12 @@ public partial class Usuario
     public virtual ICollection<Articulo> ArticuloModificadoPorNavigations { get; set; } = new List<Articulo>();
 
     [InverseProperty("CreadoPorNavigation")]
+    public virtual ICollection<Banco> BancoCreadoPorNavigations { get; set; } = new List<Banco>();
+
+    [InverseProperty("ModificadoPorNavigation")]
+    public virtual ICollection<Banco> BancoModificadoPorNavigations { get; set; } = new List<Banco>();
+
+    [InverseProperty("CreadoPorNavigation")]
     public virtual ICollection<Catalogo> CatalogoCreadoPorNavigations { get; set; } = new List<Catalogo>();
 
     [InverseProperty("ModificadoPorNavigation")]
@@ -82,9 +88,21 @@ public partial class Usuario
     [InverseProperty("ModificadoPorNavigation")]
     public virtual ICollection<CentrosCosto> CentrosCostoModificadoPorNavigations { get; set; } = new List<CentrosCosto>();
 
+    [InverseProperty("CreadoPorNavigation")]
+    public virtual ICollection<Contacto> ContactoCreadoPorNavigations { get; set; } = new List<Contacto>();
+
+    [InverseProperty("ModificadoPorNavigation")]
+    public virtual ICollection<Contacto> ContactoModificadoPorNavigations { get; set; } = new List<Contacto>();
+
     [ForeignKey("CreadoPor")]
     [InverseProperty("InverseCreadoPorNavigation")]
     public virtual Usuario? CreadoPorNavigation { get; set; }
+
+    [InverseProperty("CreadoPorNavigation")]
+    public virtual ICollection<CuentasBanco> CuentasBancoCreadoPorNavigations { get; set; } = new List<CuentasBanco>();
+
+    [InverseProperty("ModificadoPorNavigation")]
+    public virtual ICollection<CuentasBanco> CuentasBancoModificadoPorNavigations { get; set; } = new List<CuentasBanco>();
 
     [InverseProperty("CreadoPorNavigation")]
     public virtual ICollection<Documento> DocumentoCreadoPorNavigations { get; set; } = new List<Documento>();
@@ -135,6 +153,12 @@ public partial class Usuario
 
     [InverseProperty("ModificadoPorNavigation")]
     public virtual ICollection<RegistroPago> RegistroPagoModificadoPorNavigations { get; set; } = new List<RegistroPago>();
+
+    [InverseProperty("CreadoPorNavigation")]
+    public virtual ICollection<UnidadesMedida> UnidadesMedidaCreadoPorNavigations { get; set; } = new List<UnidadesMedida>();
+
+    [InverseProperty("ModificadoPorNavigation")]
+    public virtual ICollection<UnidadesMedida> UnidadesMedidaModificadoPorNavigations { get; set; } = new List<UnidadesMedida>();
 
     [ForeignKey("IdUsuario")]
     [InverseProperty("IdUsuarios")]

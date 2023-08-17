@@ -12,8 +12,10 @@ public partial class FamiliasArticulo
     public int IdFamilia { get; set; }
 
     [StringLength(100)]
-    [Unicode(false)]
     public string Familia { get; set; } = null!;
+
+    [StringLength(100)]
+    public string? Cuenta { get; set; }
 
     public int CreadoPor { get; set; }
 
@@ -31,6 +33,10 @@ public partial class FamiliasArticulo
     [ForeignKey("CreadoPor")]
     [InverseProperty("FamiliasArticuloCreadoPorNavigations")]
     public virtual Usuario CreadoPorNavigation { get; set; } = null!;
+
+    [ForeignKey("Cuenta")]
+    [InverseProperty("FamiliasArticulos")]
+    public virtual CuentasBanco? CuentaNavigation { get; set; }
 
     [ForeignKey("ModificadoPor")]
     [InverseProperty("FamiliasArticuloModificadoPorNavigations")]

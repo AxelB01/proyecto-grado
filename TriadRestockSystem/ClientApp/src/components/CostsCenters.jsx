@@ -1,7 +1,6 @@
 import {
 	AuditOutlined,
 	EditOutlined,
-	MoneyCollectOutlined,
 	PlusOutlined,
 	ReloadOutlined
 } from '@ant-design/icons'
@@ -13,13 +12,15 @@ import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { createCostCenterModel } from '../functions/constructors'
 import { sleep } from '../functions/sleep'
+import useBankAccounts from '../hooks/useBankAccounts'
+import useBanks from '../hooks/useBanks'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
 import CostsCentersForm from './CostsCentersForm'
-import CustomSimpleTable from './CustomSimpleTable'
+import CustomTable from './CustomTable'
 
-const CENTROS_COSTOS_URL = '/api/centrosCostos/getCostsCentersData'
-const CENTRO_COSTO_GET = '/api/centrosCostos/getCentroCostos'
+const CENTROS_COSTOS_URL = '/api/configuraciones/getCostsCentersData'
+const CENTRO_COSTO_GET = '/api/configuraciones/getCentroCostos'
 
 const CostsCenters = () => {
 	const { validLogin } = useContext(AuthContext)
@@ -31,6 +32,9 @@ const CostsCenters = () => {
 	const [open, setOpen] = useState(false)
 	const [formLoading, setFormLoading] = useState(false)
 	const [loading, setLoading] = useState({})
+
+	const banks = useBanks().items
+	const banksAccounts = useBankAccounts().items
 
 	const [initialValues, setInitialValues] = useState(createCostCenterModel())
 
@@ -60,6 +64,7 @@ const CostsCenters = () => {
 			const model = createCostCenterModel()
 			model.IdCentroCosto = data.idCentroCosto
 			model.Nombre = data.nombre
+			model.IdBanco = data.idBanco
 			model.Cuenta = data.cuenta
 			setInitialValues(model)
 		} catch (error) {
@@ -72,6 +77,7 @@ const CostsCenters = () => {
 			try {
 				const response = await axiosPrivate.get(CENTROS_COSTOS_URL)
 				setCostsCenters(response?.data)
+				setTableState(false)
 			} catch (error) {
 				console.log(error)
 			}
@@ -90,6 +96,7 @@ const CostsCenters = () => {
 		}
 	}, [initialValues])
 
+	const [tableState, setTableState] = useState(true)
 	const tableRef = useRef()
 	const [tableKey, setTableKey] = useState(Date.now())
 
@@ -109,19 +116,33 @@ const CostsCenters = () => {
 			title: 'Código',
 			dataIndex: 'id',
 			key: 'id',
+			fixed: 'left',
 			filterType: 'text search'
 		},
 		{
 			title: 'Nombre',
 			dataIndex: 'nombre',
 			key: 'nombre',
+			width: 200,
+			fixed: 'left',
 			filterType: 'text search'
 		},
 		{
 			title: 'Cuenta',
 			dataIndex: 'cuenta',
 			key: 'cuenta',
+			width: 200,
 			filterType: 'text search'
+		},
+		{
+			title: 'Descripción',
+			dataIndex: 'cuentaDescripcion',
+			key: 'cuentaDescripcion',
+			width: 500,
+			filterType: 'text search',
+			render: (_, record) => (
+				<span>{`${record.banco} | ${record.cuentaDescripcion}`}</span>
+			)
 		},
 		{
 			title: 'Creador',
@@ -140,6 +161,8 @@ const CostsCenters = () => {
 		{
 			title: 'Acciones',
 			key: 'action',
+			width: 240,
+			fixed: 'right',
 			render: (_, record) => (
 				<Space size='middle' align='center'>
 					<Button
@@ -175,7 +198,7 @@ const CostsCenters = () => {
 					title: (
 						<a onClick={() => navigate('/costsCenters')}>
 							<span className='breadcrumb-item'>
-								<MoneyCollectOutlined />
+								{/* <MoneyCollectOutlined /> */}
 								<span className='breadcrumb-item-title'>Centros de costos</span>
 							</span>
 						</a>
@@ -197,6 +220,8 @@ const CostsCenters = () => {
 					loading={formLoading}
 					handleLoading={handleLoading}
 					initialValues={initialValues}
+					banks={banks}
+					bankAccounts={banksAccounts}
 				/>
 				<div className='info-container'>
 					<Row align='end'>
@@ -237,11 +262,13 @@ const CostsCenters = () => {
 					</div>
 				</div>
 				<div className='table-container'>
-					<CustomSimpleTable
+					<CustomTable
 						tableKey={tableKey}
 						tableRef={tableRef}
+						tableState={tableState}
 						data={costsCenters}
 						columns={columns}
+						scrollable={true}
 					/>
 				</div>
 			</div>

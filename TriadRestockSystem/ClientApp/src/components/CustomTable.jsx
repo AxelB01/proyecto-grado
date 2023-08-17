@@ -4,13 +4,15 @@ import locale from 'antd/lib/locale/es_ES'
 import moment from 'moment'
 import { useRef } from 'react'
 
-const CustomSimpleTable = ({
+const CustomTable = ({
 	tableKey,
 	tableRef,
 	tableState,
 	data,
+	expandedRowRender,
 	columns,
-	scrollable
+	scrollable,
+	pagination = true
 }) => {
 	const customNoDataText = (
 		<Empty
@@ -168,13 +170,19 @@ const CustomSimpleTable = ({
 				ref={tableRef}
 				loading={tableState}
 				dataSource={data}
+				expandable={{
+					expandedRowRender,
+					defaultExpandedRowKeys: ['0']
+				}}
 				columns={customColumns}
 				scroll={scroll}
-				pagination={{
-					total: data.length,
-					showTotal: () => `${data.length} registros en total`,
-					locale: locale.Pagination
-				}}
+				pagination={
+					pagination && {
+						total: data.length,
+						showTotal: () => `${data.length} registros en total`,
+						locale: locale.Pagination
+					}
+				}
 				locale={{
 					emptyText: customNoDataText
 				}}
@@ -183,4 +191,4 @@ const CustomSimpleTable = ({
 	)
 }
 
-export default CustomSimpleTable
+export default CustomTable

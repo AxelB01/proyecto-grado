@@ -70,6 +70,7 @@ export const createCostCenterModel = () => {
 	return {
 		IdCentroCosto: 0,
 		Nombre: '',
+		IdBanco: 0,
 		Cuenta: '',
 		IdCreadoPor: 0,
 		CreadoPor: '',
@@ -95,7 +96,7 @@ export const createCatalogItemsModel = () => {
 }
 
 export const createSuppliersModel = () => {
-	return{
+	return {
 		Id: 0,
 		IdEstado: 0,
 		IdTipoProveedor: 0,
@@ -105,7 +106,96 @@ export const createSuppliersModel = () => {
 		Direccion: '',
 		CodigoPostal: '',
 		Telefono: '',
-		Correo: '',
-		
+		Correo: ''
+	}
+}
+
+export const createBankModel = () => {
+	return {
+		Id: 0,
+		Nombre: ''
+	}
+}
+
+export const createBankAccountModel = () => {
+	return {
+		Cuenta: '',
+		IdBanco: 0,
+		IdTipoCuenta: 0,
+		Descripcion: ''
+	}
+}
+
+
+
+
+export const createItemsTypeModel = () => {
+	return {
+		Id: 0,
+		Nombre: ''
+	}
+}
+
+export const createContagsTypeModel = () => {
+	return {
+		Id: 0,
+		Nombre: ''
+	}
+}
+
+export const createAccountTypeModel = () => {
+	return {
+		Id: 0,
+		Nombre: ''
+	}
+}
+
+export const createDocumentTypeModel = () => {
+	return {
+		Id: 0,
+		Nombre: '',
+		Codigo: ''
+	}
+}
+
+export const createSuppliersTypeModel = () => {
+	return {
+		Id: 0,
+		Nombre: ''
+	}
+}
+
+export const createStoregeTypeModel = () => {
+	return {
+		Id: 0,
+		Nombre: ''
+	}
+}
+
+export const createUnitTypeModel = () => {
+	return {
+		Id: 0,
+		Nombre: '',
+		Codigo: '',
+	}
+}
+
+export const createBrandModel = () => {
+	return {
+		Id: 0,
+		Nombre: ''
+	}
+}
+export const createCountryModel = () => {
+	return {
+		Id: 0,
+		Nombre: ''
+	}
+}
+export const createRoleModel = () => {
+	return {
+		Id: 0,
+		Nombre: '',
+		Descripcion: ''
 	}
 }

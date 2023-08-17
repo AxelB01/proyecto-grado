@@ -1,5 +1,6 @@
 import {
 	AppstoreAddOutlined,
+	BankOutlined,
 	FileDoneOutlined,
 	FileSearchOutlined,
 	HomeOutlined,
@@ -10,7 +11,8 @@ import {
 	SolutionOutlined,
 	TagsOutlined,
 	TeamOutlined,
-	UserOutlined
+	UserOutlined,
+	GoldOutlined
 } from '@ant-design/icons'
 
 const iconStyle = {
@@ -42,7 +44,9 @@ const MenuItems = [
 	{ type: 'divider' },
 	getItem('Configuración', 'sub1', <SettingOutlined style={iconStyle} />, [
 		getItem('Usuarios', '1', <UserOutlined style={iconStyle} />),
-		getItem('Centros de costo', '9', <MoneyCollectOutlined style={iconStyle} />)
+		getItem('Bancos', '11', <BankOutlined style={iconStyle} />),
+		getItem('Centros de costo', '9', <MoneyCollectOutlined style={iconStyle} />),
+		getItem('Unidades y Recursos','12',<GoldOutlined style={iconStyle}/> )
 	])
 ]
 

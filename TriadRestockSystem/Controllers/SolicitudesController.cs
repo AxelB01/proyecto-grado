@@ -82,7 +82,8 @@ namespace TriadRestockSystem.Controllers
                         {
                             IdArticulo = x.IdArticulo,
                             Articulo = $"{x.IdArticuloNavigation.Nombre} ({x.IdArticuloNavigation.IdUnidadMedidaNavigation.UnidadMedida})",
-                            Cantidad = Convert.ToInt32(x.Cantidad)
+                            Cantidad = Convert.ToInt32(x.Cantidad),
+                            Existencia = 0
                         })
                         .ToArray()
                     };
@@ -182,6 +183,84 @@ namespace TriadRestockSystem.Controllers
                 {
                     dbTran.Rollback();
                     return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
+                }
+            }
+
+            return Unauthorized();
+        }
+
+        [HttpPost("enviarSolicitud")]
+        public IActionResult EnviarSolicitud([FromBody] int id)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                var solicitud = _db.SolicitudesMateriales
+                    .Include(s => s.IdDocumentoNavigation)
+                    .FirstOrDefault(s => s.IdSolicitudMateriales == id);
+
+                if (solicitud != null)
+                {
+                    using var dbTran = _db.Database.BeginTransaction();
+                    try
+                    {
+                        solicitud.IdDocumentoNavigation.IdEstado = (int)IdEstadoDocumento.EnProceso;
+                        solicitud.IdDocumentoNavigation.ModificadoPor = user.IdUsuario;
+                        solicitud.IdDocumentoNavigation.FechaModificacion = DateTime.Now;
+
+                        _db.SaveChanges();
+                        dbTran.Commit();
+
+                        return Ok();
+                    }
+                    catch (Exception e)
+                    {
+                        dbTran.Rollback();
+                        return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
+                    }
+                }
+            }
+
+            return Unauthorized();
+        }
+
+        [HttpPost("aprobarSolicitud")]
+        public IActionResult AprobarSolicitud([FromBody] int id)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                var solicitud = _db.SolicitudesMateriales
+                    .Include(s => s.IdDocumentoNavigation)
+                    .FirstOrDefault(s => s.IdSolicitudMateriales == id);
+
+                if (solicitud != null)
+                {
+                    using var dbTran = _db.Database.BeginTransaction();
+                    try
+                    {
+                        solicitud.IdDocumentoNavigation.IdEstado = (int)IdEstadoDocumento.Aprobado;
+                        solicitud.IdDocumentoNavigation.ModificadoPor = user.IdUsuario;
+                        solicitud.IdDocumentoNavigation.FechaModificacion = DateTime.Now;
+
+                        _db.SaveChanges();
+                        dbTran.Commit();
+
+                        return Ok();
+                    }
+                    catch (Exception e)
+                    {
+                        dbTran.Rollback();
+                        return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
+                    }
                 }
             }
 

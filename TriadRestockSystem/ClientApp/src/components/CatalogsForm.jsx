@@ -34,9 +34,6 @@ const CatalogsForm = ({
 	}, [form, initialValues, open])
 
 	const saveCatalog = async model => {
-		// console.log(model)
-		// handleLoading(false)
-		// handleOpen(false)
 		try {
 			const response = await axiosPrivate.post(CATALOGS_SAVE, model)
 			if (response?.status === 200) {

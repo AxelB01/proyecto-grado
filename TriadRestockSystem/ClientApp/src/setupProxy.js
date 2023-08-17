@@ -13,10 +13,10 @@ const context =  [
     "/api/solicitudes",
     "/api/familias",
     "/api/articulos",
-    "/api/centrosCostos",
     "/api/catalogos",
-    "/api/proveedores"
-
+    "/api/proveedores",
+    "/api/almacenes",
+    "/api/configuraciones",
 ];
 
 module.exports = function(app) {

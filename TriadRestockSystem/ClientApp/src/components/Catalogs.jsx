@@ -21,7 +21,7 @@ import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
 import CatalogsForm from './CatalogsForm'
 import CatalogsItemsForm from './CatalogsItemsForm'
-import CustomSimpleTable from './CustomSimpleTable'
+import CustomTable from './CustomTable'
 
 const CATALOGOS_GET = '/api/catalogos/getCatalogo'
 const CATALOGOS_URL = '/api/catalogos/getCatalogos'
@@ -54,7 +54,7 @@ const Catalogs = () => {
 			...prevState,
 			[rowId]: true
 		}))
-		getCatalogs(rowId)
+		getCatalog(rowId)
 	}
 
 	const handleOpen = value => {
@@ -316,7 +316,7 @@ const Catalogs = () => {
 					</div>
 				</div>
 				<div className='table-container'>
-					<CustomSimpleTable
+					<CustomTable
 						tableKey={tableKey}
 						tableRef={tableRef}
 						tableState={tableState}

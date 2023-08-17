@@ -1,32 +1,43 @@
-import { Button, Col, Form, Input, Modal, Row } from 'antd'
+import { Button, Col, Form, Input, Modal, Row, Select } from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import LayoutContext from '../context/LayoutContext'
 import { createCostCenterModel } from '../functions/constructors'
+import { isStringEmpty } from '../functions/validation'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 
-const CENTROS_COSTOS_SAVE = '/api/centrosCostos/guardarCentroCostos'
+const CENTROS_COSTOS_SAVE = '/api/configuraciones/guardarCentroCostos'
 
 const CostsCentersForm = ({
 	initialValues,
 	open,
 	handleOpen,
 	loading,
-	handleLoading
+	handleLoading,
+	banks,
+	bankAccounts
 }) => {
 	const axiosPrivate = useAxiosPrivate()
 	const { openMessage } = useContext(LayoutContext)
 	const [form] = Form.useForm()
-	// const values = Form.useWatch([], form)
-
+	const values = Form.useWatch([], form)
 	const [title, setTitle] = useState('Nuevo centro de costos')
 
 	useEffect(() => {
-		const { IdCentroCosto, Nombre, Cuenta } = initialValues
-		form.setFieldsValue({
-			id: IdCentroCosto,
-			nombre: Nombre,
-			cuenta: Cuenta
-		})
+		form.resetFields()
+		const { IdCentroCosto, Nombre, IdBanco, Cuenta } = initialValues
+		if (
+			IdCentroCosto !== 0 &&
+			IdBanco !== 0 &&
+			!isStringEmpty(Nombre) &&
+			!isStringEmpty(Cuenta)
+		) {
+			form.setFieldsValue({
+				id: IdCentroCosto,
+				nombre: Nombre,
+				banco: IdBanco,
+				cuenta: Cuenta
+			})
+		}
 
 		setTitle('Nuevo centro de costos')
 
@@ -45,6 +56,10 @@ const CostsCentersForm = ({
 			}
 		} catch (error) {
 			console.log(error)
+
+			openMessage('error', 'Problema procesando la petición...')
+			handleLoading(false)
+			handleOpen(false)
 		}
 	}
 
@@ -122,17 +137,49 @@ const CostsCentersForm = ({
 					<Row gutter={16}>
 						<Col span={24}>
 							<Form.Item
+								name='banco'
+								label='Banco'
+								rules={[
+									{
+										required: true,
+										message:
+											'Debe seleccionar el banco del que proviene la cuenta'
+									}
+								]}
+							>
+								<Select
+									showSearch
+									placeholder='Seleccionar'
+									options={banks?.map(b => {
+										return { value: b.key, label: b.text }
+									})}
+								></Select>
+							</Form.Item>
+						</Col>
+					</Row>
+					<Row gutter={16}>
+						<Col span={24}>
+							<Form.Item
 								name='cuenta'
 								label='Cuenta'
 								rules={[
 									{
 										required: true,
-										message: 'Debe ingresar una cuenta para el centro de costos'
+										message:
+											'Debe seleccionar una cuenta para el centro de costos'
 									}
 								]}
-								hasFeedback
 							>
-								<Input autoComplete='off' placeholder='Ingresar cuenta' />
+								<Select
+									showSearch
+									placeholder='Seleccionar'
+									options={bankAccounts
+										?.filter(b => b.bankId === values.banco)
+										.map(c => {
+											return { value: c.key, label: c.longText }
+										})}
+									disabled={values?.banco == null}
+								></Select>
 							</Form.Item>
 						</Col>
 					</Row>
