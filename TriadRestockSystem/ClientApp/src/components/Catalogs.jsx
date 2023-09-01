@@ -1,11 +1,10 @@
 import {
 	EditOutlined,
-	MoneyCollectOutlined,
 	PlusOutlined,
 	ReloadOutlined,
 	TagsOutlined
 } from '@ant-design/icons'
-import { Button, Col, Row, Space, Statistic } from 'antd'
+import { Button, Space, Statistic } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
 import { useNavigate } from 'react-router-dom'
@@ -246,7 +245,6 @@ const Catalogs = () => {
 					title: (
 						<a onClick={() => navigate('/catalogs')}>
 							<span className='breadcrumb-item'>
-								<MoneyCollectOutlined />
 								<span className='breadcrumb-item-title'>Catalogos</span>
 							</span>
 						</a>
@@ -277,18 +275,14 @@ const Catalogs = () => {
 					source={itemsList.items}
 					initialValues={catalogItemsInitialValues}
 				/>
-				<div className='info-container'>
-					<Row align='end'>
-						<Col span={3}>
-							<Statistic
-								style={{
-									textAlign: 'end'
-								}}
-								title='Catálogos'
-								value={catalogs.length}
-							/>
-						</Col>
-					</Row>
+				<div className='info-container to-right'>
+					<Statistic
+						style={{
+							textAlign: 'end'
+						}}
+						title='Catálogos'
+						value={catalogs.length}
+					/>
 				</div>
 				<div className='btn-container'>
 					<div className='right'>

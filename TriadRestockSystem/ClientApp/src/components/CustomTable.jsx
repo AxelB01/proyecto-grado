@@ -5,6 +5,7 @@ import moment from 'moment'
 import { useRef } from 'react'
 
 const CustomTable = ({
+	tableClases = '',
 	tableKey,
 	tableRef,
 	tableState,
@@ -126,7 +127,7 @@ const CustomTable = ({
 			case 'custom filter':
 				customColumn = {
 					...column,
-					filters: column.data.map(i => {
+					filters: column.data?.map(i => {
 						return { text: i.text, value: i.text }
 					}),
 					onFilter: (value, record) => record[column.key].indexOf(value) === 0
@@ -166,20 +167,18 @@ const CustomTable = ({
 	return (
 		<>
 			<Table
+				className={tableClases}
 				key={tableKey}
 				ref={tableRef}
 				loading={tableState}
 				dataSource={data}
-				expandable={{
-					expandedRowRender,
-					defaultExpandedRowKeys: ['0']
-				}}
+				expandable={{ expandedRowRender, defaultExpandedRowKeys: ['0'] }}
 				columns={customColumns}
 				scroll={scroll}
 				pagination={
 					pagination && {
-						total: data.length,
-						showTotal: () => `${data.length} registros en total`,
+						total: data?.length,
+						showTotal: () => `${data?.length} registros en total`,
 						locale: locale.Pagination
 					}
 				}

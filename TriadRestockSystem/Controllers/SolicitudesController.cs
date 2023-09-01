@@ -11,7 +11,12 @@ namespace TriadRestockSystem.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [JwtData]
-    [Authorize(Roles = RolesNames.ADMINISTRADOR)]
+    [Authorize(Roles =
+        RolesNames.ADMINISTRADOR + "," +
+        RolesNames.ALMACEN_ENCARGADO + "," +
+        RolesNames.ALAMCEN_AUXILIAR + "," +
+        RolesNames.CENTROCOSTOS_ENCARGADO + "," +
+        RolesNames.CENTROCOSTOS_AUXILIAR)]
     public class SolicitudesController : ControllerBase
     {
         private readonly InventarioDBContext _db;

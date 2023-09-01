@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TriadRestockSystem.Security;
 using TriadRestockSystem.ViewModels;
 using TriadRestockSystemData.Data;
@@ -13,7 +11,7 @@ namespace TriadRestockSystem.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [JwtData]
-    [Authorize(Roles = RolesNames.ADMINISTRADOR)]
+    [Authorize(Roles = RolesNames.ADMINISTRADOR + "," + RolesNames.COMPRAS)]
     public class ProveedoresController : ControllerBase
     {
         private readonly InventarioDBContext _db;
@@ -64,12 +62,12 @@ namespace TriadRestockSystem.Controllers
                     Nombre = proveedor.Nombre,
                     IdEstado = proveedor.IdEstado,
                     IdTipoProveedor = proveedor.IdTipoProveedor,
-		            RNC = proveedor.Rnc,
-		            IdPais = proveedor.IdPais,
-		            Direccion = proveedor.Direccion,
-		            CodigoPostal = proveedor.CodigoPostal,
-		            Telefono = proveedor.Telefono,
-		            Correo = proveedor.CorreoElectronico,
+                    RNC = proveedor.Rnc,
+                    IdPais = proveedor.IdPais,
+                    Direccion = proveedor.Direccion,
+                    CodigoPostal = proveedor.CodigoPostal,
+                    Telefono = proveedor.Telefono,
+                    Correo = proveedor.CorreoElectronico,
                 };
                 return Ok(vm);
             }

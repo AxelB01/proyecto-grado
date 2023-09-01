@@ -4,8 +4,15 @@ import {
 	UserAddOutlined
 } from '@ant-design/icons'
 import { Button, Space, Statistic } from 'antd'
-import { useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
+import { useNavigate } from 'react-router-dom'
+import AuthContext from '../context/AuthContext'
+import LayoutContext from '../context/LayoutContext'
+import { createFamiliesModel } from '../functions/constructors'
+import { sleep } from '../functions/sleep'
+import useBankAccounts from '../hooks/useBankAccounts'
+import useBanks from '../hooks/useBanks'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
 import CustomTable from './CustomTable'
@@ -15,11 +22,18 @@ const FAMILIES_DATA_URL = '/api/familias/getFamilias'
 const GET_FAMILY_DATA = '/api/familias/getFamilia'
 
 const Families = () => {
+	const { validLogin } = useContext(AuthContext)
+	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
+	const navigate = useNavigate()
+
 	const [title, setTitle] = useState('')
 	const axiosPrivate = useAxiosPrivate()
 	const [data, setData] = useState([])
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
+
+	const banks = useBanks().items
+	const banksAccounts = useBankAccounts().items
 
 	const [tableState, setTableState] = useState(true)
 	const tableRef = useRef()
@@ -36,14 +50,37 @@ const Families = () => {
 		setTableKey(Date.now())
 	}
 
-	const [familyFormInitialValues, setFamiliesFormInitialValues] = useState({
-		id: 0,
-		nombre: ''
-	})
+	const [familyFormInitialValues, setFamiliesFormInitialValues] = useState(
+		createFamiliesModel()
+	)
 
 	useEffect(() => {
 		document.title = 'Familias'
-		getFamiliesData()
+		async function waitForUpdate() {
+			await sleep(1000)
+		}
+
+		if (!validLogin) {
+			waitForUpdate()
+			handleLayout(false)
+			navigate('/login')
+		} else {
+			handleLayout(true)
+			getFamiliesData()
+			const breadcrumbItems = [
+				{
+					title: (
+						<a onClick={() => navigate('/families')}>
+							<span className='breadcrumb-item'>
+								<span className='breadcrumb-item-title'>Familias</span>
+							</span>
+						</a>
+					)
+				}
+			]
+
+			handleBreadcrumb(breadcrumbItems)
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
@@ -60,6 +97,13 @@ const Families = () => {
 			dataIndex: 'familia',
 			key: 'familia',
 			fixed: 'left',
+			filterType: 'text search'
+		},
+		{
+			title: 'Cuenta',
+			dataIndex: 'cuenta',
+			key: 'cuenta',
+			width: 450,
 			filterType: 'text search'
 		},
 		{
@@ -119,25 +163,21 @@ const Families = () => {
 	}
 
 	const handleResetFamiliesForm = () => {
-		setFamiliesFormInitialValues({
-			id: 0,
-			familia: ''
-		})
+		setFamiliesFormInitialValues(createFamiliesModel())
 		setTitle('Registrar Familia')
 		showFamiliesForm()
 	}
 	const handleEditFamily = async record => {
 		const { key } = record
 		try {
-			const editFamilyUrl = `${GET_FAMILY_DATA}?id=${key}`
-			const respose = await axiosPrivate.get(editFamilyUrl)
-			const { idFamilia, familia } = respose?.data
-			const model = {
-				id: idFamilia,
-				familia
-			}
-
-			setFamiliesFormInitialValues({ ...model })
+			const respose = await axiosPrivate.get(`${GET_FAMILY_DATA}?id=${key}`)
+			const data = respose?.data
+			const model = createFamiliesModel()
+			model.IdFamilia = data.idFamilia
+			model.Familia = data.familia
+			model.IdBanco = data.idBanco
+			model.Cuenta = data.cuenta
+			setFamiliesFormInitialValues(model)
 			setTitle('Editar familia')
 			showFamiliesForm()
 		} catch (error) {
@@ -148,9 +188,11 @@ const Families = () => {
 	return (
 		<>
 			<FamiliesForm
+				banks={banks}
+				banksAccounts={banksAccounts}
 				title={title}
 				open={open}
-				onClose={closeFamiliesForm}
+				handleOpen={closeFamiliesForm}
 				getFamilyData={getFamiliesData}
 				initialValues={familyFormInitialValues}
 				loading={loading}

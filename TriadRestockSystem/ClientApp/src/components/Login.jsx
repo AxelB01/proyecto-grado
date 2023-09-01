@@ -13,16 +13,19 @@ const { Content, Footer } = Layout
 const Login = () => {
 	const { validLogin, username, password, roles, token } =
 		useContext(AuthContext)
-	const { openMessage } = useContext(LayoutContext)
+	const { openMessage, handleLayout } = useContext(LayoutContext)
 	const navigate = useNavigate()
 
 	useEffect(() => {
 		document.title = 'Login'
+
 		if (validLogin) {
 			openMessage('info', `Hola, ${username}!`)
 			navigate('/')
+		} else {
+			handleLayout(false)
 		}
-	}, [validLogin, username, openMessage, navigate])
+	}, [validLogin, username, openMessage, handleLayout, navigate])
 
 	return username && password && token && roles ? (
 		<Loader />

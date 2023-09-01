@@ -3,7 +3,7 @@ import {
 	PlusOutlined,
 	ReloadOutlined
 } from '@ant-design/icons'
-import { Button, Col, Dropdown, Row, Space, Statistic } from 'antd'
+import { Button, Dropdown, Space, Statistic } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
 import { useNavigate } from 'react-router-dom'
@@ -339,7 +339,7 @@ const Banks = () => {
 			const breadcrumbItems = [
 				{
 					title: (
-						<a onClick={() => navigate('/costsCenters')}>
+						<a onClick={() => navigate('/banks')}>
 							<span className='breadcrumb-item'>
 								{/* <MoneyCollectOutlined /> */}
 								<span className='breadcrumb-item-title'>Bancos</span>
@@ -374,18 +374,14 @@ const Banks = () => {
 					handleLoading={handleLoading}
 					initialValues={initialValues}
 				/>
-				<div className='info-container'>
-					<Row align='end'>
-						<Col span={3}>
-							<Statistic
-								style={{
-									textAlign: 'end'
-								}}
-								title='Bancos'
-								value={data.length}
-							/>
-						</Col>
-					</Row>
+				<div className='info-container to-right'>
+					<Statistic
+						style={{
+							textAlign: 'end'
+						}}
+						title='Bancos'
+						value={data.length}
+					/>
 				</div>
 				<div className='btn-container'>
 					<div className='right'>
