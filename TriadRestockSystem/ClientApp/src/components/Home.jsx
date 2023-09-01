@@ -1,3 +1,4 @@
+import { HomeOutlined } from '@ant-design/icons'
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
@@ -30,7 +31,7 @@ const Home = () => {
 					title: (
 						<a onClick={() => navigate('/')}>
 							<span className='breadcrumb-item'>
-								<span className='breadcrumb-item-title'>Inicio</span>
+								<HomeOutlined />
 							</span>
 						</a>
 					)

@@ -339,7 +339,7 @@ const Banks = () => {
 			const breadcrumbItems = [
 				{
 					title: (
-						<a onClick={() => navigate('/costsCenters')}>
+						<a onClick={() => navigate('/banks')}>
 							<span className='breadcrumb-item'>
 								{/* <MoneyCollectOutlined /> */}
 								<span className='breadcrumb-item-title'>Bancos</span>

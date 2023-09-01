@@ -1,7 +1,6 @@
 import {
 	AppstoreAddOutlined,
 	BankOutlined,
-	GoldOutlined,
 	HomeOutlined,
 	MoneyCollectOutlined,
 	ReadOutlined,
@@ -119,8 +118,8 @@ const MenuItems = [
 		'sub1',
 		<SettingOutlined style={iconStyle} />,
 		[
-			getItem('Usuarios', '1', <UserOutlined style={iconStyle} />),
-			getItem('Unidades y Recursos', '12', <GoldOutlined style={iconStyle} />)
+			getItem('Usuarios', '1', <UserOutlined style={iconStyle} />)
+			// getItem('Unidades y Recursos', '12', <GoldOutlined style={iconStyle} />)
 		],
 		null,
 		[RolesNames.ADMINISTRADOR]
