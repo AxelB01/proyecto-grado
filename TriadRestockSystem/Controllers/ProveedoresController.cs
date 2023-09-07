@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TriadRestockSystem.Security;
 using TriadRestockSystem.ViewModels;
 using TriadRestockSystemData.Data;
@@ -28,6 +29,8 @@ namespace TriadRestockSystem.Controllers
         public IActionResult GetProveedores()
         {
             var result = _db.Proveedores
+                .Include(x => x.IdPaisNavigation)
+                .Include(x => x.IdTipoProveedorNavigation)
                 .Select(x => new
                 {
                     Key = x.IdProveedor,
@@ -35,8 +38,10 @@ namespace TriadRestockSystem.Controllers
                     x.Nombre,
                     x.IdEstado,
                     x.IdTipoProveedor,
+                    x.IdTipoProveedorNavigation.TipoProveedor,
                     x.Rnc,
                     x.IdPais,
+                    x.IdPaisNavigation.Pais,
                     x.Direccion,
                     x.CodigoPostal,
                     x.Telefono,
@@ -58,6 +63,7 @@ namespace TriadRestockSystem.Controllers
             {
                 vmProveedores vm = new()
                 {
+                    //Key = proveedor.IdProveedor,
                     Id = proveedor.IdProveedor,
                     Nombre = proveedor.Nombre,
                     IdEstado = proveedor.IdEstado,
@@ -71,8 +77,11 @@ namespace TriadRestockSystem.Controllers
                 };
                 return Ok(vm);
             }
+            else
+            {
+                return NotFound();
+            }
 
-            return NotFound();
         }
 
         [HttpPost("guardarProveedores")]
@@ -107,6 +116,14 @@ namespace TriadRestockSystem.Controllers
                 else
                 {
                     proveedor.Nombre = model.Nombre;
+                    proveedor.IdEstado = model.IdEstado;
+                    proveedor.IdTipoProveedor = model.IdTipoProveedor;
+                    proveedor.Rnc = model.RNC;
+                    proveedor.IdPais = model.IdPais;
+                    proveedor.Direccion = model.Direccion;
+                    proveedor.CodigoPostal = model.CodigoPostal;
+                    proveedor.Telefono = model.Telefono;
+                    proveedor.CorreoElectronico = model.Correo;
                     proveedor.ModificadoPor = user.IdUsuario;
                     proveedor.FechaModificacion = DateTime.Now;
                 }

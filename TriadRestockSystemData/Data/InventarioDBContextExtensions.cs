@@ -30,6 +30,13 @@ namespace TriadRestockSystemData.Data
                 .ToList();
         }
 
+        //public static IList<vmProveedores> ProveedoresGetAll(this InventarioDBContext context)
+        //{
+        //    return context.Database.GetDbConnection()
+        //       .Query<vmProveedores>("ProveedoresGetAll", commandType: CommandType.StoredProcedure)
+        //       .ToList();
+        //}
+
         public static string DocumentoGetNumero(this InventarioDBContext context, int tipoDocumento)
         {
             return context.Database.GetDbConnection()
