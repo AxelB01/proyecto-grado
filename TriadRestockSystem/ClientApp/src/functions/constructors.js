@@ -29,9 +29,7 @@ export const createUserModel = () => {
 export const createFamiliesModel = () => {
 	return {
 		IdFamilia: 0,
-		Familia: '',
-		IdBanco: 0,
-		Cuenta: ''
+		Familia: ''
 	}
 }
 
@@ -69,15 +67,7 @@ export const createRequestModel = () => {
 export const createCostCenterModel = () => {
 	return {
 		IdCentroCosto: 0,
-		Nombre: '',
-		IdBanco: 0,
-		Cuenta: '',
-		IdCreadoPor: 0,
-		CreadoPor: '',
-		FechaCreacion: '',
-		IdModificadoPor: 0,
-		ModificadoPor: '',
-		FechaModificacion: ''
+		Nombre: ''
 	}
 }
 export const createCatalogModel = () => {
@@ -165,9 +155,6 @@ export const createInventoryEntryModel = () => {
 	}
 }
 
-
-
-
 export const createItemsTypeModel = () => {
 	return {
 		Id: 0,
@@ -215,7 +202,7 @@ export const createUnitTypeModel = () => {
 	return {
 		Id: 0,
 		Nombre: '',
-		Codigo: '',
+		Codigo: ''
 	}
 }
 

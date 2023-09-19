@@ -71,12 +71,6 @@ public partial class Usuario
     public virtual ICollection<Articulo> ArticuloModificadoPorNavigations { get; set; } = new List<Articulo>();
 
     [InverseProperty("CreadoPorNavigation")]
-    public virtual ICollection<Banco> BancoCreadoPorNavigations { get; set; } = new List<Banco>();
-
-    [InverseProperty("ModificadoPorNavigation")]
-    public virtual ICollection<Banco> BancoModificadoPorNavigations { get; set; } = new List<Banco>();
-
-    [InverseProperty("CreadoPorNavigation")]
     public virtual ICollection<Catalogo> CatalogoCreadoPorNavigations { get; set; } = new List<Catalogo>();
 
     [InverseProperty("ModificadoPorNavigation")]
@@ -89,6 +83,12 @@ public partial class Usuario
     public virtual ICollection<CentrosCosto> CentrosCostoModificadoPorNavigations { get; set; } = new List<CentrosCosto>();
 
     [InverseProperty("CreadoPorNavigation")]
+    public virtual ICollection<Concepto> ConceptoCreadoPorNavigations { get; set; } = new List<Concepto>();
+
+    [InverseProperty("ModificadoPorNavigation")]
+    public virtual ICollection<Concepto> ConceptoModificadoPorNavigations { get; set; } = new List<Concepto>();
+
+    [InverseProperty("CreadoPorNavigation")]
     public virtual ICollection<Contacto> ContactoCreadoPorNavigations { get; set; } = new List<Contacto>();
 
     [InverseProperty("ModificadoPorNavigation")]
@@ -97,12 +97,6 @@ public partial class Usuario
     [ForeignKey("CreadoPor")]
     [InverseProperty("InverseCreadoPorNavigation")]
     public virtual Usuario? CreadoPorNavigation { get; set; }
-
-    [InverseProperty("CreadoPorNavigation")]
-    public virtual ICollection<CuentasBanco> CuentasBancoCreadoPorNavigations { get; set; } = new List<CuentasBanco>();
-
-    [InverseProperty("ModificadoPorNavigation")]
-    public virtual ICollection<CuentasBanco> CuentasBancoModificadoPorNavigations { get; set; } = new List<CuentasBanco>();
 
     [InverseProperty("CreadoPorNavigation")]
     public virtual ICollection<Documento> DocumentoCreadoPorNavigations { get; set; } = new List<Documento>();

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TriadRestockSystem.Security;
 using TriadRestockSystem.ViewModels;
 using TriadRestockSystemData.Data;
@@ -36,10 +35,6 @@ namespace TriadRestockSystem.Controllers
                 {
                     Id = x.IdCentroCosto,
                     x.Nombre,
-                    x.IdBanco,
-                    x.Banco,
-                    x.Cuenta,
-                    x.CuentaDescripcion,
                     x.CreadoPor,
                     Fecha = x.FechaCreacion.ToString("dd/MM/yyyy")
                 })
@@ -55,14 +50,10 @@ namespace TriadRestockSystem.Controllers
 
             if (centroCostos != null)
             {
-                var cuentaBanco = _db.CuentasBancos.First(c => c.Cuenta == centroCostos.Cuenta);
-
                 var response = new vmCostCenter
                 {
                     IdCentroCosto = centroCostos.IdCentroCosto,
-                    Nombre = centroCostos.Nombre,
-                    IdBanco = cuentaBanco.IdBanco,
-                    Cuenta = centroCostos.Cuenta!,
+                    Nombre = centroCostos.Nombre
                 };
 
                 return Ok(response);
@@ -107,7 +98,6 @@ namespace TriadRestockSystem.Controllers
                     }
 
                     centrosCosto.Nombre = model.Nombre;
-                    centrosCosto.Cuenta = model.Cuenta;
 
                     _db.SaveChanges();
                     dbTran.Commit();
@@ -124,136 +114,136 @@ namespace TriadRestockSystem.Controllers
             return Unauthorized();
         }
 
-        [HttpGet("getBancos")]
-        public IActionResult GetBancos()
-        {
-            var response = _db.Bancos
-                .Include(b => b.CreadoPorNavigation)
-                .Include(b => b.CuentasBancos)
-                .ThenInclude(b => b.IdTipoCuentaNavigation)
-                .AsEnumerable()
-                .Select(b => new
-                {
-                    Key = b.IdBanco,
-                    Banco = b.Nombre,
-                    CreadoPor = b.CreadoPorNavigation.Login,
-                    Fecha = b.FechaCreacion.ToString("dd/MM/yyyy"),
-                    Cuentas = b.CuentasBancos
-                    .Where(c => c.IdBanco == b.IdBanco)
-                    .Select(c => new
-                    {
-                        Key = c.Cuenta,
-                        c.IdBanco,
-                        c.Descripcion,
-                        c.IdTipoCuenta,
-                        TipoCuenta = c.IdTipoCuentaNavigation.Tipo,
-                    }).ToList(),
-                })
-                .ToList();
+        //[HttpGet("getBancos")]
+        //public IActionResult GetBancos()
+        //{
+        //    var response = _db.Bancos
+        //        .Include(b => b.CreadoPorNavigation)
+        //        .Include(b => b.CuentasBancos)
+        //        .ThenInclude(b => b.IdTipoCuentaNavigation)
+        //        .AsEnumerable()
+        //        .Select(b => new
+        //        {
+        //            Key = b.IdBanco,
+        //            Banco = b.Nombre,
+        //            CreadoPor = b.CreadoPorNavigation.Login,
+        //            Fecha = b.FechaCreacion.ToString("dd/MM/yyyy"),
+        //            Cuentas = b.CuentasBancos
+        //            .Where(c => c.IdBanco == b.IdBanco)
+        //            .Select(c => new
+        //            {
+        //                Key = c.Cuenta,
+        //                c.IdBanco,
+        //                c.Descripcion,
+        //                c.IdTipoCuenta,
+        //                TipoCuenta = c.IdTipoCuentaNavigation.Tipo,
+        //            }).ToList(),
+        //        })
+        //        .ToList();
 
-            return Ok(response);
-        }
+        //    return Ok(response);
+        //}
 
-        [HttpPost("guardarBanco")]
-        public IActionResult GuardarBanco(vmBank model)
-        {
-            var login = HttpContext.Items["Username"] as string;
-            var pass = HttpContext.Items["Password"] as string;
+        //[HttpPost("guardarBanco")]
+        //public IActionResult GuardarBanco(vmBank model)
+        //{
+        //    var login = HttpContext.Items["Username"] as string;
+        //    var pass = HttpContext.Items["Password"] as string;
 
-            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+        //    Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
 
-            if (user != null)
-            {
-                var dbTran = _db.Database.BeginTransaction();
-                try
-                {
-                    var banco = _db.Bancos.FirstOrDefault(b => b.IdBanco == model.Id);
+        //    if (user != null)
+        //    {
+        //        var dbTran = _db.Database.BeginTransaction();
+        //        try
+        //        {
+        //            var banco = _db.Bancos.FirstOrDefault(b => b.IdBanco == model.Id);
 
-                    if (banco == null)
-                    {
-                        banco = new Banco
-                        {
-                            CreadoPor = user.IdUsuario,
-                            FechaCreacion = DateTime.Now,
-                        };
+        //            if (banco == null)
+        //            {
+        //                banco = new Banco
+        //                {
+        //                    CreadoPor = user.IdUsuario,
+        //                    FechaCreacion = DateTime.Now,
+        //                };
 
-                        _db.Bancos.Add(banco);
+        //                _db.Bancos.Add(banco);
 
-                    }
-                    else
-                    {
-                        banco.ModificadoPor = user.IdUsuario;
-                        banco.FechaModificacion = DateTime.Now;
-                    }
+        //            }
+        //            else
+        //            {
+        //                banco.ModificadoPor = user.IdUsuario;
+        //                banco.FechaModificacion = DateTime.Now;
+        //            }
 
-                    banco.Nombre = model.Nombre;
+        //            banco.Nombre = model.Nombre;
 
-                    _db.SaveChanges();
-                    dbTran.Commit();
+        //            _db.SaveChanges();
+        //            dbTran.Commit();
 
-                    return Ok();
-                }
-                catch (Exception e)
-                {
-                    dbTran.Rollback();
-                    return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
-                }
-            }
+        //            return Ok();
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            dbTran.Rollback();
+        //            return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
+        //        }
+        //    }
 
-            return Unauthorized();
-        }
+        //    return Unauthorized();
+        //}
 
-        [HttpPost("guardarCuentaBanco")]
-        public IActionResult GuardarCuentaBanco(vmBankAccount model)
-        {
-            var login = HttpContext.Items["Username"] as string;
-            var pass = HttpContext.Items["Password"] as string;
+        //[HttpPost("guardarCuentaBanco")]
+        //public IActionResult GuardarCuentaBanco(vmBankAccount model)
+        //{
+        //    var login = HttpContext.Items["Username"] as string;
+        //    var pass = HttpContext.Items["Password"] as string;
 
-            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+        //    Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
 
-            if (user != null)
-            {
-                var dbTran = _db.Database.BeginTransaction();
-                try
-                {
-                    var cuentaBanco = _db.CuentasBancos.FirstOrDefault(c => c.Cuenta.Equals(model.Cuenta));
+        //    if (user != null)
+        //    {
+        //        var dbTran = _db.Database.BeginTransaction();
+        //        try
+        //        {
+        //            var cuentaBanco = _db.CuentasBancos.FirstOrDefault(c => c.Cuenta.Equals(model.Cuenta));
 
-                    if (cuentaBanco == null)
-                    {
-                        cuentaBanco = new CuentasBanco
-                        {
-                            IdBanco = model.IdBanco,
-                            IdTipoCuenta = model.IdTipoCuenta,
-                            Cuenta = model.Cuenta,
-                            CreadoPor = user.IdUsuario,
-                            FechaCreacion = DateTime.Now,
-                        };
+        //            if (cuentaBanco == null)
+        //            {
+        //                cuentaBanco = new CuentasBanco
+        //                {
+        //                    IdBanco = model.IdBanco,
+        //                    IdTipoCuenta = model.IdTipoCuenta,
+        //                    Cuenta = model.Cuenta,
+        //                    CreadoPor = user.IdUsuario,
+        //                    FechaCreacion = DateTime.Now,
+        //                };
 
-                        _db.CuentasBancos.Add(cuentaBanco);
+        //                _db.CuentasBancos.Add(cuentaBanco);
 
-                    }
-                    else
-                    {
-                        cuentaBanco.ModificadoPor = user.IdUsuario;
-                        cuentaBanco.FechaModificacion = DateTime.Now;
-                    }
+        //            }
+        //            else
+        //            {
+        //                cuentaBanco.ModificadoPor = user.IdUsuario;
+        //                cuentaBanco.FechaModificacion = DateTime.Now;
+        //            }
 
-                    cuentaBanco.Descripcion = model.Descripcion;
+        //            cuentaBanco.Descripcion = model.Descripcion;
 
-                    _db.SaveChanges();
-                    dbTran.Commit();
+        //            _db.SaveChanges();
+        //            dbTran.Commit();
 
-                    return Ok();
-                }
-                catch (Exception e)
-                {
-                    dbTran.Rollback();
-                    return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
-                }
-            }
+        //            return Ok();
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            dbTran.Rollback();
+        //            return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
+        //        }
+        //    }
 
-            return Unauthorized();
-        }
+        //    return Unauthorized();
+        //}
 
 
         [HttpGet("getTipoArticulo")]
@@ -266,7 +256,7 @@ namespace TriadRestockSystem.Controllers
             {
                 vmItemType vm = new()
                 {
-                    Id= tipoArticulo.IdTipoArticulo,
+                    Id = tipoArticulo.IdTipoArticulo,
                     Nombre = tipoArticulo.Tipo
                 };
                 return Ok(vm);
