@@ -15,16 +15,18 @@ public partial class Almacene
     [Unicode(false)]
     public string Nombre { get; set; } = null!;
 
+    public int IdEstado { get; set; }
+
+    [StringLength(500)]
+    [Unicode(false)]
+    public string Descripcion { get; set; } = null!;
+
     [StringLength(500)]
     [Unicode(false)]
     public string Ubicacion { get; set; } = null!;
 
     [Column(TypeName = "decimal(18, 4)")]
     public decimal Espacio { get; set; }
-
-    [StringLength(500)]
-    [Unicode(false)]
-    public string Descripcion { get; set; } = null!;
 
     public int CreadoPor { get; set; }
 
@@ -46,11 +48,17 @@ public partial class Almacene
     [InverseProperty("AlmaceneCreadoPorNavigations")]
     public virtual Usuario CreadoPorNavigation { get; set; } = null!;
 
+    [ForeignKey("IdEstado")]
+    [InverseProperty("Almacenes")]
+    public virtual EstadosAlmacene IdEstadoNavigation { get; set; } = null!;
+
     [ForeignKey("ModificadoPor")]
     [InverseProperty("AlmaceneModificadoPorNavigations")]
     public virtual Usuario? ModificadoPorNavigation { get; set; }
 
-    [ForeignKey("IdAlmacen")]
-    [InverseProperty("IdAlmacens")]
-    public virtual ICollection<Usuario> IdUsuarios { get; set; } = new List<Usuario>();
+    [InverseProperty("IdAlmacenNavigation")]
+    public virtual ICollection<OrdenesCompra> OrdenesCompras { get; set; } = new List<OrdenesCompra>();
+
+    [InverseProperty("IdAlmacenNavigation")]
+    public virtual ICollection<UsuariosAlmacene> UsuariosAlmacenes { get; set; } = new List<UsuariosAlmacene>();
 }

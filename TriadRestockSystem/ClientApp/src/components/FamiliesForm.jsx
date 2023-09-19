@@ -1,18 +1,18 @@
-import { Button, Col, Drawer, Form, Input, Row, Space } from 'antd'
+import { Button, Col, Form, Input, Modal, Row, Select } from 'antd'
 import { useContext, useEffect } from 'react'
 import LayoutContext from '../context/LayoutContext'
 import { createFamiliesModel } from '../functions/constructors'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 
-// const { Option } = Select
-
 const INPUT_TEXT_NAME_REGEX = /^[a-zA-ZñáéíóúÁÉÍÓÚ\s]+$/
 const SAVE_FAMILIES_URL = '/api/familias/guardarFamilia'
 
 const FamiliesForm = ({
+	banks,
+	banksAccounts,
 	title,
 	open,
-	onClose,
+	handleOpen,
 	getFamilyData,
 	initialValues,
 	loading,
@@ -25,7 +25,7 @@ const FamiliesForm = ({
 	const axiosPrivate = useAxiosPrivate()
 
 	const [form] = Form.useForm()
-	// const values = Form.useWatch([], form)
+	const values = Form.useWatch([], form)
 
 	// const [selectedRoles, setSelectedRoles] = useState(roles)
 	// const [selectedCentrosCostos, setSelectedCentrosCostos] =
@@ -35,14 +35,16 @@ const FamiliesForm = ({
 	// const [required, setRequired] = useState(false)
 
 	useEffect(() => {
-		console.log(initialValues)
-		const { id, familia, CreadoPor, FechaCreacion } = initialValues
-		form.setFieldsValue({
-			id,
-			familia,
-			CreadoPor,
-			FechaCreacion
-		})
+		const { IdFamilia, Familia, IdBanco, Cuenta } = initialValues
+		form.resetFields()
+		if (IdFamilia !== 0) {
+			form.setFieldsValue({
+				id: IdFamilia,
+				familia: Familia,
+				banco: IdBanco,
+				cuenta: Cuenta
+			})
+		}
 	}, [form, initialValues])
 
 	const saveFamily = async model => {
@@ -50,7 +52,7 @@ const FamiliesForm = ({
 			const response = await axiosPrivate.post(SAVE_FAMILIES_URL, model)
 			if (response?.status === 200) {
 				openMessage('success', 'Familia guardada')
-				onClose()
+				handleCancel()
 				getFamilyData()
 			}
 		} catch (error) {
@@ -67,37 +69,49 @@ const FamiliesForm = ({
 		const model = createFamiliesModel()
 		model.IdFamilia = values.id
 		model.Familia = values.familia
-
+		model.Cuenta = values.cuenta
 		saveFamily(model)
+	}
+
+	const onFinishFailed = values => {
+		console.log(values)
+		handleLoading(false)
+	}
+
+	const handleBankChange = () => {
+		form.resetFields(['cuenta'])
+	}
+
+	const handleCancel = () => {
+		form.resetFields()
+		handleOpen(false)
 	}
 
 	return (
 		<>
-			<Drawer
+			<Modal
 				title={title}
-				width={500}
-				onClose={onClose}
 				open={open}
-				bodyStyle={{
-					paddingBotton: 80
-				}}
-				extra={
-					<Space>
-						<Button onClick={onClose}>Cerrar</Button>
-						<Button
-							type='primary'
-							onClick={handleSubmit}
-							loading={loading}
-							disabled={loading}
-						>
-							Guardar
-						</Button>
-					</Space>
-				}
+				onOk={handleSubmit}
+				onCancel={handleCancel}
+				footer={[
+					<Button key='back' onClick={handleCancel}>
+						Cancelar
+					</Button>,
+					<Button
+						key='submit'
+						type='primary'
+						loading={loading}
+						onClick={handleSubmit}
+					>
+						Guardar
+					</Button>
+				]}
 			>
 				<Form
 					form={form}
 					onFinish={onFinish}
+					onFinishFailed={onFinishFailed}
 					name='form_family'
 					layout='vertical'
 					requiredMark
@@ -137,8 +151,57 @@ const FamiliesForm = ({
 							</Form.Item>
 						</Col>
 					</Row>
+					<Row gutter={16}>
+						<Col span={24}>
+							<Form.Item
+								name='banco'
+								label='Banco'
+								rules={[
+									{
+										required: true,
+										message:
+											'Debe seleccionar el banco del que proviene la cuenta'
+									}
+								]}
+							>
+								<Select
+									showSearch
+									placeholder='Seleccionar'
+									options={banks?.map(b => {
+										return { value: b.key, label: b.text }
+									})}
+									onChange={() => handleBankChange()}
+								></Select>
+							</Form.Item>
+						</Col>
+					</Row>
+					<Row gutter={16}>
+						<Col span={24}>
+							<Form.Item
+								name='cuenta'
+								label='Cuenta'
+								rules={[
+									{
+										required: true,
+										message: 'Debe seleccionar una cuenta para esta familia'
+									}
+								]}
+							>
+								<Select
+									showSearch
+									placeholder='Seleccionar'
+									options={banksAccounts
+										?.filter(b => b.bankId === values.banco)
+										.map(c => {
+											return { value: c.key, label: c.longText }
+										})}
+									disabled={values?.banco == null}
+								></Select>
+							</Form.Item>
+						</Col>
+					</Row>
 				</Form>
-			</Drawer>
+			</Modal>
 		</>
 	)
 }

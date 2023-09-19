@@ -30,6 +30,13 @@ namespace TriadRestockSystemData.Data
                 .ToList();
         }
 
+        //public static IList<vmProveedores> ProveedoresGetAll(this InventarioDBContext context)
+        //{
+        //    return context.Database.GetDbConnection()
+        //       .Query<vmProveedores>("ProveedoresGetAll", commandType: CommandType.StoredProcedure)
+        //       .ToList();
+        //}
+
         public static string DocumentoGetNumero(this InventarioDBContext context, int tipoDocumento)
         {
             return context.Database.GetDbConnection()
@@ -61,6 +68,20 @@ namespace TriadRestockSystemData.Data
         {
             return context.Database.GetDbConnection()
                 .Query<vmAlmacen>("AlmacenesGetAll", commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
+
+        public static IList<vmAlmacenSeccionEstanteriasExistencias> AlmacenSeccionEstanteriasExistenciasByIdSeccion(this InventarioDBContext context, int idSec)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmAlmacenSeccionEstanteriasExistencias>("AlmacenSeccionEstanteriasExistenciasByIdSeccion", new { idSec }, commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
+
+        public static IList<vmSolicitudMaterialAlmacen> SolicitudesMaterialesByIdAlm(this InventarioDBContext context, int idAlm)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmSolicitudMaterialAlmacen>("SolicitudesMaterialesByIdAlm", new { idAlm }, commandType: CommandType.StoredProcedure)
                 .ToList();
         }
     }

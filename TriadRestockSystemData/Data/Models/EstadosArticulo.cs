@@ -11,7 +11,7 @@ public partial class EstadosArticulo
     [Key]
     public int IdEstado { get; set; }
 
-    [StringLength(10)]
+    [StringLength(50)]
     public string? Estado { get; set; }
 
     [InverseProperty("IdEstadoNavigation")]

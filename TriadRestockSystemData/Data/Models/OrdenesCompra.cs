@@ -14,6 +14,8 @@ public partial class OrdenesCompra
 
     public int IdDocumento { get; set; }
 
+    public int IdAlmacen { get; set; }
+
     public int IdProveedor { get; set; }
 
     [Column(TypeName = "decimal(18, 2)")]
@@ -24,6 +26,10 @@ public partial class OrdenesCompra
 
     [Column(TypeName = "decimal(18, 2)")]
     public decimal Total { get; set; }
+
+    [ForeignKey("IdAlmacen")]
+    [InverseProperty("OrdenesCompras")]
+    public virtual Almacene IdAlmacenNavigation { get; set; } = null!;
 
     [ForeignKey("IdDocumento")]
     [InverseProperty("OrdenesCompras")]

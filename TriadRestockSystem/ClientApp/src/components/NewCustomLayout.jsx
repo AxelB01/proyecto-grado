@@ -5,6 +5,7 @@ import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
+import '../styles/DefaultContentStyle.css'
 import Loader from './Loader'
 import MenuItems from './MenuItems'
 
@@ -22,7 +23,7 @@ const items = [
 ]
 
 const NewCustomLayout = ({ children }) => {
-	const { destroyStoredAuth } = useContext(AuthContext)
+	const { username, roles, destroyStoredAuth } = useContext(AuthContext)
 	const { active, collapsed, breadcrumb, handleSlider } =
 		useContext(LayoutContext)
 	const navigate = useNavigate()
@@ -79,6 +80,11 @@ const NewCustomLayout = ({ children }) => {
 	}
 
 	useEffect(() => {
+		console.log(
+			roles,
+			MenuItems.filter(m => m.roles?.some(r => roles.includes(r)))
+		)
+
 		const handleScroll = () => {
 			const scrollTop = window.scrollY || document.documentElement.scrollTop
 			setIsSiderFixed(scrollTop >= 65)
@@ -89,7 +95,7 @@ const NewCustomLayout = ({ children }) => {
 		return () => {
 			window.removeEventListener('scroll', handleScroll)
 		}
-	}, [])
+	}, [username, roles])
 
 	if (active == null) {
 		return (
@@ -199,7 +205,7 @@ const NewCustomLayout = ({ children }) => {
 						}}
 						defaultSelectedKeys={['0']}
 						mode='inline'
-						items={MenuItems}
+						items={MenuItems.filter(m => m.roles?.some(r => roles.includes(r)))}
 						onClick={handleMenuOption}
 					/>
 				</Sider>
@@ -211,7 +217,6 @@ const NewCustomLayout = ({ children }) => {
 						<div className='site-layout-background' style={{ paddingLeft: 24 }}>
 							<Breadcrumb style={{ margin: '1rem 0' }} items={breadcrumb} />
 						</div>
-
 						<div
 							className='site-layout-background'
 							style={{ padding: '0 1.25rem', minHeight: 360 }}
