@@ -29,14 +29,11 @@ namespace TriadRestockSystem.Controllers
         {
             var result = _db.FamiliasArticulos
                 .Include(x => x.Articulos)
-                .Include(x => x.CuentaNavigation)
                 .Select(x => new
                 {
                     Key = x.IdFamilia,
                     Id = x.IdFamilia,
                     x.Familia,
-                    Cuenta = $"{x.CuentaNavigation!.Descripcion} | {x.Cuenta}",
-                    x.CuentaNavigation!.IdBanco,
                     TotalArticulos = x.Articulos.Count,
                     Fecha = x.FechaCreacion.ToString("dd/MM/yyyy"),
                     CreadoPor = x.CreadoPorNavigation.Login
@@ -72,7 +69,6 @@ namespace TriadRestockSystem.Controllers
                 }
 
                 familia.Familia = model.Familia;
-                familia.Cuenta = model.Cuenta;
 
                 _db.SaveChanges();
                 return Ok();
@@ -85,7 +81,6 @@ namespace TriadRestockSystem.Controllers
         public IActionResult GetFamilia(int id)
         {
             var familia = _db.FamiliasArticulos
-                .Include(f => f.CuentaNavigation)
                 .FirstOrDefault(u => u.IdFamilia == id);
 
             if (familia != null)
@@ -94,8 +89,6 @@ namespace TriadRestockSystem.Controllers
                 {
                     IdFamilia = familia.IdFamilia,
                     Familia = familia.Familia,
-                    IdBanco = familia.CuentaNavigation!.IdBanco,
-                    Cuenta = familia.Cuenta!
                 };
                 return Ok(vm);
             }

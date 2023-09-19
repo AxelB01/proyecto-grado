@@ -89,23 +89,21 @@ const Families = () => {
 			title: 'Código',
 			dataIndex: 'id',
 			key: 'id',
-			fixed: 'left',
 			filterType: 'text search'
 		},
 		{
 			title: 'Nombre',
 			dataIndex: 'familia',
 			key: 'familia',
-			fixed: 'left',
 			filterType: 'text search'
 		},
-		{
-			title: 'Cuenta',
-			dataIndex: 'cuenta',
-			key: 'cuenta',
-			width: 450,
-			filterType: 'text search'
-		},
+		// {
+		// 	title: 'Cuenta',
+		// 	dataIndex: 'cuenta',
+		// 	key: 'cuenta',
+		// 	width: 450,
+		// 	filterType: 'text search'
+		// },
 		{
 			title: 'Total artículos',
 			dataIndex: 'totalArticulos',
@@ -128,7 +126,6 @@ const Families = () => {
 		{
 			title: 'Acciones',
 			key: 'accion',
-			fixed: 'right',
 			render: (_, record) => (
 				<Space size='middle' align='center'>
 					<Button
@@ -167,6 +164,7 @@ const Families = () => {
 		setTitle('Registrar Familia')
 		showFamiliesForm()
 	}
+
 	const handleEditFamily = async record => {
 		const { key } = record
 		try {
@@ -175,8 +173,6 @@ const Families = () => {
 			const model = createFamiliesModel()
 			model.IdFamilia = data.idFamilia
 			model.Familia = data.familia
-			model.IdBanco = data.idBanco
-			model.Cuenta = data.cuenta
 			setFamiliesFormInitialValues(model)
 			setTitle('Editar familia')
 			showFamiliesForm()

@@ -116,7 +116,6 @@ const CostsCenters = () => {
 			title: 'Código',
 			dataIndex: 'id',
 			key: 'id',
-			fixed: 'left',
 			filterType: 'text search'
 		},
 		{
@@ -124,26 +123,25 @@ const CostsCenters = () => {
 			dataIndex: 'nombre',
 			key: 'nombre',
 			width: 200,
-			fixed: 'left',
 			filterType: 'text search'
 		},
-		{
-			title: 'Cuenta',
-			dataIndex: 'cuenta',
-			key: 'cuenta',
-			width: 200,
-			filterType: 'text search'
-		},
-		{
-			title: 'Descripción',
-			dataIndex: 'cuentaDescripcion',
-			key: 'cuentaDescripcion',
-			width: 500,
-			filterType: 'text search',
-			render: (_, record) => (
-				<span>{`${record.banco} | ${record.cuentaDescripcion}`}</span>
-			)
-		},
+		// {
+		// 	title: 'Cuenta',
+		// 	dataIndex: 'cuenta',
+		// 	key: 'cuenta',
+		// 	width: 200,
+		// 	filterType: 'text search'
+		// },
+		// {
+		// 	title: 'Descripción',
+		// 	dataIndex: 'cuentaDescripcion',
+		// 	key: 'cuentaDescripcion',
+		// 	width: 500,
+		// 	filterType: 'text search',
+		// 	render: (_, record) => (
+		// 		<span>{`${record.banco} | ${record.cuentaDescripcion}`}</span>
+		// 	)
+		// },
 		{
 			title: 'Creador',
 			dataIndex: 'creadoPor',
@@ -162,7 +160,6 @@ const CostsCenters = () => {
 			title: 'Acciones',
 			key: 'action',
 			width: 240,
-			fixed: 'right',
 			render: (_, record) => (
 				<Space size='middle' align='center'>
 					<Button
@@ -264,7 +261,7 @@ const CostsCenters = () => {
 						tableState={tableState}
 						data={costsCenters}
 						columns={columns}
-						scrollable={true}
+						scrollable={false}
 					/>
 				</div>
 			</div>

@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, Modal, Row, Select } from 'antd'
+import { Button, Col, Form, Input, Modal, Row } from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import LayoutContext from '../context/LayoutContext'
 import { createCostCenterModel } from '../functions/constructors'
@@ -19,23 +19,16 @@ const CostsCentersForm = ({
 	const axiosPrivate = useAxiosPrivate()
 	const { openMessage } = useContext(LayoutContext)
 	const [form] = Form.useForm()
-	const values = Form.useWatch([], form)
+	// const values = Form.useWatch([], form)
 	const [title, setTitle] = useState('Nuevo centro de costos')
 
 	useEffect(() => {
 		form.resetFields()
-		const { IdCentroCosto, Nombre, IdBanco, Cuenta } = initialValues
-		if (
-			IdCentroCosto !== 0 &&
-			IdBanco !== 0 &&
-			!isStringEmpty(Nombre) &&
-			!isStringEmpty(Cuenta)
-		) {
+		const { IdCentroCosto, Nombre } = initialValues
+		if (!isStringEmpty(Nombre)) {
 			form.setFieldsValue({
 				id: IdCentroCosto,
-				nombre: Nombre,
-				banco: IdBanco,
-				cuenta: Cuenta
+				nombre: Nombre
 			})
 		}
 
@@ -72,7 +65,6 @@ const CostsCentersForm = ({
 		const model = createCostCenterModel()
 		model.IdCentroCosto = values.id
 		model.Nombre = values.nombre
-		model.Cuenta = values.cuenta
 		saveCostCenter(model)
 	}
 
@@ -134,7 +126,7 @@ const CostsCentersForm = ({
 							</Form.Item>
 						</Col>
 					</Row>
-					<Row gutter={16}>
+					{/* <Row gutter={16}>
 						<Col span={24}>
 							<Form.Item
 								name='banco'
@@ -182,7 +174,7 @@ const CostsCentersForm = ({
 								></Select>
 							</Form.Item>
 						</Col>
-					</Row>
+					</Row> */}
 				</Form>
 			</Modal>
 		</>

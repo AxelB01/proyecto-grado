@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, Modal, Row, Select } from 'antd'
+import { Button, Col, Form, Input, Modal, Row } from 'antd'
 import { useContext, useEffect } from 'react'
 import LayoutContext from '../context/LayoutContext'
 import { createFamiliesModel } from '../functions/constructors'
@@ -35,14 +35,12 @@ const FamiliesForm = ({
 	// const [required, setRequired] = useState(false)
 
 	useEffect(() => {
-		const { IdFamilia, Familia, IdBanco, Cuenta } = initialValues
+		const { IdFamilia, Familia } = initialValues
 		form.resetFields()
 		if (IdFamilia !== 0) {
 			form.setFieldsValue({
 				id: IdFamilia,
-				familia: Familia,
-				banco: IdBanco,
-				cuenta: Cuenta
+				familia: Familia
 			})
 		}
 	}, [form, initialValues])
@@ -69,7 +67,6 @@ const FamiliesForm = ({
 		const model = createFamiliesModel()
 		model.IdFamilia = values.id
 		model.Familia = values.familia
-		model.Cuenta = values.cuenta
 		saveFamily(model)
 	}
 
@@ -116,7 +113,12 @@ const FamiliesForm = ({
 					layout='vertical'
 					requiredMark
 				>
-					<Form.Item name='id'>
+					<Form.Item
+						name='id'
+						style={{
+							height: 0
+						}}
+					>
 						<Input type='hidden' />
 					</Form.Item>
 					<Row gutter={16}>
@@ -151,7 +153,7 @@ const FamiliesForm = ({
 							</Form.Item>
 						</Col>
 					</Row>
-					<Row gutter={16}>
+					{/* <Row gutter={16}>
 						<Col span={24}>
 							<Form.Item
 								name='banco'
@@ -199,7 +201,7 @@ const FamiliesForm = ({
 								></Select>
 							</Form.Item>
 						</Col>
-					</Row>
+					</Row> */}
 				</Form>
 			</Modal>
 		</>
