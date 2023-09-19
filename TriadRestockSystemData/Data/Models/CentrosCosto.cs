@@ -18,9 +18,6 @@ public partial class CentrosCosto
     [Unicode(false)]
     public string Nombre { get; set; } = null!;
 
-    [StringLength(100)]
-    public string? Cuenta { get; set; }
-
     public int CreadoPor { get; set; }
 
     [Column(TypeName = "datetime")]
@@ -44,6 +41,10 @@ public partial class CentrosCosto
 
     [InverseProperty("IdCentroCostosNavigation")]
     public virtual ICollection<SolicitudesMateriale> SolicitudesMateriales { get; set; } = new List<SolicitudesMateriale>();
+
+    [ForeignKey("IdCentroCosto")]
+    [InverseProperty("IdCentroCostos")]
+    public virtual ICollection<Almacene> IdAlmacens { get; set; } = new List<Almacene>();
 
     [ForeignKey("IdCentroCosto")]
     [InverseProperty("IdCentroCostos")]
