@@ -199,3 +199,11 @@ export const createRoleModel = () => {
 		Descripcion: ''
 	}
 }
+
+export const createConceptModel = ()=>{
+	return{
+		Id: 0,
+		Concepto: '',
+		IdConceptoPadre: '' 
+	}
+}
