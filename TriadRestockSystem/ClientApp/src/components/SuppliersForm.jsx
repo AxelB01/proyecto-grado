@@ -10,7 +10,6 @@ const SuppliersForm = ({
 	title,
 	open,
 	onClose,
-	getSuppliersData,
 	tipoProveedorItem,
     paisesItems,
 	initialValues,
@@ -24,22 +23,20 @@ const SuppliersForm = ({
 
     useEffect(() => {
 		console.log(initialValues)
-		const { id, IdEstado,Nombre,
+		const { Id, IdEstado,Nombre,
             RNC,IdPais,Direccion,CodigoPostal,
-            Telefono,Correo,FechaUltimaCompra, CreadoPor } = initialValues
+            Telefono,Correo, IdTipoProveedor } = initialValues
 		form.setFieldsValue({
-			id,
-			IdEstado,
-            Nombre,
-            RNC,
-            IdPais,
-            Direccion,
-            CodigoPostal,
-            Telefono,
-            Correo,
-            FechaUltimaCompra,
-			CreadoPor,
-			
+			id: Id, 
+			idEstado: IdEstado === 1,
+			nombre: Nombre,
+            rnc: RNC,
+			pais: IdPais,
+			direccion: Direccion,
+			codigoPostal: CodigoPostal,
+            telefono: Telefono,
+			correo: Correo,
+			tipoProveedor: IdTipoProveedor
 		})
 		setSwitchValue(IdEstado === 1)
 
@@ -52,7 +49,7 @@ const SuppliersForm = ({
 			if (response?.status === 200) {
 				openMessage('success', 'Provedor guardado')
 				onClose()
-				getSuppliersData()
+				
 			}
 		} catch (error) {
 			console.log(error)
@@ -85,7 +82,7 @@ const SuppliersForm = ({
 		model.IdEstado = values.estado ? 1 : 2
 		model.IdTipoProveedor = values.tipoProveedor
         model.RNC = values.rnc
-        model.IdPais = values.idPais
+        model.IdPais = values.pais
         model.Direccion = values.direccion
         model.CodigoPostal = values.codigoPostal
         model.Telefono = values.telefono
@@ -208,7 +205,7 @@ const SuppliersForm = ({
                     <Row gutter={16}>
 						<Col span={24}>
 							<Form.Item
-								name='idPais'
+								name='pais'
 								label='Pais'
 								rules={[
 									{

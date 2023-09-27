@@ -12,6 +12,8 @@ public partial class AlmacenesSeccionesEstanteria
     [Key]
     public int IdAlmacenSeccionEstanteria { get; set; }
 
+    public int IdEstado { get; set; }
+
     public int IdAlmacenSeccion { get; set; }
 
     [StringLength(50)]
@@ -47,6 +49,10 @@ public partial class AlmacenesSeccionesEstanteria
     [ForeignKey("IdArticulo")]
     [InverseProperty("AlmacenesSeccionesEstanteria")]
     public virtual Articulo IdArticuloNavigation { get; set; } = null!;
+
+    [ForeignKey("IdEstado")]
+    [InverseProperty("AlmacenesSeccionesEstanteria")]
+    public virtual EstadosAlmacene IdEstadoNavigation { get; set; } = null!;
 
     [InverseProperty("IdAlmacenSeccionEstanteriaNavigation")]
     public virtual ICollection<Inventario> Inventarios { get; set; } = new List<Inventario>();

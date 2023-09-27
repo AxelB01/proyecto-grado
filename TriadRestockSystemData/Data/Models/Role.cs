@@ -19,6 +19,9 @@ public partial class Role
     [Unicode(false)]
     public string? Descripcion { get; set; }
 
+    [InverseProperty("IdRolNavigation")]
+    public virtual ICollection<UsuariosAlmacene> UsuariosAlmacenes { get; set; } = new List<UsuariosAlmacene>();
+
     [ForeignKey("IdRol")]
     [InverseProperty("IdRols")]
     public virtual ICollection<Usuario> IdUsuarios { get; set; } = new List<Usuario>();

@@ -11,11 +11,13 @@ public partial class AlmacenesSeccione
     [Key]
     public int IdAlmacenSeccion { get; set; }
 
+    public int IdEstado { get; set; }
+
     public int IdAlmacen { get; set; }
 
     public int IdTipoZona { get; set; }
 
-    [StringLength(10)]
+    [StringLength(50)]
     public string Seccion { get; set; } = null!;
 
     public int CreadoPor { get; set; }
@@ -38,6 +40,10 @@ public partial class AlmacenesSeccione
     [ForeignKey("IdAlmacen")]
     [InverseProperty("AlmacenesSecciones")]
     public virtual Almacene IdAlmacenNavigation { get; set; } = null!;
+
+    [ForeignKey("IdEstado")]
+    [InverseProperty("AlmacenesSecciones")]
+    public virtual EstadosAlmacene IdEstadoNavigation { get; set; } = null!;
 
     [ForeignKey("IdTipoZona")]
     [InverseProperty("AlmacenesSecciones")]

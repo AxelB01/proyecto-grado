@@ -3,8 +3,12 @@ import {
 	ReloadOutlined,
 	UserAddOutlined
 } from '@ant-design/icons'
-import { Button, Space, Statistic } from 'antd'
-import { useEffect, useRef, useState } from 'react'
+import { Button, Space, Statistic, Tag } from 'antd'
+import { useContext, useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import AuthContext from '../context/AuthContext'
+import LayoutContext from '../context/LayoutContext'
+import { sleep } from '../functions/sleep'
 import useCountries from '../hooks/useCountries'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import useSupplierStates from '../hooks/useSupplierStates'
@@ -12,11 +16,16 @@ import useSuppliersTypes from '../hooks/useSuppliersTypes'
 import '../styles/DefaultContentStyle.css'
 import CustomTable from './CustomTable'
 import SuppliersForm from './SuppliersForm'
+import { createSuppliersModel } from '../functions/constructors'
 
 const SUPPLIERS_DATA_URL = '/api/proveedores/getProveedores'
 const GET_SUPPLIER_DATA = '/api/proveedores/getProveedor'
 
 const Suppliers = () => {
+	const { validLogin } = useContext(AuthContext)
+	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
+	const navigate = useNavigate()
+
 	const [title, setTitle] = useState('')
 	const axiosPrivate = useAxiosPrivate()
 	const [data, setData] = useState([])
@@ -40,24 +49,10 @@ const Suppliers = () => {
 	const estadosProveedores = useSupplierStates()
 	const tipoProveedores = useSuppliersTypes()
 
-	const [suppliersFormInitialValues, setSuppliersFormInitialValues] = useState({
-		id: 0,
-		idEstado: 0,
-		nombre: '',
-		rnc: '',
-		idPais: 0,
-		direccion: '',
-		codigoPostal: '',
-		telefono: '',
-		correo: '',
-		fechaUltimaCompra: ''
-	})
+	const [suppliersFormInitialValues, setSuppliersFormInitialValues] = useState(
+		createSuppliersModel()
 
-	useEffect(() => {
-		document.title = 'Suplidores'
-		getSuppliersData()
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	)
 
 	const columns = [
 		{
@@ -85,28 +80,41 @@ const Suppliers = () => {
 			title: 'Tipo',
 			dataIndex: 'tipoProveedor',
 			key: 'tipoProveedor',
-			filterType: 'text search'
+			filterType: 'text search',
+			data:tipoProveedores
 		},
 		{
 			title: 'Estado',
-			dataIndex: 'estado',
-			key: 'estado',
+			dataIndex: 'idEstado',
+			key: 'idEstado',
 			filterType: 'custom filter',
-			data: estadosProveedores
-			// render: text => (<>{<Tag key={text}>{text.toUpperCase()}</Tag>}</>)
+			data: estadosProveedores,
+			render: state => (
+				<>
+					{
+						<Tag
+							color={state === 1 ? 'geekblue':'volcano'}
+							key={state}
+						>
+							{state === 1 ? 'Activo': 'Inactivo'}
+						</Tag>
+					}
+				</>
+			)
 		},
 		{
 			title: 'Pais',
 			dataIndex: 'pais',
 			key: 'pais',
 			width: 100,
-			filterType: 'text search'
+			filterType: 'text search',
+			data: paisesItems
 		},
 		{
 			title: 'Direccion',
 			dataIndex: 'direccion',
 			key: 'direccion',
-			width: 300,
+			width: 100,
 			filterType: 'text search'
 		},
 		{
@@ -127,22 +135,14 @@ const Suppliers = () => {
 			dataIndex: 'correoElectronico',
 			key: 'correoElectronico',
 			width: 100,
-			filterType: 'text search'
+			filterType: 'text search',
 		},
-		// {
-		// 	title: 'Fecha de ultima compra',
-		// 	dataIndex: 'fechaUltimaCompra',
-		// 	key: 'fechaUltimaCompra',
-		// 	filterType: 'date sorter',
-		// 	dateFormat: 'DD/MM/YYYY'
-		// },
 		{
 			title: 'Fecha de creación',
 			dataIndex: 'fecha',
 			key: 'fecha',
 			filterType: 'date sorter',
-			// width: 200,
-			dateFormat: 'DD/MM/YYYY'
+			dateFormat: 'DD/MM/YYYY',
 		},
 		{
 			title: 'Creado por',
@@ -159,7 +159,7 @@ const Suppliers = () => {
 				<Space size='middle' align='center'>
 					<Button
 						icon={<EditOutlined />}
-						onClick={() => handleEditSupplier(record)}
+						onClick={() => handleEditSupplier(record.id)}
 					>
 						Editar
 					</Button>
@@ -189,54 +189,31 @@ const Suppliers = () => {
 	}
 
 	const handleResetSuppliersForm = () => {
-		setSuppliersFormInitialValues({
-			id: 0,
-			IdEstado: 0,
-			IdTipoProveedor: 0,
-			Nombre: '',
-			RNC: '',
-			IdPais: 0,
-			Direccion: '',
-			CodigoPostal: '',
-			Telefono: '',
-			Correo: '',
-			FechaUltimaCompra: ''
-		})
+		setSuppliersFormInitialValues(createSuppliersModel())
 		setTitle('Registrar Suplidor')
 		showSuppliersForm()
 	}
-	const handleEditSupplier = async record => {
-		const { key } = record
+	
+	const handleEditSupplier = async id => {
 		try {
-			const editSupplierUrl = `${GET_SUPPLIER_DATA}?id=${key}`
-			const respose = await axiosPrivate.get(editSupplierUrl)
+			const respose = await axiosPrivate.get(`${GET_SUPPLIER_DATA}?id=${id}`)
+			const data = respose?.data
+			const model = createSuppliersModel()
 
-			const {
-				Id,
-				IdEstado,
-				IdTipoProveedor,
-				Nombre,
-				RNC,
-				IdPais,
-				Direccion,
-				CodigoPostal,
-				Telefono,
-				Correo
-			} = respose?.data
-			const model = {
-				id: Id,
-				idEstado: IdEstado,
-				tipoProveedor: IdTipoProveedor,
-				nombre: Nombre,
-				rnc: RNC,
-				idPais: IdPais,
-				direccion: Direccion,
-				codigoPostal: CodigoPostal,
-				telefono: Telefono,
-				correo: Correo
-			}
+			model.Id = data.id
+			model.IdEstado = data.idEstado
+			model.IdTipoProveedor = data.idTipoProveedor
+			model.Nombre = data.nombre
+			model.RNC = data.rnc
+			model.IdPais = data.idPais
+			model.Direccion = data.direccion
+			model.CodigoPostal = data.codigoPostal
+			model.Telefono = data.telefono
+			model.Correo = data.correo
 
-			setSuppliersFormInitialValues({ ...model })
+			console.log(model)
+
+			setSuppliersFormInitialValues(model)
 			setTitle('Editar proveedor')
 			showSuppliersForm()
 		} catch (error) {
@@ -244,13 +221,48 @@ const Suppliers = () => {
 		}
 	}
 
+	useEffect(() => {
+		document.title = 'Proveedores'
+		async function waitForUpdate() {
+			await sleep(1000)
+		}
+
+		if (!validLogin) {
+			waitForUpdate()
+			handleLayout(false)
+			navigate('/login')
+		} else {
+			handleLayout(true)
+			getSuppliersData()
+
+			const breadcrumbItems = [
+				{
+					title: (
+						<a onClick={() => navigate('/suppliers')}>
+							<span className='breadcrumb-item'>
+								<span className='breadcrumb-item-title'>Proveedores</span>
+							</span>
+						</a>
+					)
+				}
+			]
+
+			handleBreadcrumb(breadcrumbItems)
+		}
+	}, [])
+
+	useEffect(()=>{
+		if (!open) {
+			getSuppliersData()
+		}
+	}, [open])
+
 	return (
 		<>
 			<SuppliersForm
 				title={title}
 				open={open}
 				onClose={closeSuppliersForm}
-				getSuppliersData={getSuppliersData}
 				tipoProveedorItem={tipoProveedores}
 				paisesItems={paisesItems}
 				initialValues={suppliersFormInitialValues}
@@ -260,7 +272,7 @@ const Suppliers = () => {
 			<div className='info-continer'>
 				<Statistic
 					style={{ textAlign: 'end' }}
-					title='Suplidores'
+					title='Proveedores'
 					value={data.length}
 				/>
 			</div>

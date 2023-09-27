@@ -5,9 +5,6 @@
 	flex-direction: column;
 }
 
-.info-container {
-}
-
 .btn-container {
 	display: flex;
 	flex-direction: row;
@@ -55,4 +52,82 @@ content-container {
 
 .breadcrumb-item {
 	color: #1890ff;
+}
+
+.always-lifted-card {
+	box-shadow: 0rem 0.1rem 0.25rem rgba(0, 0, 0, 0.1);
+	transform: translateY(-4px);
+	transition: trasnform 0.3s, box-shadow 0.3s;
+
+	padding: 16px;
+	border: 1px solid #e8e8e8;
+	background-color: #ffffff;
+}
+
+.outter-info-container {
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+}
+
+.info-container {
+	display: flex;
+	flex-direction: row;
+}
+
+.info-container.to-right {
+	width: 100%;
+	justify-content: end;
+}
+
+.info-container-remaning-space {
+	flex: 1;
+	justify-content: end;
+}
+
+.info-statistic {
+	display: flex;
+	flex-direction: column;
+	margin-right: 2rem;
+}
+
+.main-one-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	margin-top: 4rem;
+}
+
+.main-two-container div.actions {
+	display: flex;
+	flex-direction: row;
+	margin-top: 1.5rem;
+	margin-bottom: 1.5rem;
+}
+
+.main-two-container div.actions button {
+	margin-right: 1rem;
+}
+
+/*This is a test*/
+
+.custom-table-style table thead > tr > th,
+.custom-table-style table thead > tr > td {
+	color: #8c8c8c !important;
+	background-color: white !important;
+}
+
+table.no-hover:hover,
+table.no-hover tr:hover,
+table.no-hover thead:hover {
+	background: unset !important;
+}
+
+.no-hover .ant-table-tbody > tr.ant-table-row:hover > td {
+	background: none !important;
+}
+
+/*This is a test*/
+.container-content {
+	width: 90%;
 }

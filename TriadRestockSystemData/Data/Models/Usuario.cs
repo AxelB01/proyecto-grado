@@ -160,9 +160,8 @@ public partial class Usuario
     [InverseProperty("ModificadoPorNavigation")]
     public virtual ICollection<UnidadesMedida> UnidadesMedidaModificadoPorNavigations { get; set; } = new List<UnidadesMedida>();
 
-    [ForeignKey("IdUsuario")]
-    [InverseProperty("IdUsuarios")]
-    public virtual ICollection<Almacene> IdAlmacens { get; set; } = new List<Almacene>();
+    [InverseProperty("IdUsuarioNavigation")]
+    public virtual ICollection<UsuariosAlmacene> UsuariosAlmacenes { get; set; } = new List<UsuariosAlmacene>();
 
     [ForeignKey("IdUsuario")]
     [InverseProperty("IdUsuarios")]

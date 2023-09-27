@@ -17,6 +17,12 @@
         Archivado = 7,
     }
 
+    public enum IdEstadoAlmacen
+    {
+        Activo = 1,
+        Inactivo = 2,
+    }
+
     public enum IdTipoDocumento
     {
         SolicitudMateriales = 1,

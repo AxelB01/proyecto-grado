@@ -114,13 +114,6 @@ const Items = () => {
 			fixed: 'left',
 			filterType: 'text search'
 		},
-		// {
-		// 	title: 'Número',
-		// 	dataIndex: 'id',
-		// 	key: 'id',
-		// 	fixed: 'left',
-		// 	filterType: 'text search'
-		// },
 		{
 			title: 'Nombre',
 			dataIndex: 'nombre',
@@ -226,6 +219,7 @@ const Items = () => {
 				...prevState,
 				[id]: false
 			}))
+			
 			setItemsFormInitialValues(model)
 			setTitle('Editar articulo')
 			showItemsForm()

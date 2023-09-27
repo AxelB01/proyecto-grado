@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TriadRestockSystem.Security;
 using TriadRestockSystemData.Data;
 
@@ -211,6 +212,118 @@ namespace TriadRestockSystem.Controllers
                     BankId = c.IdBanco,
                     Text = c.Descripcion,
                     LongText = $"{c.Descripcion} | {c.Cuenta}"
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
+
+        [HttpGet("getEstadosAlmacenes")]
+        public IActionResult GetEstadosAlmacenes()
+        {
+            var response = _db.EstadosAlmacenes
+                .Select(e => new
+                {
+                    Key = e.IdEstado,
+                    Text = e.Estado
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
+
+        [HttpGet("getTiposZonas")]
+        public IActionResult GetTiposZonas()
+        {
+            var response = _db.TiposZonasAlmacenamientos
+                .Select(x => new
+                {
+                    Key = x.IdTipoZonaAlmacenamiento,
+                    Text = x.TipoZonaAlmacenamiento
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
+
+        [HttpGet("getArticulosEstados")]
+        public IActionResult GetArticulosEstados()
+        {
+            var response = _db.EstadosArticulos
+                .Select(e => new
+                {
+                    Key = e.IdEstado,
+                    Text = e.Estado,
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
+
+        [HttpGet("getAlmacenSecciones")]
+        public IActionResult GetAlmacenSecciones()
+        {
+            var response = _db.AlmacenesSecciones
+                .Include(s => s.IdTipoZonaNavigation)
+                .Include(s => s.IdEstadoNavigation)
+                .Select(s => new
+                {
+                    s.IdAlmacen,
+                    s.IdEstado,
+                    s.IdEstadoNavigation.Estado,
+                    Key = s.IdAlmacenSeccion,
+                    Text = $"{s.Seccion} | {s.IdTipoZonaNavigation.TipoZonaAlmacenamiento}"
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
+
+        [HttpGet("getAlmacenSeccionesEstanterias")]
+        public IActionResult GetAlmacenSeccionesEstanterias()
+        {
+            var response = _db.AlmacenesSeccionesEstanterias
+                .Include(es => es.IdEstadoNavigation)
+                .Select(es => new
+                {
+                    es.IdAlmacenSeccion,
+                    es.IdEstado,
+                    es.IdEstadoNavigation.Estado,
+                    es.IdArticulo,
+                    Minimo = es.MinimoRequerido ?? 0,
+                    Maximo = es.CapacidadMaxima,
+                    Key = es.IdAlmacenSeccionEstanteria,
+                    Text = $"{es.Codigo}"
+
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
+
+        [HttpGet("getMarcasArticulos")]
+        public IActionResult GetMarcasArticulos()
+        {
+            var response = _db.Marcas
+                .Select(m => new
+                {
+                    Key = m.IdMarca,
+                    Text = m.Nombre
+                })
+                .ToList();
+
+            return Ok(new { items = response });
+        }
+
+        [HttpGet("getImpuestosArticulos")]
+        public IActionResult GetImpuestosArticulos()
+        {
+            var response = _db.Impuestos
+                .Select(i => new
+                {
+                    Key = i.IdImpuesto,
+                    Text = i.Nombre,
+                    Impuesto = i.Impuesto1
                 })
                 .ToList();
 

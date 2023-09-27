@@ -1,10 +1,9 @@
 import {
 	EditOutlined,
 	ReloadOutlined,
-	UserAddOutlined,
-	UserOutlined
+	UserAddOutlined
 } from '@ant-design/icons'
-import { Button, Col, Row, Space, Statistic, Tag } from 'antd'
+import { Button, Space, Statistic, Tag } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
 import { useNavigate } from 'react-router-dom'
@@ -254,7 +253,6 @@ const Users = () => {
 					title: (
 						<a onClick={() => navigate('/users')}>
 							<span className='breadcrumb-item'>
-								<UserOutlined />
 								<span className='breadcrumb-item-title'>Usuarios</span>
 							</span>
 						</a>
@@ -280,36 +278,42 @@ const Users = () => {
 				loading={loading}
 				handleLoading={setLoading}
 			/>
-			<div className='info-container'>
-				<Row align='end'>
-					<Col span={3}>
-						<Statistic
-							style={{
-								textAlign: 'end'
-							}}
-							title='Usuarios Activos'
-							value={data.filter(u => u.estado === 'Activo').length}
-						/>
-					</Col>
-					<Col span={3}>
-						<Statistic
-							style={{
-								textAlign: 'end'
-							}}
-							title='Usuarios Inactivos'
-							value={data.filter(u => u.estado === 'Inactivo').length}
-						/>
-					</Col>
-					<Col span={3}>
-						<Statistic
-							style={{
-								textAlign: 'end'
-							}}
-							title='Total Usuarios'
-							value={data.length}
-						/>
-					</Col>
-				</Row>
+			<div className='info-container to-right'>
+				<div
+					style={{
+						marginRight: '1.25rem'
+					}}
+				>
+					<Statistic
+						style={{
+							textAlign: 'end'
+						}}
+						title='Usuarios Activos'
+						value={data.filter(u => u.estado === 'Activo').length}
+					/>
+				</div>
+				<div
+					style={{
+						marginRight: '1.25rem'
+					}}
+				>
+					<Statistic
+						style={{
+							textAlign: 'end'
+						}}
+						title='Usuarios Inactivos'
+						value={data.filter(u => u.estado === 'Inactivo').length}
+					/>
+				</div>
+				<div>
+					<Statistic
+						style={{
+							textAlign: 'end'
+						}}
+						title='Total Usuarios'
+						value={data.length}
+					/>
+				</div>
 			</div>
 			<div className='page-content-container'>
 				<div className='btn-container'>
