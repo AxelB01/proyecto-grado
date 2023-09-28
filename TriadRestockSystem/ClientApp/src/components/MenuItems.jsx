@@ -8,7 +8,8 @@ import {
 	SolutionOutlined,
 	TagsOutlined,
 	TeamOutlined,
-	UserOutlined
+	UserOutlined,
+	AuditOutlined
 } from '@ant-design/icons'
 import RolesNames from '../config/roles'
 

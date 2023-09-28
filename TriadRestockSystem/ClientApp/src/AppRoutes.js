@@ -1,5 +1,6 @@
 import Banks from './components/Banks'
 import Catalogs from './components/Catalogs'
+import Concepts from './components/Concepts'
 import CostsCenters from './components/CostsCenters'
 import Families from './components/Families'
 import Home from './components/Home'
@@ -88,7 +89,14 @@ const AppRoutes = [
 		index: false,
 		path: '/units',
 		element: <Units/>
+	},
+	{
+		index: false,
+		path: '/concepts',
+		element: <Concepts/>
 	}
+	
+
 ]
 
 export default AppRoutes
