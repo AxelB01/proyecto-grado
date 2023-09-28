@@ -57,7 +57,7 @@ const Concepts = () => {
 			console.log(error)
 		}
 	}
-
+	// wasdasd
     useEffect(() => {
 		if (
 			wharehouseSections !== null &&
