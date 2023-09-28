@@ -1,6 +1,5 @@
 import {
 	AppstoreAddOutlined,
-	BankOutlined,
 	HomeOutlined,
 	MoneyCollectOutlined,
 	ReadOutlined,
@@ -99,11 +98,11 @@ const MenuItems = [
 	// 	null,
 	// 	[RolesNames.ADMINISTRADOR, RolesNames.COMPRAS]
 	// ),
-	{ type: 'divider' },
-	getItem('Bancos', '11', <BankOutlined style={iconStyle} />, null, null, [
-		RolesNames.ADMINISTRADOR,
-		RolesNames.PRESUPUESTO
-	]),
+	// { type: 'divider' },
+	// getItem('Bancos', '11', <BankOutlined style={iconStyle} />, null, null, [
+	// 	RolesNames.ADMINISTRADOR,
+	// 	RolesNames.PRESUPUESTO
+	// ]),
 	{ type: 'divider' },
 	getItem(
 		'Centros de costo',

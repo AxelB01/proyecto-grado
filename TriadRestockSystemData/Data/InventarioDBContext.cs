@@ -16,8 +16,6 @@ public partial class InventarioDBContext : DbContext
 
     public virtual DbSet<Almacene> Almacenes { get; set; }
 
-    public virtual DbSet<AlmacenesCentrosCosto> AlmacenesCentrosCostos { get; set; }
-
     public virtual DbSet<AlmacenesSeccione> AlmacenesSecciones { get; set; }
 
     public virtual DbSet<AlmacenesSeccionesEstanteria> AlmacenesSeccionesEstanterias { get; set; }
@@ -26,15 +24,13 @@ public partial class InventarioDBContext : DbContext
 
     public virtual DbSet<Articulo> Articulos { get; set; }
 
-    public virtual DbSet<Banco> Bancos { get; set; }
-
     public virtual DbSet<Catalogo> Catalogos { get; set; }
 
     public virtual DbSet<CentrosCosto> CentrosCostos { get; set; }
 
-    public virtual DbSet<Contacto> Contactos { get; set; }
+    public virtual DbSet<Concepto> Conceptos { get; set; }
 
-    public virtual DbSet<CuentasBanco> CuentasBancos { get; set; }
+    public virtual DbSet<Contacto> Contactos { get; set; }
 
     public virtual DbSet<Documento> Documentos { get; set; }
 
@@ -92,8 +88,6 @@ public partial class InventarioDBContext : DbContext
 
     public virtual DbSet<TiposContacto> TiposContactos { get; set; }
 
-    public virtual DbSet<TiposCuenta> TiposCuentas { get; set; }
-
     public virtual DbSet<TiposDocumento> TiposDocumentos { get; set; }
 
     public virtual DbSet<TiposProveedore> TiposProveedores { get; set; }
@@ -123,13 +117,23 @@ public partial class InventarioDBContext : DbContext
                 .HasConstraintName("FK_Almacenes_EstadosAlmacenes");
 
             entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.AlmaceneModificadoPorNavigations).HasConstraintName("FK_Almacenes_Usuarios1");
-        });
 
-        modelBuilder.Entity<AlmacenesCentrosCosto>(entity =>
-        {
-            entity.HasOne(d => d.IdAlmacenNavigation).WithMany(p => p.AlmacenesCentrosCostos)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AlmacenesCentrosCostos_Almacenes");
+            entity.HasMany(d => d.IdCentroCostos).WithMany(p => p.IdAlmacens)
+                .UsingEntity<Dictionary<string, object>>(
+                    "AlmacenesCentrosCosto",
+                    r => r.HasOne<CentrosCosto>().WithMany()
+                        .HasForeignKey("IdCentroCosto")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_AlmacenesCentrosCostos_CentrosCostos"),
+                    l => l.HasOne<Almacene>().WithMany()
+                        .HasForeignKey("IdAlmacen")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_AlmacenesCentrosCostos_Almacenes"),
+                    j =>
+                    {
+                        j.HasKey("IdAlmacen", "IdCentroCosto");
+                        j.ToTable("AlmacenesCentrosCostos");
+                    });
         });
 
         modelBuilder.Entity<AlmacenesSeccione>(entity =>
@@ -202,15 +206,6 @@ public partial class InventarioDBContext : DbContext
             entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.ArticuloModificadoPorNavigations).HasConstraintName("FK_Articulos_Usuarios1");
         });
 
-        modelBuilder.Entity<Banco>(entity =>
-        {
-            entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.BancoCreadoPorNavigations)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Bancos_Usuarios");
-
-            entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.BancoModificadoPorNavigations).HasConstraintName("FK_Bancos_Usuarios1");
-        });
-
         modelBuilder.Entity<Catalogo>(entity =>
         {
             entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.CatalogoCreadoPorNavigations)
@@ -248,6 +243,17 @@ public partial class InventarioDBContext : DbContext
             entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.CentrosCostoModificadoPorNavigations).HasConstraintName("FK_CentrosCostos_Usuarios1");
         });
 
+        modelBuilder.Entity<Concepto>(entity =>
+        {
+            entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.ConceptoCreadoPorNavigations)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Conceptos_Usuarios");
+
+            entity.HasOne(d => d.IdConceptoPadreNavigation).WithMany(p => p.InverseIdConceptoPadreNavigation).HasConstraintName("FK_Conceptos_Conceptos");
+
+            entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.ConceptoModificadoPorNavigations).HasConstraintName("FK_Conceptos_Usuarios1");
+        });
+
         modelBuilder.Entity<Contacto>(entity =>
         {
             entity.Property(e => e.IdContacto).ValueGeneratedNever();
@@ -261,25 +267,6 @@ public partial class InventarioDBContext : DbContext
                 .HasConstraintName("FK_Contactos_TiposContactos");
 
             entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.ContactoModificadoPorNavigations).HasConstraintName("FK_Contactos_Usuarios1");
-        });
-
-        modelBuilder.Entity<CuentasBanco>(entity =>
-        {
-            entity.HasKey(e => e.Cuenta).HasName("PK_CuentasBancos_1");
-
-            entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.CuentasBancoCreadoPorNavigations)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_CuentasBancos_Usuarios");
-
-            entity.HasOne(d => d.IdBancoNavigation).WithMany(p => p.CuentasBancos)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_CuentasBancos_Bancos");
-
-            entity.HasOne(d => d.IdTipoCuentaNavigation).WithMany(p => p.CuentasBancos)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_CuentasBancos_TiposCuentas");
-
-            entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.CuentasBancoModificadoPorNavigations).HasConstraintName("FK_CuentasBancos_Usuarios1");
         });
 
         modelBuilder.Entity<Documento>(entity =>
@@ -341,8 +328,6 @@ public partial class InventarioDBContext : DbContext
             entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.FamiliasArticuloCreadoPorNavigations)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_FamiliasArticulos_Usuarios");
-
-            entity.HasOne(d => d.CuentaNavigation).WithMany(p => p.FamiliasArticulos).HasConstraintName("FK_FamiliasArticulos_CuentasBancos");
 
             entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.FamiliasArticuloModificadoPorNavigations).HasConstraintName("FK_FamiliasArticulos_Usuarios1");
         });
@@ -581,11 +566,6 @@ public partial class InventarioDBContext : DbContext
         modelBuilder.Entity<TiposContacto>(entity =>
         {
             entity.Property(e => e.IdTipoContacto).ValueGeneratedNever();
-        });
-
-        modelBuilder.Entity<TiposCuenta>(entity =>
-        {
-            entity.Property(e => e.IdTipoCuenta).ValueGeneratedNever();
         });
 
         modelBuilder.Entity<TiposDocumento>(entity =>
