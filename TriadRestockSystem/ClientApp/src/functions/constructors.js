@@ -225,3 +225,12 @@ export const createRoleModel = () => {
 		Descripcion: ''
 	}
 }
+
+export const createConceptModel = () => {
+	return {
+		IdConceptoPadre: null,
+		IdConcepto: 0,
+		CodigoAgrupador: '',
+		Concepto: ''
+	}
+}

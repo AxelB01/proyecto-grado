@@ -88,15 +88,13 @@ const AppRoutes = [
 	{
 		index: false,
 		path: '/units',
-		element: <Units/>
+		element: <Units />
 	},
 	{
 		index: false,
 		path: '/concepts',
-		element: <Concepts/>
+		element: <Concepts />
 	}
-	
-
 ]
 
 export default AppRoutes

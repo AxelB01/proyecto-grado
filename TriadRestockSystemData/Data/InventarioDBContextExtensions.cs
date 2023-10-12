@@ -43,6 +43,12 @@ namespace TriadRestockSystemData.Data
                 .QueryFirst<string>($"SELECT dbo.DocumentoGetNumero({tipoDocumento})", transaction: context.Database.CurrentTransaction!.GetDbTransaction(), commandType: CommandType.Text);
         }
 
+        public static string ConceptoGetCodigoAgrupador(this InventarioDBContext context, int id)
+        {
+            return context.Database.GetDbConnection()
+                .QueryFirst<string>($"SELECT dbo.ConceptoGetCodigoAgrupador({id})", transaction: context.Database.CurrentTransaction!.GetDbTransaction(), commandType: CommandType.Text);
+        }
+
         public static IList<vmCentroCosto> CentrosCostosGetAll(this InventarioDBContext context)
         {
             return context.Database.GetDbConnection()
