@@ -8,8 +8,6 @@ const INPUT_TEXT_NAME_REGEX = /^[a-zA-ZñáéíóúÁÉÍÓÚ\s]+$/
 const SAVE_FAMILIES_URL = '/api/familias/guardarFamilia'
 
 const FamiliesForm = ({
-	banks,
-	banksAccounts,
 	title,
 	open,
 	handleOpen,
@@ -25,7 +23,6 @@ const FamiliesForm = ({
 	const axiosPrivate = useAxiosPrivate()
 
 	const [form] = Form.useForm()
-	const values = Form.useWatch([], form)
 
 	// const [selectedRoles, setSelectedRoles] = useState(roles)
 	// const [selectedCentrosCostos, setSelectedCentrosCostos] =
@@ -73,10 +70,6 @@ const FamiliesForm = ({
 	const onFinishFailed = values => {
 		console.log(values)
 		handleLoading(false)
-	}
-
-	const handleBankChange = () => {
-		form.resetFields(['cuenta'])
 	}
 
 	const handleCancel = () => {
