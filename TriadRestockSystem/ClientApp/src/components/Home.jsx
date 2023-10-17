@@ -45,6 +45,7 @@ const Home = () => {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
+ 
 
 	return loaded ? (
 		<Loader />
@@ -66,6 +67,5 @@ const Home = () => {
 
 		</div>
 	</>
-}
 
 export default Home

@@ -11,8 +11,11 @@ public partial class Concepto
     [Key]
     public int IdConcepto { get; set; }
 
-    [Column("Concepto")]
     [StringLength(50)]
+    public string CodigoAgrupador { get; set; } = null!;
+
+    [Column("Concepto")]
+    [StringLength(100)]
     public string Concepto1 { get; set; } = null!;
 
     public int? IdConceptoPadre { get; set; }

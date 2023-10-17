@@ -120,7 +120,7 @@ const Families = () => {
 			title: 'Creado por',
 			dataIndex: 'creadoPor',
 			key: 'creadoPor',
-			ilterType: 'text search',
+			filterType: 'text search',
 			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
 		},
 		{

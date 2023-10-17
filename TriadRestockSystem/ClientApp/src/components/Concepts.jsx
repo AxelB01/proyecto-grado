@@ -1,133 +1,37 @@
-import {
-	FormOutlined,
-	PlusOutlined,
-	ReloadOutlined
-} from '@ant-design/icons'
-
-import {
-	Button,
-
-} from 'antd'
-
-import { useState,useEffect } from 'react'
-import useAxiosPrivate from '../hooks/usePrivateAxios'
-import ConceptsForm from './ConceptsForm'
+import { CaretDownOutlined, EditOutlined } from '@ant-design/icons'
+import { Button, Dropdown, Space } from 'antd'
+import { useContext, useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import AuthContext from '../context/AuthContext'
+import LayoutContext from '../context/LayoutContext'
 import { createConceptModel } from '../functions/constructors'
+import { sleep } from '../functions/sleep'
+import useAxiosPrivate from '../hooks/usePrivateAxios'
+import '../styles/DefaultContentStyle.css'
+import ConceptForm from './ConceptForm'
+import CustomTable from './CustomTable'
 
-const ALMACENES_SECCIONES_URL = '/api/data/getAlmacenSecciones'
-const ALMACENES_SECCIONES_ESTANTERIAS_URL = '/api/data/getAlmacenSecciones'
-const ALMACEN_GET = '/api/data/getAlmacenSecciones'
+const GET_CONCEPTS = 'api/configuraciones/getConcepts'
+
+const parentConceptMenuOptions = [
+	{
+		key: '0',
+		label: 'Editar'
+	},
+	{
+		key: '1',
+		label: 'Nueva concepto'
+	}
+]
 
 const Concepts = () => {
-
-    const [sectionShelves, setSectionShelves] = useState(null)
-	const [wharehouseSections, setWharehouseSections] = useState(null)
+	const navigate = useNavigate()
 	const axiosPrivate = useAxiosPrivate()
-	const [customState, setCustomState] = useState(null)
-	//const [viewModel, setViewModel] = useState({})
-    //const [wharehouseData, setWharehouseData] = useState({})
-	const [sectionFormValues, setSectionFormValues] = useState(
-		createConceptModel()
-	)
-	const [shelvesInUse, setShelvesInUse] = useState(0)
-	const [shelves, setShelves] = useState(0)
-    
-    const [openSectionForm, setOpenSectionForm] = useState(false)
-	const [buttonInventoryEntryLoading, setButtonInventoryEntryLoading] =
-		useState(false)
+	const { validLogin } = useContext(AuthContext)
+	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
 
-
-    const handleOpenInventoryEntryForm = value => {
-		if (value) {
-			getWharehouseSections()
-			getWharehouseSectionShelves()
-
-		} else {
-			setWharehouseSections(null)
-			setSectionShelves(null)
-		}
-	}
-	
-    const getWharehouseSections = async () => {
-		try {
-			const response = await axiosPrivate.get(ALMACENES_SECCIONES_URL)
-			const items = response?.data.items
-			setWharehouseSections(items)
-		} catch (error) {
-			console.log(error)
-		}
-	}
-	// wasdasd
-    useEffect(() => {
-		if (
-			wharehouseSections !== null &&
-			sectionShelves !== null 
-		) {
-			console.log(wharehouseSections, sectionShelves)
-			setButtonInventoryEntryLoading(false)
-		}
-	}, [wharehouseSections, sectionShelves])
-
-  
-
-	const getWharehouseSectionShelves = async () => {
-		try {
-			const response = await axiosPrivate.get(
-				ALMACENES_SECCIONES_ESTANTERIAS_URL
-			)
-			const items = response?.data.items
-			setSectionShelves(items)
-		} catch (error) {
-			console.log(error)
-		}
-	}
-
-    const loadWharehouseData = async () => {
-		try {
-			const response = await axiosPrivate.get(
-				ALMACEN_GET + `?id=${customState}`
-			)
-
-			if (response?.status === 200) {
-				const data = response?.data
-
-				setViewModel(data)
-
-				setWharehouseData(data.almacen)
-				setSections(data.secciones)
-
-				let shelves = 0
-				let shelvesInUSe = 0
-
-				data.secciones.forEach(seccion => {
-					shelves += seccion.estanterias.length
-					shelvesInUSe += seccion.estanterias.filter(
-						e => e.existencias > 0 && e.idEstado === 1
-					).length
-				})
-
-				setShelves(shelves)
-				setShelvesInUse(shelvesInUSe)
-
-				setRequests(data.solicitudesMateriales)
-				setProcurementOrders(data.ordenesCompras)
-
-				const sectionFormModelValues = createWharehouseSectionModel()
-				sectionFormModelValues.IdAlmacen = data.almacen.idAlmacen
-				setSectionFormValues(sectionFormModelValues)
-
-				setTableState(false)
-			}
-		} catch (error) {
-			console.log(error)
-		}
-	}
-
-    useEffect(() => {
-		const { state } = location
-		setCustomState(state)
-
-		document.title = 'Almacén'
+	useEffect(() => {
+		document.title = 'Conceptos'
 		async function waitForUpdate() {
 			await sleep(1000)
 		}
@@ -147,96 +51,241 @@ const Concepts = () => {
 							</span>
 						</a>
 					)
-				},
-				{
-					title: (
-						<a>
-							<span className='breadcrumb-item'>
-								<span className='breadcrumb-item-title'>Concepto</span>
-							</span>
-						</a>
-					)
 				}
 			]
 			handleBreadcrumb(breadcrumbItems)
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [location])
+	}, [])
+
+	const expandedRowRender = record => {
+		const expandedColumns = [
+			{
+				title: 'Código',
+				dataIndex: 'codigoAgrupador',
+				key: 'codigoAgrupador',
+				render: text => <span style={{ fontWeight: 600 }}>{text}</span>
+			},
+			{
+				title: 'Concepto',
+				dataIndex: 'concepto',
+				key: 'concepto'
+			},
+			{
+				title: '',
+				key: 'action',
+				render: (_, childRecord) => (
+					<Space
+						size='middle'
+						align='center'
+						styles={{
+							width: '100%',
+							display: 'flex',
+							flexDirection: 'row',
+							justifyContent: 'center'
+						}}
+					>
+						<Button
+							type='text'
+							icon={<EditOutlined />}
+							onClick={() => handleEditChildConcept(record, childRecord)}
+						>
+							Editar
+						</Button>
+					</Space>
+				)
+			}
+		]
+		return (
+			<CustomTable
+				data={record.conceptos}
+				columns={expandedColumns}
+				scrollable={false}
+				pagination={false}
+			/>
+		)
+	}
+
+	const columns = [
+		{
+			title: 'Código',
+			dataIndex: 'codigoAgrupador',
+			key: 'codigoAgrupador',
+			render: text => <span style={{ fontWeight: 700 }}>{text}</span>
+		},
+		{
+			title: 'Concepto',
+			dataIndex: 'conceptoPadre',
+			key: 'conceptoPadre'
+		},
+		{
+			title: '',
+			key: 'accion',
+			render: (_, record) => (
+				<Space
+					align='center'
+					style={{
+						width: '100%',
+						display: 'flex',
+						flexDirection: 'row',
+						justifyContent: 'center'
+					}}
+				>
+					<Dropdown
+						menu={{
+							items: parentConceptMenuOptions,
+							onClick: ({ key }) => {
+								switch (key) {
+									case '0':
+										handleEditConcept(record)
+										break
+									case '1':
+										handleNewChildConcept(record)
+										break
+									default:
+										break
+								}
+							}
+						}}
+					>
+						<Button type='link' icon={<CaretDownOutlined />}></Button>
+					</Dropdown>
+				</Space>
+			)
+		}
+	]
+
+	const [tableData, setTableData] = useState([])
+	const [tableState, setTableState] = useState(true)
+	const tableRef = useRef()
+	const [tableKey] = useState(Date.now())
+	const [parentConcepts, setParentConcepts] = useState([])
+	const [initialValues, setInitialValues] = useState(createConceptModel())
+	const [formState, setFormState] = useState(false)
+	const [formLoading, setFormLoading] = useState(false)
+
+	const getTableData = async () => {
+		try {
+			const response = await axiosPrivate.get(GET_CONCEPTS)
+			const data = response?.data
+
+			const parents = data.map(con => {
+				return { value: con.idConcepto, label: con.conceptoPadre }
+			})
+
+			setParentConcepts(parents)
+			setTableData(data)
+			setTimeout(() => {
+				setTableState(false)
+			}, 500)
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	const toggleForm = () => {
+		setFormState(!formState)
+	}
+
+	const handleFormLoading = value => {
+		setFormLoading(value)
+	}
+
+	const reloadData = () => {
+		setTableState(true)
+	}
+
+	const handleEditConcept = concept => {
+		const model = createConceptModel()
+		model.IdConcepto = concept.idConcepto
+		model.IdConceptoPadre = concept.idConceptoPadre
+		model.CodigoAgrupador = concept.codigoAgrupador
+		model.Concepto = concept.conceptoPadre
+
+		setInitialValues(model)
+	}
+
+	const handleNewChildConcept = concept => {
+		const model = createConceptModel()
+		model.IdConceptoPadre = concept.idConcepto
+		setInitialValues(model)
+	}
+
+	const handleEditChildConcept = (parent, child) => {
+		const model = createConceptModel()
+		model.IdConceptoPadre = parent.idConceptoPadre
+		model.IdConcepto = child.idConcepto
+		model.CodigoAgrupador = child.codigoAgrupador
+		model.Concepto = child.concepto
+		setInitialValues(model)
+	}
 
 	useEffect(() => {
-		loadWharehouseData()
+		if (
+			initialValues.IdConcepto !== 0 ||
+			(initialValues.IdConceptoPadre !== 0 &&
+				initialValues.IdConceptoPadre !== null)
+		) {
+			setFormState(true)
+		}
+	}, [initialValues])
+
+	useEffect(() => {
+		if (tableState) {
+			getTableData()
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [customState])
+	}, [tableState])
 
-    
-    return(
-        <>
-        <div className='page-content-container'>
-            <ConceptsForm
-                initialValues={sectionFormValues}
-                conceptParent={zonesTypes}
-                open={openSectionForm}
-                handleOpen={handleOpenSectionForm}
-                loading={sectionFormLoading}
-                handleLoading={handleSectionFormLoading}
-                    />
-
-            <div className='main-two-container'>
-					<div className='actions'>
-						<Button
-							type='primary'
-							style={{
-								display: 'flex',
-								alignItems: 'center'
-							}}
-							icon={<PlusOutlined />}
-							onClick={() => {
-								setOpenSectionForm(true)
-							}}
-						>
-							Agregar sección
+	return (
+		<>
+			<ConceptForm
+				parentConcepts={parentConcepts}
+				initialValues={initialValues}
+				open={formState}
+				handleOpen={toggleForm}
+				loading={formLoading}
+				handleLoading={handleFormLoading}
+				reloadData={reloadData}
+			/>
+			<div className='info-container to-right'>
+				<div
+					style={{
+						marginRight: '1.25rem'
+					}}
+				></div>
+				<div
+					style={{
+						marginRight: '1.25rem'
+					}}
+				></div>
+				<div></div>
+			</div>
+			<div className='page-content-container'>
+				<div className='btn-container'>
+					<div className='right'></div>
+					<div className='left'>
+						<Button type='primary' onClick={toggleForm}>
+							Nuevo concepto
 						</Button>
-						<Button
-							type='primary'
-							style={{
-								display: 'flex',
-								alignItems: 'center'
-							}}
-							icon={<FormOutlined />}
-							onClick={() => {
-								handleOpenInventoryEntryForm(true)
-							}}
-							loading={buttonInventoryEntryLoading}
-						>
-							Nueva entrada de inventario
-						</Button>
-						<Button
-							style={{
-								display: 'flex',
-								alignItems: 'center'
-							}}
-							icon={<ReloadOutlined />}
-							onClick={handleFiltersReset}
-						>
-							Limpiar Filtros
-						</Button>
-					</div>
-					<div className='container-content'>
-						<CustomTable
-							tableKey={tableKey}
-							tableRef={tableRef}
-							tableState={tableState}
-							expandedRowRender={expandedRowRender}
-							data={sections}
-							columns={columns}
-							scrollable={false}
-							pagination={false}
-						/>
 					</div>
 				</div>
-            </div>
-        </>
-    );
+				<div className='table-container'>
+					<CustomTable
+						tableKey={tableKey}
+						tableRef={tableRef}
+						tableState={tableState}
+						expandedRowRender={expandedRowRender}
+						data={tableData}
+						columns={columns}
+						scrollable={false}
+						pagination={false}
+					/>
+				</div>
+			</div>
+		</>
+	)
 }
+
 export default Concepts

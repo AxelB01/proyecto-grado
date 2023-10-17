@@ -406,6 +406,90 @@ namespace TriadRestockSystem.Controllers
                 return NotFound();
             }
         }
+
+        [HttpGet("getConcepts")]
+        public IActionResult GetConcepts()
+        {
+            var conceptos = _db.Conceptos
+                .GroupJoin(_db.Conceptos,
+                p => p.IdConcepto,
+                c => c.IdConceptoPadre,
+                (p, c) => new
+                {
+                    Key = p.IdConcepto,
+                    p.IdConcepto,
+                    p.IdConceptoPadre,
+                    p.CodigoAgrupador,
+                    ConceptoPadre = p.Concepto1,
+                    Conceptos = c.Where(con => con.IdConceptoPadre == p.IdConcepto)
+                    .Select(con => new
+                    {
+                        con.IdConcepto,
+                        con.CodigoAgrupador,
+                        Concepto = con.Concepto1
+                    })
+                })
+                .Where(con => !con.IdConceptoPadre.HasValue)
+                .ToList();
+
+            return Ok(conceptos);
+        }
+
+        [HttpPost("saveConcept")]
+        public IActionResult SaveConcept(vmConcept model)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                using var dbTran = _db.Database.BeginTransaction();
+                try
+                {
+                    var concepto = _db.Conceptos.FirstOrDefault(c => c.IdConcepto == model.IdConcepto);
+
+                    if (concepto == null)
+                    {
+                        concepto = new Concepto
+                        {
+                            CreadoPor = user.IdUsuario,
+                            FechaCreacion = DateTime.Now
+                        };
+
+                        _db.Conceptos.Add(concepto);
+                    }
+
+                    if (model.IdConceptoPadre != null)
+                    {
+                        concepto.IdConceptoPadre = model.IdConceptoPadre;
+                        concepto.CodigoAgrupador = _db.ConceptoGetCodigoAgrupador((int)model.IdConceptoPadre);
+                    }
+                    else
+                    {
+                        concepto.CodigoAgrupador = model.CodigoAgrupador;
+                    }
+
+                    concepto.Concepto1 = model.Concepto;
+                    concepto.ModificadoPor = user.IdUsuario;
+                    concepto.FechaModificacion = DateTime.Now;
+
+                    _db.SaveChanges();
+                    dbTran.Commit();
+
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    dbTran.Rollback();
+                    return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
+                }
+            }
+
+            return Forbid();
+        }
+
     }
 }
 

@@ -2,14 +2,14 @@ import {
 	AppstoreAddOutlined,
 	HomeOutlined,
 	MoneyCollectOutlined,
+	ProfileOutlined,
 	ReadOutlined,
 	SettingOutlined,
 	ShareAltOutlined,
 	SolutionOutlined,
 	TagsOutlined,
 	TeamOutlined,
-	UserOutlined,
-	AuditOutlined
+	UserOutlined
 } from '@ant-design/icons'
 import RolesNames from '../config/roles'
 
@@ -118,8 +118,9 @@ const MenuItems = [
 		'sub1',
 		<SettingOutlined style={iconStyle} />,
 		[
-			getItem('Usuarios', '1', <UserOutlined style={iconStyle} />)
+			getItem('Usuarios', '1', <UserOutlined style={iconStyle} />),
 			// getItem('Unidades y Recursos', '12', <GoldOutlined style={iconStyle} />)
+			getItem('Conceptos', '13', <ProfileOutlined style={iconStyle} />)
 		],
 		null,
 		[RolesNames.ADMINISTRADOR]
