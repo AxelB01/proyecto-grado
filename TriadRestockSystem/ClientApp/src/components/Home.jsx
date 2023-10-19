@@ -46,13 +46,13 @@ const Home = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
-	return loaded ? (
-		<Loader />
-	) : (
-		<>
-			<p></p>
-		</>
-	)
+	// return loaded ? (
+	// 	<Loader />
+	// ) : (
+	// 	<>
+	// 		<p></p>
+	// 	</>
+	// )
 	return loaded ? <Loader /> : 
 	<>
 		<div className='main-content'>

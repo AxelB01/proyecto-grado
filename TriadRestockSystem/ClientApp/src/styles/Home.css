@@ -1,0 +1,17 @@
+.main-content{
+    display: flex;
+    flex-direction: row;
+}
+.card-content{
+    display: flex;
+    flex-direction: column;
+}
+
+.card-container{
+    /* //border-style:outset;
+    border-radius: 10px; */
+    width: 600px;
+    height: 400px;
+    margin: 25px;
+
+}
