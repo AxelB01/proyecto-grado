@@ -47,13 +47,13 @@ const Home = () => {
 	}, [])
  
 
-	return loaded ? (
-		<Loader />
-	) : (
-		<>
-			<p></p>
-		</>
-	)
+	// return loaded ? (
+	// 	<Loader />
+	// ) : (
+	// 	<>
+	// 		<p></p>
+	// 	</>
+	// )
 	return loaded ? <Loader /> : 
 	<>
 		<div className='main-content'>
