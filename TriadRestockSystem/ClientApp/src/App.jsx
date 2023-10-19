@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import AppRoutes from './AppRoutes'
-import NewCustomLayout from './components/NewCustomLayout'
+import CustomLayout from './components/CustomLayout'
 import AuthContext from './context/AuthContext'
 import './custom.css'
 import { isStringEmpty } from './functions/validation'
@@ -40,14 +40,14 @@ const App = () => {
 	}, [username, password, destroyStoredAuth])
 
 	return (
-		<NewCustomLayout>
+		<CustomLayout>
 			<Routes>
 				{AppRoutes.map((route, index) => {
 					const { element, ...rest } = route
 					return <Route key={index} {...rest} element={element} />
 				})}
 			</Routes>
-		</NewCustomLayout>
+		</CustomLayout>
 	)
 }
 

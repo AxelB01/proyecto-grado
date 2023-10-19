@@ -1,15 +1,15 @@
 import { LogoutOutlined } from '@ant-design/icons'
 import { Avatar, Breadcrumb, Dropdown, Layout, Menu } from 'antd'
-import { useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
+import Animate from 'rc-animate'
+import { useContext, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
-import { isStringEmpty } from '../functions/validation'
-import '../styles/CustomLayout.css'
-import CustomFooter from './CustomFooter'
+import '../styles/DefaultContentStyle.css'
+import Loader from './Loader'
 import MenuItems from './MenuItems'
 
-const { Header, Content, Footer, Sider } = Layout
+const { Header, Content, Sider } = Layout
 
 const items = [
 	{
@@ -23,10 +23,11 @@ const items = [
 ]
 
 const CustomLayout = ({ children }) => {
-	const { username, destroyStoredAuth } = useContext(AuthContext)
+	const { username, roles, destroyStoredAuth } = useContext(AuthContext)
 	const { active, collapsed, breadcrumb, handleSlider } =
 		useContext(LayoutContext)
 	const navigate = useNavigate()
+	const [isSiderFixed, setIsSiderFixed] = useState(false)
 
 	const onClick = () => {
 		destroyStoredAuth()
@@ -44,6 +45,9 @@ const CustomLayout = ({ children }) => {
 			case 1:
 				path = '/users'
 				break
+			case 2:
+				path = '/wharehouses'
+				break
 			case 3:
 				path = '/families'
 				break
@@ -56,11 +60,17 @@ const CustomLayout = ({ children }) => {
 			case 6:
 				path = '/requests'
 				break
-			case 8:
-				path = '/suppliers'
-				break
 			case 9:
 				path = '/costsCenters'
+				break
+			case 10:
+				path = '/suppliers'
+				break
+			case 11:
+				path = '/banks'
+				break
+			case 13:
+				path = '/concepts'
 				break
 			default:
 				break
@@ -69,85 +79,157 @@ const CustomLayout = ({ children }) => {
 		navigate(path)
 	}
 
+	useEffect(() => {
+		console.log(
+			roles,
+			MenuItems.filter(m => m.roles?.some(r => roles.includes(r)))
+		)
+
+		const handleScroll = () => {
+			const scrollTop = window.scrollY || document.documentElement.scrollTop
+			setIsSiderFixed(scrollTop >= 65)
+		}
+
+		window.addEventListener('scroll', handleScroll)
+
+		return () => {
+			window.removeEventListener('scroll', handleScroll)
+		}
+	}, [username, roles])
+
+	if (active == null) {
+		return (
+			<>
+				<Loader />
+			</>
+		)
+	}
+
 	if (!active) {
 		return <>{children}</>
 	}
 
 	return (
-		<>
-			<Layout style={{ minHeight: '100vh' }}>
+		<Layout style={{ minHeight: '100vh' }}>
+			<Header
+				className='site-layout-background'
+				style={{
+					padding: 0,
+					background: '#fff',
+					borderBottom: '1px solid #f0f0f0'
+				}}
+			>
+				<div
+					className='logo-container'
+					style={{
+						display: 'flex',
+						justifyContent: 'start',
+						alignItems: 'center',
+						maxWidth: '100%',
+						// minHeight: '3rem',
+						padding: '0rem 0rem 0rem 0rem'
+					}}
+				>
+					<div
+						className='logo'
+						style={{
+							display: 'flex',
+							justifyContent: 'start',
+							alignItems: 'center',
+							width: '12rem',
+							minHeight: 'auto'
+						}}
+					>
+						<img
+							src='../images/triad-restock-2-copy.png'
+							style={{
+								width: '100%',
+								height: 'auto'
+							}}
+						/>
+					</div>
+					<Animate showProp='visible' transitionName='fade'>
+						{!collapsed ? (
+							<div
+								style={{
+									height: '2.8rem',
+									width: 'auto',
+									marginLeft: '0.42rem',
+									borderRight: '0.12rem solid #d9d9d9'
+								}}
+							></div>
+						) : null}
+					</Animate>
+
+					<div
+						style={{
+							flex: 1,
+							display: 'flex',
+							justifyContent: 'end',
+							paddingRight: '1rem'
+						}}
+					>
+						<Dropdown menu={{ items, onClick }} trigger={['click']}>
+							<a onClick={e => e.preventDefault()}>
+								<Avatar
+									style={{
+										backgroundColor: '#1890ff',
+										verticalAlign: 'middle'
+									}}
+									size='large'
+								></Avatar>
+							</a>
+						</Dropdown>
+					</div>
+				</div>
+			</Header>
+			<Layout>
 				<Sider
+					collapsible
+					collapsed={collapsed}
+					onCollapse={handleSlider}
+					theme='light'
 					style={{
 						overflow: 'auto',
 						height: '100vh',
-						position: 'fixed',
-						left: 0
+						position: isSiderFixed ? 'fixed' : 'relative',
+						left: 0,
+						top: 0
+						// borderRight: '1px solid #d9d9d9'
 					}}
-					width={220}
-					collapsible
-					collapsed={collapsed}
-					collapsedWidth={80}
-					onCollapse={() => handleSlider()}
-					theme='light'
 				>
-					<div className='logo-container'>
-						<div className='logo'>
-							<img src='../images/app-logo.png' />
-						</div>
-					</div>
 					<Menu
 						style={{
-							width: '100%'
+							width: '100%',
+							height: '100%'
 						}}
 						defaultSelectedKeys={['0']}
 						mode='inline'
-						items={MenuItems}
+						items={MenuItems.filter(m => m.roles?.some(r => roles.includes(r)))}
 						onClick={handleMenuOption}
-					></Menu>
+					/>
 				</Sider>
-				<Layout className={`site-layout ${collapsed ? 'collapsed' : ''}`}>
-					<Header style={{ padding: 0, height: '3.5rem', background: '#FFF' }}>
-						{!isStringEmpty(username) && (
-							<div className='header-container'>
-								<div className='user-name'>
-									<span>{'uce\\' + username}</span>
-								</div>
-								<Dropdown menu={{ items, onClick }} trigger={['click']}>
-									<a onClick={e => e.preventDefault()}>
-										<Avatar
-											style={{
-												backgroundColor: '#1890ff',
-												verticalAlign: 'middle'
-											}}
-											size='large'
-										>
-											{username[0].toUpperCase()}
-										</Avatar>
-									</a>
-								</Dropdown>
-							</div>
-						)}
-					</Header>
-					<Content style={{ margin: '0 1rem' }}>
-						<Breadcrumb style={{ margin: '1rem 0' }} items={breadcrumb} />
-
+				<Layout
+					className='site-layout'
+					style={{ marginLeft: isSiderFixed ? (collapsed ? 80 : 200) : 0 }}
+				>
+					<Content style={{ background: '#fff' }}>
+						<div className='site-layout-background' style={{ paddingLeft: 24 }}>
+							<Breadcrumb style={{ margin: '1rem 0' }} items={breadcrumb} />
+						</div>
 						<div
-							style={{
-								padding: 24,
-								height: '95%',
-								// width: '100%',
-								background: '#FFF'
-							}}
+							className='site-layout-background'
+							style={{ padding: '0 1.25rem', minHeight: 360 }}
 						>
 							{children}
 						</div>
 					</Content>
-					<Footer style={{ height: 0 }}>
+					{/* <Footer style={{ height: 0 }}>
 						<CustomFooter />
-					</Footer>
+					</Footer> */}
 				</Layout>
 			</Layout>
-		</>
+		</Layout>
 	)
 }
 
