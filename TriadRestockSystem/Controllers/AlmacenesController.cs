@@ -91,17 +91,41 @@ namespace TriadRestockSystem.Controllers
                         TipoZonaAlmacenamiento = s.IdTipoZonaNavigation.TipoZonaAlmacenamiento
                     }).ToList();
 
+                var almacenesExistencias = _db.AlmacenSeccionEstanteriasArticulosExistenciasGetByIdAlmacen(id)
+                    .AsQueryable();
+
                 foreach (var seccion in secciones)
                 {
-                    seccion.Estanterias = _db.AlmacenSeccionEstanteriasExistenciasByIdSeccion(seccion.IdAlmacenSeccion).ToList();
+                    seccion.Estanterias = _db.AlmacenesSeccionesEstanterias
+                        .Include(e => e.IdEstadoNavigation)
+                        .Where(e => e.IdAlmacenSeccion == seccion.IdAlmacenSeccion)
+                        .Select(e => new vmAlmacenSeccionEstanteria
+                        {
+                            IdAlmacenSeccionEstanteria = e.IdAlmacenSeccionEstanteria,
+                            IdAlmacenSeccion = seccion.IdAlmacenSeccion,
+                            Codigo = e.Codigo,
+                            IdEstado = e.IdEstado,
+                            Estado = e.IdEstadoNavigation.Estado
+                        })
+                        .ToList();
+
+                    foreach (var estanteria in seccion.Estanterias)
+                    {
+                        estanteria.Existencias = almacenesExistencias
+                            .Where(e => e.IdAlmacenSeccionEstanteria == estanteria.IdAlmacenSeccionEstanteria)
+                            .ToList();
+                    }
                 }
+
+                var articulos = _db.AlmacenArticulosGet(id).ToList();
 
                 var model = new Wharehouse
                 {
                     Almacen = almacenInfo,
                     SolicitudesMateriales = solicitudesMateriales,
                     OrdenesCompras = ordenesCompra,
-                    Secciones = secciones
+                    Secciones = secciones,
+                    Articulos = articulos
                 };
 
                 return Ok(model);
@@ -180,9 +204,6 @@ namespace TriadRestockSystem.Controllers
 
                 estanteria.IdEstado = model.IdEstado;
                 estanteria.Codigo = model.Codigo.Trim();
-                estanteria.IdArticulo = model.IdArticulo;
-                estanteria.MinimoRequerido = model.Minimo;
-                estanteria.CapacidadMaxima = model.Maximo;
 
                 _db.SaveChanges();
                 return Ok();

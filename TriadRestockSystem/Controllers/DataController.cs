@@ -289,9 +289,9 @@ namespace TriadRestockSystem.Controllers
                     es.IdAlmacenSeccion,
                     es.IdEstado,
                     es.IdEstadoNavigation.Estado,
-                    es.IdArticulo,
-                    Minimo = es.MinimoRequerido ?? 0,
-                    Maximo = es.CapacidadMaxima,
+                    //es.IdArticulo,
+                    //Minimo = es.MinimoRequerido ?? 0,
+                    //Maximo = es.CapacidadMaxima,
                     Key = es.IdAlmacenSeccionEstanteria,
                     Text = $"{es.Codigo}"
 

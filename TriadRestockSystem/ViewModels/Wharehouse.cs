@@ -9,5 +9,6 @@ namespace TriadRestockSystem.ViewModels
         public List<vmSolicitudMaterialAlmacen> SolicitudesMateriales { get; set; } = new List<vmSolicitudMaterialAlmacen>();
         public List<OrdenesCompra> OrdenesCompras { get; set; } = new List<OrdenesCompra>();
         public List<vmAlmacenSeccion> Secciones { get; set; } = new List<vmAlmacenSeccion>();
+        public List<vmAlmacenArticulo> Articulos { get; set; } = new List<vmAlmacenArticulo>();
     }
 }
