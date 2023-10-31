@@ -15,6 +15,7 @@
         public string Estado { get; set; } = string.Empty;
         public int IdTipoZona { get; set; }
         public string TipoZonaAlmacenamiento { get; set; } = string.Empty;
-        public List<vmAlmacenSeccionEstanteriasExistencias> Estanterias { get; set; } = new List<vmAlmacenSeccionEstanteriasExistencias>();
+
+        public List<vmAlmacenSeccionEstanteria> Estanterias { get; set; } = new List<vmAlmacenSeccionEstanteria>();
     }
 }

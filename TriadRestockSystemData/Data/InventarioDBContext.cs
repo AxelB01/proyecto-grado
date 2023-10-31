@@ -16,6 +16,8 @@ public partial class InventarioDBContext : DbContext
 
     public virtual DbSet<Almacene> Almacenes { get; set; }
 
+    public virtual DbSet<AlmacenesArticulo> AlmacenesArticulos { get; set; }
+
     public virtual DbSet<AlmacenesSeccione> AlmacenesSecciones { get; set; }
 
     public virtual DbSet<AlmacenesSeccionesEstanteria> AlmacenesSeccionesEstanterias { get; set; }
@@ -136,6 +138,23 @@ public partial class InventarioDBContext : DbContext
                     });
         });
 
+        modelBuilder.Entity<AlmacenesArticulo>(entity =>
+        {
+            entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.AlmacenesArticuloCreadoPorNavigations)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AlmacenesArticulos_Usuarios");
+
+            entity.HasOne(d => d.IdAlmacenNavigation).WithMany(p => p.AlmacenesArticulos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AlmacenesArticulos_Almacenes");
+
+            entity.HasOne(d => d.IdArticuloNavigation).WithMany(p => p.AlmacenesArticulos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AlmacenesArticulos_Articulos");
+
+            entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.AlmacenesArticuloModificadoPorNavigations).HasConstraintName("FK_AlmacenesArticulos_Usuarios1");
+        });
+
         modelBuilder.Entity<AlmacenesSeccione>(entity =>
         {
             entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.AlmacenesSeccioneCreadoPorNavigations)
@@ -166,10 +185,6 @@ public partial class InventarioDBContext : DbContext
             entity.HasOne(d => d.IdAlmacenSeccionNavigation).WithMany(p => p.AlmacenesSeccionesEstanteria)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_AlmacenesSeccionesEstanterias_AlmacenesSecciones");
-
-            entity.HasOne(d => d.IdArticuloNavigation).WithMany(p => p.AlmacenesSeccionesEstanteria)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AlmacenesSeccionesEstanterias_Articulos");
 
             entity.HasOne(d => d.IdEstadoNavigation).WithMany(p => p.AlmacenesSeccionesEstanteria)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -361,9 +376,7 @@ public partial class InventarioDBContext : DbContext
 
             entity.HasOne(d => d.IdMarcaNavigation).WithMany(p => p.Inventarios).HasConstraintName("FK_ArticulosExistencias_Marcas");
 
-            entity.HasOne(d => d.IdOrdenCompraNavigation).WithMany(p => p.Inventarios)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Inventarios_OrdenesCompra");
+            entity.HasOne(d => d.IdOrdenCompraNavigation).WithMany(p => p.Inventarios).HasConstraintName("FK_Inventarios_OrdenesCompra");
 
             entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.InventarioModificadoPorNavigations).HasConstraintName("FK_ArticulosExistencias_Usuarios1");
         });

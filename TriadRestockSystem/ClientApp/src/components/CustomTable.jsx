@@ -13,6 +13,7 @@ const CustomTable = ({
 	expandedRowRender,
 	columns,
 	scrollable,
+	defaultPageSize,
 	pagination = true
 }) => {
 	const customNoDataText = (
@@ -178,6 +179,7 @@ const CustomTable = ({
 				pagination={
 					pagination && {
 						total: data?.length,
+						defaultPageSize: defaultPageSize ?? 10,
 						showTotal: () => `${data?.length} registros en total`,
 						locale: locale.Pagination
 					}

@@ -50,6 +50,12 @@ public partial class Usuario
     public virtual ICollection<Almacene> AlmaceneModificadoPorNavigations { get; set; } = new List<Almacene>();
 
     [InverseProperty("CreadoPorNavigation")]
+    public virtual ICollection<AlmacenesArticulo> AlmacenesArticuloCreadoPorNavigations { get; set; } = new List<AlmacenesArticulo>();
+
+    [InverseProperty("ModificadoPorNavigation")]
+    public virtual ICollection<AlmacenesArticulo> AlmacenesArticuloModificadoPorNavigations { get; set; } = new List<AlmacenesArticulo>();
+
+    [InverseProperty("CreadoPorNavigation")]
     public virtual ICollection<AlmacenesSeccione> AlmacenesSeccioneCreadoPorNavigations { get; set; } = new List<AlmacenesSeccione>();
 
     [InverseProperty("ModificadoPorNavigation")]

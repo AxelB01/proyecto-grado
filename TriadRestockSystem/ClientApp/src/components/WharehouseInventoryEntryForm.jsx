@@ -12,7 +12,7 @@ import {
 } from 'antd'
 import locale from 'antd/es/date-picker/locale/es_ES'
 import 'moment/locale/es-do'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useState } from 'react'
 import LayoutContext from '../context/LayoutContext'
 import { createInventoryEntryModel } from '../functions/constructors'
 import {
@@ -24,8 +24,8 @@ import useAxiosPrivate from '../hooks/usePrivateAxios'
 const INVENTORY_ENTRY = '/api/inventarios/entradaInventario'
 
 // const REGEX_INPUT_LENGTH_VALIDATION = /^.{1,500}$/
-const REGEX_PRICE_FORMATTER = /\B(?=(\d{3})+(?!\d))/g
-const REGEX_PRICE_PARSER = /\$\s?|(,*)/g
+// const REGEX_PRICE_FORMATTER = /\B(?=(\d{3})+(?!\d))/g
+// const REGEX_PRICE_PARSER = /\$\s?|(,*)/g
 const DEFAULT_DATE_FORMAT = 'DD/MM/YYYY'
 
 const WharehouseInvetoryEntryForm = ({
@@ -39,46 +39,83 @@ const WharehouseInvetoryEntryForm = ({
 	open,
 	handleOpen,
 	loading,
-	handleLoading
+	handleLoading,
+	handleRefreshData
 }) => {
 	const axiosPrivate = useAxiosPrivate()
 	const { openMessage } = useContext(LayoutContext)
 	const [form] = Form.useForm()
 	const values = Form.useWatch([], form)
 
+	const [saving, setSavig] = useState(false)
 	const [title] = useState('Entrada de inventario')
 
-	useEffect(() => {
-		form.resetFields()
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [initialValues])
+	// useEffect(() => {
+	// 	form.resetFields()
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, [initialValues])
 
 	const saveInventoryEntry = async model => {
 		try {
 			const response = await axiosPrivate.post(INVENTORY_ENTRY, model)
 			if (response?.status === 200) {
-				openMessage('success', 'Inventario actualizado')
-				handleLoading(false)
-				handleOpen(false)
+				if (response.data.status === 'Ok') {
+					openMessage('success', 'Inventario actualizado')
+				} else {
+					openMessage('warning', 'Este artículo ya existe')
+				}
+
+				form.setFieldsValue({
+					numeroSerie: ''
+				})
 			}
 		} catch (error) {
-			console.log(error)
-			openMessage('error', 'Error procesando la solicitud...')
+			// console.log(error)
+			// openMessage('error', 'Error procesando la solicitud...')
+			// handleOpen(false)
+		} finally {
+			if (!saving) {
+				form.resetFields()
+				handleOpen(false)
+			}
+
+			handleRefreshData()
 			handleLoading(false)
-			handleOpen(false)
 		}
 	}
 
-	const handleSubmit = () => {
+	const handleSubmitContinue = () => {
 		handleLoading(true)
-		form.submit()
+		setSavig(true)
+		setTimeout(() => {
+			form.submit()
+		}, 500)
+	}
+
+	const handleSubmitFinish = () => {
+		handleLoading(true)
+		setSavig(false)
+		setTimeout(() => {
+			form.submit()
+		}, 500)
 	}
 
 	const onFinish = values => {
 		const model = createInventoryEntryModel()
-		console.log(values)
-		console.log(model)
-		// saveInventoryEntry(model)
+		model.FechaVencimiento = values.fechaVencimiento
+		model.IdAlmacenSeccionEstanteria = values.idAlmacenSeccionEstanteria
+		model.IdArticulo = values.idArticulo
+		model.IdEstado = values.idEstado
+		model.IdImpuesto = values.idImpuesto
+		model.IdMarca = values.idMarca
+		model.Modelo = values.modelo
+		model.Notas = values.notas
+		model.NumeroSerie = values.numeroSerie
+		model.SubTotal = values.subTotal
+		model.NumeroSerieManual = values.tipoNumeroSerie
+		model.PrecioCompra = Number(values.precioCompra)
+
+		saveInventoryEntry(model)
 	}
 
 	const onFinishFailed = values => {
@@ -87,6 +124,8 @@ const WharehouseInvetoryEntryForm = ({
 	}
 
 	const handleCancel = () => {
+		handleLoading(false)
+		form.resetFields()
 		handleOpen(false)
 	}
 
@@ -108,19 +147,27 @@ const WharehouseInvetoryEntryForm = ({
 				width={750}
 				title={title}
 				open={open}
-				onOk={handleSubmit}
+				onOk={() => {}}
 				onCancel={handleCancel}
 				footer={[
 					<Button key='back' onClick={handleCancel}>
 						Cancelar
 					</Button>,
 					<Button
+						key='continue'
+						type='primary'
+						loading={loading}
+						onClick={handleSubmitContinue}
+					>
+						Guardar y continuar
+					</Button>,
+					<Button
 						key='submit'
 						type='primary'
 						loading={loading}
-						onClick={handleSubmit}
+						onClick={handleSubmitFinish}
 					>
-						Guardar
+						Guardar y finalizar
 					</Button>
 				]}
 			>
@@ -300,17 +347,7 @@ const WharehouseInvetoryEntryForm = ({
 							</Form.Item>
 						</Col>
 						<Col span={12}>
-							<Form.Item
-								name='modelo'
-								label='Modelo'
-								rules={[
-									{
-										required: true,
-										message: 'Debe ingresar el modelo del artículo'
-									}
-								]}
-								hasFeedback
-							>
+							<Form.Item name='modelo' label='Modelo'>
 								<Input
 									autoComplete='off'
 									placeholder='Ingresar el modelo del artículo'

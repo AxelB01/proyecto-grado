@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, InputNumber, Modal, Row, Select } from 'antd'
+import { Button, Col, Form, Input, Modal, Row, Select } from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import LayoutContext from '../context/LayoutContext'
 import { createWharehouseSectionStockModel } from '../functions/constructors'
@@ -13,7 +13,6 @@ const WharehouseSectionStockForm = ({
 	idSectionStock,
 	initialValues,
 	wharehouseStates,
-	items,
 	open,
 	handleOpen,
 	loading,
@@ -29,7 +28,7 @@ const WharehouseSectionStockForm = ({
 	useEffect(() => {
 		form.resetFields()
 
-		const { IdEstanteria, Codigo, IdArticulo, Maximo, Minimo } = initialValues
+		const { IdEstanteria, Codigo } = initialValues
 
 		let IdSeccion = idSectionStock
 
@@ -40,16 +39,8 @@ const WharehouseSectionStockForm = ({
 		form.setFieldsValue({
 			idSeccion: IdSeccion,
 			idEstanteria: IdEstanteria,
-			codigo: Codigo,
-			maximo: Maximo,
-			minimo: Minimo
+			codigo: Codigo
 		})
-
-		if (IdArticulo !== 0) {
-			form.setFieldsValue({
-				idArticulo: IdArticulo
-			})
-		}
 
 		setTitle('Editar estantería')
 		form.setFieldsValue({
@@ -95,9 +86,6 @@ const WharehouseSectionStockForm = ({
 		model.IdEstanteria = values.idEstanteria
 		model.Codigo = values.codigo
 		model.IdEstado = values.idEstado
-		model.IdArticulo = values.idArticulo
-		model.Maximo = values.maximo
-		model.Minimo = values.minimo
 		saveSectionStock(model)
 	}
 
@@ -193,7 +181,7 @@ const WharehouseSectionStockForm = ({
 							</Form.Item>
 						</Col>
 					</Row>
-					<Row gutter={16}>
+					{/* <Row gutter={16}>
 						<Col span={24}>
 							<Form.Item
 								name='idArticulo'
@@ -216,7 +204,7 @@ const WharehouseSectionStockForm = ({
 								></Select>
 							</Form.Item>
 						</Col>
-					</Row>
+					</Row> 
 					<Row gutter={16}>
 						<Col span={12}>
 							<Form.Item name='minimo' label='Mínimo Requerido'>
@@ -246,7 +234,7 @@ const WharehouseSectionStockForm = ({
 								<InputNumber min={1} />
 							</Form.Item>
 						</Col>
-					</Row>
+					</Row> */}
 				</Form>
 			</Modal>
 		</>
