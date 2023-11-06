@@ -9,7 +9,9 @@ import {
 	SolutionOutlined,
 	TagsOutlined,
 	TeamOutlined,
-	UserOutlined
+	UserOutlined,
+	ShoppingOutlined,
+	ReconciliationOutlined
 } from '@ant-design/icons'
 import RolesNames from '../config/roles'
 
@@ -112,7 +114,23 @@ const MenuItems = [
 		null,
 		[RolesNames.ADMINISTRADOR, RolesNames.PRESUPUESTO]
 	),
-	{ type: 'divider' },
+	{ type: 'divider' },	
+	getItem(
+		'Ordenes de Compra',
+		'14',
+		<ShoppingOutlined style={iconStyle} />,
+		null,
+		null,
+		[RolesNames.ADMINISTRADOR, RolesNames.PRESUPUESTO]
+	),
+	getItem(
+		'Requisiciones',
+		'15',
+		<ReconciliationOutlined  style={iconStyle} />,
+		null,
+		null,
+		[RolesNames.ADMINISTRADOR, RolesNames.PRESUPUESTO]
+	),
 	getItem(
 		'Configuración',
 		'sub1',

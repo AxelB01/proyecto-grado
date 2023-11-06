@@ -72,6 +72,12 @@ const CustomLayout = ({ children }) => {
 			case 13:
 				path = '/concepts'
 				break
+			case 14:
+				path = '/orders'
+				break
+			case 15:
+				path = '/requisitions'
+				break
 			default:
 				break
 		}

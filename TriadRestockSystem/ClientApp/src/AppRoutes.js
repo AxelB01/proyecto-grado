@@ -6,8 +6,10 @@ import Families from './components/Families'
 import Home from './components/Home'
 import Items from './components/Items'
 import Login from './components/Login'
+import PurchaseOrder from './components/PurchaseOrder'
 import Request from './components/Request'
 import Requests from './components/Requests'
+import Requisitions from './components/Requisitions'
 import Suppliers from './components/Suppliers'
 import Units from './components/Units'
 import Users from './components/Users'
@@ -94,6 +96,16 @@ const AppRoutes = [
 		index: false,
 		path: '/concepts',
 		element: <Concepts />
+	},
+	{
+		index: false,
+		path: '/orders',
+		element: <PurchaseOrder />
+	},
+	{
+		index: false,
+		path: '/requisitions',
+		element: <Requisitions />
 	}
 ]
 

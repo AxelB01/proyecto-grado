@@ -33,6 +33,7 @@ export const createFamiliesModel = () => {
 	}
 }
 
+
 export const createItemsModel = () => {
 	return {
 		IdArticulo: 0,
@@ -232,5 +233,24 @@ export const createConceptModel = () => {
 		IdConcepto: 0,
 		CodigoAgrupador: '',
 		Concepto: ''
+	}
+}
+
+export const createPurchaseOrderModel = () => {
+	return{
+		IdOrdenCompra: 0,
+		IdDocumento: 0,
+		IdAlmacen: 0,
+		IdProveedor: 0,
+		SubTotal: '',
+		TotalImpuestos: '',
+		Total: ''
+	}
+}
+
+export const createRequisitionsModel = () => {
+	return{
+		IdRequisicion: 0,
+		IdDocumento: 0,
 	}
 }
