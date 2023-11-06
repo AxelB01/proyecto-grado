@@ -39,6 +39,9 @@ public partial class Almacene
     public DateTime? FechaModificacion { get; set; }
 
     [InverseProperty("IdAlmacenNavigation")]
+    public virtual ICollection<AlmacenesArticulo> AlmacenesArticulos { get; set; } = new List<AlmacenesArticulo>();
+
+    [InverseProperty("IdAlmacenNavigation")]
     public virtual ICollection<AlmacenesSeccione> AlmacenesSecciones { get; set; } = new List<AlmacenesSeccione>();
 
     [ForeignKey("CreadoPor")]

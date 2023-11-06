@@ -9,7 +9,8 @@ import LineGraphics from './Graphics/LineGraphics'
 import '../styles/Home.css' 
 import BarGraphics from './Graphics/BarGraphics'
 import DoughnutGraphics from './Graphics/DonughtGraphics'
-import '../styles/Home.css'
+import LineGraphics from './Graphics/LineGraphics'
+import Loader from './Loader'
 
 const Home = () => {
 	const { validLogin } = useContext(AuthContext)
@@ -46,7 +47,6 @@ const Home = () => {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
- 
 
 	// return loaded ? (
 	// 	<Loader />
@@ -55,18 +55,28 @@ const Home = () => {
 	// 		<p></p>
 	// 	</>
 	// )
-	return loaded ? <Loader /> : 
-	<>
-		<div className='main-content'>
+	return loaded ? (
+		<Loader />
+	) : (
+		<>
+			<div className='main-content'>
+				<div className='card-contain'>
+					<div className='card-container'>
+						{' '}
+						<LineGraphics />{' '}
+					</div>
+					<div className='card-container'>
+						{' '}
+						<DoughnutGraphics />{' '}
+					</div>
+				</div>
 
-			<div className='card-contain'>
-				<div className='card-container'> <LineGraphics/> </div>
-				<div className='card-container'> <DoughnutGraphics/> </div>
+				<div className='card-container'>
+					{' '}
+					<BarGraphics />{' '}
+				</div>
 			</div>
-			
-			<div className='card-container'> <BarGraphics/> </div>
-
-		</div>
-	</>
-
+		</>
+	)
+}
 export default Home

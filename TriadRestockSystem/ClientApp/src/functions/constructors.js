@@ -132,10 +132,7 @@ export const createWharehouseSectionStockModel = () => {
 		IdSeccion: 0,
 		IdEstanteria: 0,
 		IdEstado: 0,
-		Codigo: '',
-		IdArticulo: 0,
-		Maximo: 1,
-		Minimo: 1
+		Codigo: ''
 	}
 }
 
@@ -152,7 +149,9 @@ export const createInventoryEntryModel = () => {
 		IdImpuesto: 0,
 		PrecioCompra: 0.0,
 		FechaVencimiento: '',
-		Notas: ''
+		Notas: '',
+		SubTotal: 0.0,
+		NumeroSerieManual: true
 	}
 }
 

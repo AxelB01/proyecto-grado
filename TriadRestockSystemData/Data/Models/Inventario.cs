@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TriadRestockSystemData.Data.Models;
 
-[Index("NumeroSerie", Name = "IX_ArticulosExistencias", IsUnique = true)]
+[Index("NumeroSerie", "IdArticulo", Name = "IX_ArticulosExistencias", IsUnique = true)]
 public partial class Inventario
 {
     [Key]
@@ -16,7 +16,7 @@ public partial class Inventario
 
     public int IdAlmacenSeccionEstanteria { get; set; }
 
-    public int IdOrdenCompra { get; set; }
+    public int? IdOrdenCompra { get; set; }
 
     [StringLength(100)]
     [Unicode(false)]
@@ -78,7 +78,7 @@ public partial class Inventario
 
     [ForeignKey("IdOrdenCompra")]
     [InverseProperty("Inventarios")]
-    public virtual OrdenesCompra IdOrdenCompraNavigation { get; set; } = null!;
+    public virtual OrdenesCompra? IdOrdenCompraNavigation { get; set; }
 
     [ForeignKey("ModificadoPor")]
     [InverseProperty("InventarioModificadoPorNavigations")]

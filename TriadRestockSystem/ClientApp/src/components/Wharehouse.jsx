@@ -1,4 +1,5 @@
 import {
+	AppstoreOutlined,
 	CaretDownOutlined,
 	DownloadOutlined,
 	FormOutlined,
@@ -38,6 +39,7 @@ import CustomTable from './CustomTable'
 import WharehouseInvetoryEntryForm from './WharehouseInventoryEntryForm'
 import WharehouseSectionForm from './WharehouseSectionForm'
 import WharehouseSectionStockForm from './WharehouseSectionStockForm'
+import WharehouseSectionStockModal from './WharehouseSectionStockModal'
 
 const formatter = value => <CountUp end={value} duration={2} />
 const { Text } = Typography
@@ -65,6 +67,11 @@ const sectionStockMenuOptions = [
 		key: '0',
 		label: 'Nueva entrada',
 		icon: <DownloadOutlined />
+	},
+	{
+		key: '1',
+		label: 'Existencias',
+		icon: <AppstoreOutlined />
 	}
 ]
 
@@ -226,9 +233,6 @@ const Wharehouse = () => {
 		model.IdEstanteria = idStock
 		model.Codigo = stock.codigo
 		model.IdEstado = stock.idEstado
-		model.IdArticulo = stock.idArticulo
-		model.Maximo = stock.capacidadMaxima
-		model.Minimo = stock.minimoRequerido
 		setStockFormValues(model)
 
 		// setSectionFormValues(model)
@@ -347,7 +351,7 @@ const Wharehouse = () => {
 			taxes !== null &&
 			itemStates !== null
 		) {
-			console.log(wharehouseSections, sectionShelves, brands, taxes, itemStates)
+			// console.log(wharehouseSections, sectionShelves, brands, taxes, itemStates)
 			setButtonInventoryEntryLoading(false)
 			setOpenInventoryEntryForm(true)
 		}
@@ -374,6 +378,45 @@ const Wharehouse = () => {
 	}
 
 	// Wharehouse Info Form
+
+	// Wharehouse Modal
+
+	const [wharehouseSectionStockModalData, setWharehouseSectionStockModalData] =
+		useState({})
+	const [
+		wharehouseSectionStockModalStatus,
+		setWharehouseSectionStockModalStatus
+	] = useState(false)
+	const [tableStockModalKey, setTableStockModalKey] = useState(Date.now())
+	const tableStockModalRef = useRef()
+
+	const handleStockModalTableKey = () => {
+		setTableStockModalKey(Date.now())
+	}
+
+	const handleLoadStockModalData = childRecord => {
+		console.log(childRecord)
+		setWharehouseSectionStockModalData(childRecord)
+	}
+
+	const handleStockModalStatus = () => {
+		setWharehouseSectionStockModalStatus(!wharehouseSectionStockModalStatus)
+	}
+
+	useEffect(() => {
+		if (!wharehouseSectionStockModalStatus) {
+			setWharehouseSectionStockModalData({})
+		}
+	}, [wharehouseSectionStockModalStatus])
+
+	useEffect(() => {
+		if (Object.keys(wharehouseSectionStockModalData).length !== 0) {
+			handleStockModalStatus()
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [wharehouseSectionStockModalData])
+
+	// Wharehouse Modal
 
 	const handleFiltersReset = () => {
 		if (tableRef.current) {
@@ -402,33 +445,33 @@ const Wharehouse = () => {
 					</Tag>
 				)
 			},
-			{
-				title: 'Artículo',
-				key: 'artículo',
-				render: (_, childRecord) => (
-					<span>{`${childRecord.articulo} (${childRecord.codigoArticulo})`}</span>
-				)
-			},
-			{
-				title: 'Unidad',
-				dataIndex: 'unidadMedida',
-				key: 'unidadMedida'
-			},
-			{
-				title: 'Capacidad',
-				dataIndex: 'capacidadMaxima',
-				key: 'capacidadMaxima'
-			},
-			{
-				title: 'Mínimo Req.',
-				dataIndex: 'minimoRequerido',
-				key: 'minimoRequerido'
-			},
-			{
-				title: 'Existencias',
-				dataIndex: 'existencias',
-				key: 'existencias'
-			},
+			// {
+			// 	title: 'Artículo',
+			// 	key: 'artículo',
+			// 	render: (_, childRecord) => (
+			// 		<span>{`${childRecord.articulo} (${childRecord.codigoArticulo})`}</span>
+			// 	)
+			// },
+			// {
+			// 	title: 'Unidad',
+			// 	dataIndex: 'unidadMedida',
+			// 	key: 'unidadMedida'
+			// },
+			// {
+			// 	title: 'Capacidad',
+			// 	dataIndex: 'capacidadMaxima',
+			// 	key: 'capacidadMaxima'
+			// },
+			// {
+			// 	title: 'Mínimo Req.',
+			// 	dataIndex: 'minimoRequerido',
+			// 	key: 'minimoRequerido'
+			// },
+			// {
+			// 	title: 'Existencias',
+			// 	dataIndex: 'existencias',
+			// 	key: 'existencias'
+			// },
 			{
 				title: '',
 				key: 'action',
@@ -456,6 +499,16 @@ const Wharehouse = () => {
 							menu={{
 								items: sectionStockMenuOptions,
 								onClick: ({ key }) => {
+									switch (key) {
+										case '0':
+											console.log(key)
+											break
+										case '1':
+											handleLoadStockModalData(childRecord)
+											break
+										default:
+											break
+									}
 									console.log(key)
 								}
 							}}
@@ -588,7 +641,7 @@ const Wharehouse = () => {
 
 			if (response?.status === 200) {
 				const data = response?.data
-
+				console.log(data)
 				setViewModel(data)
 
 				setWharehouseData(data.almacen)
@@ -725,6 +778,14 @@ const Wharehouse = () => {
 					loading={stockFormLoading}
 					handleLoading={handleStockFormLoading}
 				/>
+				<WharehouseSectionStockModal
+					status={wharehouseSectionStockModalStatus}
+					toggle={handleStockModalStatus}
+					tableKey={tableStockModalKey}
+					handleTableKey={handleStockModalTableKey}
+					tableRef={tableStockModalRef}
+					data={wharehouseSectionStockModalData}
+				/>
 				<WharehouseInvetoryEntryForm
 					wharehouseSections={wharehouseSections}
 					sectionShelves={sectionShelves}
@@ -737,6 +798,7 @@ const Wharehouse = () => {
 					handleOpen={handleOpenInventoryEntryForm}
 					loading={inventoryEntryFormLoading}
 					handleLoading={handleInventoryEntryFormLoading}
+					handleRefreshData={loadWharehouseData}
 				/>
 				<div className='outter-info-container'>
 					<div className='info-container'>

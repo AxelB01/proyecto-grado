@@ -20,14 +20,6 @@ public partial class AlmacenesSeccionesEstanteria
     [Unicode(false)]
     public string Codigo { get; set; } = null!;
 
-    public int IdArticulo { get; set; }
-
-    [Column(TypeName = "decimal(10, 2)")]
-    public decimal CapacidadMaxima { get; set; }
-
-    [Column(TypeName = "decimal(10, 2)")]
-    public decimal? MinimoRequerido { get; set; }
-
     public int CreadoPor { get; set; }
 
     [Column(TypeName = "datetime")]
@@ -45,10 +37,6 @@ public partial class AlmacenesSeccionesEstanteria
     [ForeignKey("IdAlmacenSeccion")]
     [InverseProperty("AlmacenesSeccionesEstanteria")]
     public virtual AlmacenesSeccione IdAlmacenSeccionNavigation { get; set; } = null!;
-
-    [ForeignKey("IdArticulo")]
-    [InverseProperty("AlmacenesSeccionesEstanteria")]
-    public virtual Articulo IdArticuloNavigation { get; set; } = null!;
 
     [ForeignKey("IdEstado")]
     [InverseProperty("AlmacenesSeccionesEstanteria")]

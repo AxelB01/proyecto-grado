@@ -77,17 +77,31 @@ namespace TriadRestockSystemData.Data
                 .ToList();
         }
 
-        public static IList<vmAlmacenSeccionEstanteriasExistencias> AlmacenSeccionEstanteriasExistenciasByIdSeccion(this InventarioDBContext context, int idSec)
-        {
-            return context.Database.GetDbConnection()
-                .Query<vmAlmacenSeccionEstanteriasExistencias>("AlmacenSeccionEstanteriasExistenciasByIdSeccion", new { idSec }, commandType: CommandType.StoredProcedure)
-                .ToList();
-        }
+        //public static IList<vmAlmacenSeccionEstanteriasExistencias> AlmacenSeccionEstanteriasExistenciasByIdSeccion(this InventarioDBContext context, int idSec)
+        //{
+        //    return context.Database.GetDbConnection()
+        //        .Query<vmAlmacenSeccionEstanteriasExistencias>("AlmacenSeccionEstanteriasExistenciasByIdSeccion", new { idSec }, commandType: CommandType.StoredProcedure)
+        //        .ToList();
+        //}
 
         public static IList<vmSolicitudMaterialAlmacen> SolicitudesMaterialesByIdAlm(this InventarioDBContext context, int idAlm)
         {
             return context.Database.GetDbConnection()
                 .Query<vmSolicitudMaterialAlmacen>("SolicitudesMaterialesByIdAlm", new { idAlm }, commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
+
+        public static IList<vmAlmacenArticulo> AlmacenArticulosGet(this InventarioDBContext context, int idAlmacen)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmAlmacenArticulo>("AlmacenArticulosGet", new { idAlmacen }, commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
+
+        public static IList<vmAlmacenSeccionEstanteriaArticuloExistencia> AlmacenSeccionEstanteriasArticulosExistenciasGetByIdAlmacen(this InventarioDBContext context, int idAlmacen)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmAlmacenSeccionEstanteriaArticuloExistencia>("AlmacenSeccionEstanteriasArticulosExistenciasGetByIdAlmacen", new { idAlmacen }, commandType: CommandType.StoredProcedure)
                 .ToList();
         }
     }

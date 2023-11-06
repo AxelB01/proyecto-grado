@@ -44,7 +44,7 @@ public partial class Articulo
     public DateTime? FechaModificacion { get; set; }
 
     [InverseProperty("IdArticuloNavigation")]
-    public virtual ICollection<AlmacenesSeccionesEstanteria> AlmacenesSeccionesEstanteria { get; set; } = new List<AlmacenesSeccionesEstanteria>();
+    public virtual ICollection<AlmacenesArticulo> AlmacenesArticulos { get; set; } = new List<AlmacenesArticulo>();
 
     [ForeignKey("CreadoPor")]
     [InverseProperty("ArticuloCreadoPorNavigations")]
