@@ -36,6 +36,8 @@ import useWharehouseStates from '../hooks/useWharehouseStates'
 import useZonesTypes from '../hooks/useZonesTypes'
 import '../styles/DefaultContentStyle.css'
 import CustomTable from './CustomTable'
+import WharehouseInfo from './WharehouseInfo'
+import WharehouseInventory from './WharehouseInventory'
 import WharehouseInvetoryEntryForm from './WharehouseInventoryEntryForm'
 import WharehouseSectionForm from './WharehouseSectionForm'
 import WharehouseSectionStockForm from './WharehouseSectionStockForm'
@@ -142,6 +144,24 @@ const Wharehouse = () => {
 	const [pendingTableState, setPendingTableState] = useState(true)
 	const pendingTableRef = useRef()
 	const [pendingTableKey, setPendingTableKey] = useState(Date.now())
+
+	// Descriptions
+	const [wharehouseDescriptionsStatus, setWharehouseDescriptionStatus] =
+		useState(false)
+
+	const handleWharehouseDescriptionsStatus = () => {
+		setWharehouseDescriptionStatus(!wharehouseDescriptionsStatus)
+	}
+	// Descriptions
+
+	// Inventory
+	const [wharehouseInventoryStatus, setWharehouseInventoryStatus] =
+		useState(false)
+
+	const handleWharehouseInventoryStatus = () => {
+		setWharehouseInventoryStatus(!wharehouseInventoryStatus)
+	}
+	// Inventory
 
 	// Section Form
 
@@ -372,10 +392,6 @@ const Wharehouse = () => {
 	// Inventory Entry Form
 
 	// Wharehouse Info Form
-
-	const handleShowInfo = () => {
-		console.log(wharehouseData)
-	}
 
 	// Wharehouse Info Form
 
@@ -759,6 +775,16 @@ const Wharehouse = () => {
 	return (
 		<>
 			<div className='page-content-container'>
+				<WharehouseInfo
+					data={wharehouseData}
+					status={wharehouseDescriptionsStatus}
+					toggle={handleWharehouseDescriptionsStatus}
+				/>
+				<WharehouseInventory
+					id={wharehouseData?.idAlmacen}
+					status={wharehouseInventoryStatus}
+					toggle={handleWharehouseInventoryStatus}
+				/>
 				<WharehouseSectionForm
 					initialValues={sectionFormValues}
 					zonesTypes={zonesTypes}
@@ -874,8 +900,15 @@ const Wharehouse = () => {
 						</div>
 					</div>
 					<div className='info-container'>
-						<Button type='dashed' onClick={handleShowInfo}>
+						<Button
+							style={{ marginRight: '0.5rem' }}
+							type='dashed'
+							onClick={handleWharehouseDescriptionsStatus}
+						>
 							Información General
+						</Button>
+						<Button type='primary' onClick={handleWharehouseInventoryStatus}>
+							Inventario
 						</Button>
 					</div>
 				</div>

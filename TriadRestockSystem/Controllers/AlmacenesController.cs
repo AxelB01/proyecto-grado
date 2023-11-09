@@ -58,11 +58,16 @@ namespace TriadRestockSystem.Controllers
         {
             var almacen = _db.Almacenes
                 .Include(a => a.IdEstadoNavigation)
+                .Include(a => a.CreadoPorNavigation)
                 .Include(a => a.AlmacenesSecciones)
                 .ThenInclude(a => a.IdEstadoNavigation)
                 .Include(a => a.AlmacenesSecciones)
                 .ThenInclude(a => a.IdTipoZonaNavigation)
                 .Include(a => a.OrdenesCompras)
+                .Include(a => a.UsuariosAlmacenes)
+                .ThenInclude(a => a.IdUsuarioNavigation)
+                .Include(a => a.UsuariosAlmacenes)
+                .ThenInclude(a => a.IdRolNavigation)
                 .FirstOrDefault(a => a.IdAlmacen == id);
 
             if (almacen != null)
@@ -75,7 +80,18 @@ namespace TriadRestockSystem.Controllers
                     Espacio = almacen.Espacio,
                     Descripcion = almacen.Descripcion,
                     IdEstado = almacen.IdEstado,
-                    Estado = almacen.IdEstadoNavigation.Estado
+                    Estado = almacen.IdEstadoNavigation.Estado,
+                    Personal = almacen.UsuariosAlmacenes.Select(u => new Employee
+                    {
+                        IdUsuario = u.IdUsuario,
+                        Username = u.IdUsuarioNavigation.Login,
+                        Name = u.IdUsuarioNavigation.Nombres.Trim() + (u.IdUsuarioNavigation.Apellidos!.Length > 0 ? u.IdUsuarioNavigation.Apellidos.Trim() : ""),
+                        Role = u.IdRolNavigation.Descripcion ?? ""
+                    }).ToList(),
+                    IdCreadoPor = almacen.CreadoPor,
+                    CreadoPor = almacen.CreadoPorNavigation.Login,
+                    CreadorPorNombreCompleto = almacen.CreadoPorNavigation.Nombres.Trim() + (almacen.CreadoPorNavigation.Apellidos!.Length > 0 ? almacen.CreadoPorNavigation.Apellidos.Trim() : ""),
+                    Fecha = almacen.FechaCreacion.ToString("dd/MM/yyyy"),
                 };
 
                 var solicitudesMateriales = _db.SolicitudesMaterialesByIdAlm(almacen.IdAlmacen).ToList();
