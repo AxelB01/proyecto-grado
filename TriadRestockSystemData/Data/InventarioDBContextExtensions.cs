@@ -104,5 +104,19 @@ namespace TriadRestockSystemData.Data
                 .Query<vmAlmacenSeccionEstanteriaArticuloExistencia>("AlmacenSeccionEstanteriasArticulosExistenciasGetByIdAlmacen", new { idAlmacen }, commandType: CommandType.StoredProcedure)
                 .ToList();
         }
+
+        public static IList<vmAlmacenInventarioArticulo> InventarioAlmacen(this InventarioDBContext context, int idAlm)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmAlmacenInventarioArticulo>("InventarioAlmacen", new { idAlm }, commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
+
+        public static IList<vmRequisicionAlmacenArticulo> RequisicionGetItemsById(this InventarioDBContext context, int id)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmRequisicionAlmacenArticulo>("RequisicionGetItemsById", new { id }, commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
     }
 }

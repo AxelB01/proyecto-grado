@@ -18,7 +18,8 @@ const context =  [
     "/api/almacenes",
     "/api/configuraciones",
     "/api/inventarios",
-    "/api/ordenescompra"
+    "/api/ordenescompra",
+    "/api/requisiciones"
 ];
 
 module.exports = function(app) {
