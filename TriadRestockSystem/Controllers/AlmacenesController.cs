@@ -58,11 +58,16 @@ namespace TriadRestockSystem.Controllers
         {
             var almacen = _db.Almacenes
                 .Include(a => a.IdEstadoNavigation)
+                .Include(a => a.CreadoPorNavigation)
                 .Include(a => a.AlmacenesSecciones)
                 .ThenInclude(a => a.IdEstadoNavigation)
                 .Include(a => a.AlmacenesSecciones)
                 .ThenInclude(a => a.IdTipoZonaNavigation)
                 .Include(a => a.OrdenesCompras)
+                .Include(a => a.UsuariosAlmacenes)
+                .ThenInclude(a => a.IdUsuarioNavigation)
+                .Include(a => a.UsuariosAlmacenes)
+                .ThenInclude(a => a.IdRolNavigation)
                 .FirstOrDefault(a => a.IdAlmacen == id);
 
             if (almacen != null)
@@ -75,7 +80,18 @@ namespace TriadRestockSystem.Controllers
                     Espacio = almacen.Espacio,
                     Descripcion = almacen.Descripcion,
                     IdEstado = almacen.IdEstado,
-                    Estado = almacen.IdEstadoNavigation.Estado
+                    Estado = almacen.IdEstadoNavigation.Estado,
+                    Personal = almacen.UsuariosAlmacenes.Select(u => new Employee
+                    {
+                        IdUsuario = u.IdUsuario,
+                        Username = u.IdUsuarioNavigation.Login,
+                        Name = u.IdUsuarioNavigation.Nombres.Trim() + (u.IdUsuarioNavigation.Apellidos!.Length > 0 ? u.IdUsuarioNavigation.Apellidos.Trim() : ""),
+                        Role = u.IdRolNavigation.Descripcion ?? ""
+                    }).ToList(),
+                    IdCreadoPor = almacen.CreadoPor,
+                    CreadoPor = almacen.CreadoPorNavigation.Login,
+                    CreadorPorNombreCompleto = almacen.CreadoPorNavigation.Nombres.Trim() + (almacen.CreadoPorNavigation.Apellidos!.Length > 0 ? almacen.CreadoPorNavigation.Apellidos.Trim() : ""),
+                    Fecha = almacen.FechaCreacion.ToString("dd/MM/yyyy"),
                 };
 
                 var solicitudesMateriales = _db.SolicitudesMaterialesByIdAlm(almacen.IdAlmacen).ToList();
@@ -119,11 +135,61 @@ namespace TriadRestockSystem.Controllers
 
                 var articulos = _db.AlmacenArticulosGet(id).ToList();
 
+                var requisiciones = _db.Requisiciones
+                    .Include(r => r.IdDocumentoNavigation)
+                    .ThenInclude(r => r.IdEstadoNavigation)
+                    .Include(r => r.RequisicionesDetalles)
+                    .ThenInclude(r => r.IdArticuloNavigation)
+                    .Where(r => r.IdAlmacen == id)
+                    .ToList();
+
+                List<vmRequisition> listaRequisiciones = new();
+
+                foreach (var item in requisiciones)
+                {
+                    vmRequisition requisicion = new()
+                    {
+                        IdRequisicion = item.IdRequisicion,
+                        IdDocumento = item.IdDocumento,
+                        Numero = item.IdDocumentoNavigation.Numero,
+                        IdEstado = item.IdDocumentoNavigation.IdEstado,
+                        Estado = item.IdDocumentoNavigation.IdEstadoNavigation.Estado,
+                        Fecha = item.IdDocumentoNavigation.FechaCreacion,
+                        IdAlmacen = id,
+                    };
+
+                    foreach (var detalle in item.RequisicionesDetalles)
+                    {
+                        Articulo articulo = _db.Articulos
+                            .Include(a => a.IdFamiliaNavigation)
+                            .Include(a => a.IdUnidadMedidaNavigation)
+                            .First(a => a.IdArticulo == detalle.IdArticulo);
+
+                        RequisitionItem articuloRequisicion = new()
+                        {
+                            IdArticulo = detalle.IdArticulo,
+                            Key = Guid.NewGuid().ToString("N"),
+                            Articulo = articulo.Nombre,
+                            Codigo = articulo.Codigo,
+                            IdFamilia = articulo.IdFamilia,
+                            Familia = articulo.IdFamiliaNavigation.Familia,
+                            IdUnidadMedida = articulo.IdUnidadMedida,
+                            UnidadMedida = articulo.IdUnidadMedidaNavigation.UnidadMedida,
+                            Cantidad = (int)detalle.Cantidad
+                        };
+
+                        requisicion.Articulos.Add(articuloRequisicion);
+                    }
+
+                    listaRequisiciones.Add(requisicion);
+                }
+
                 var model = new Wharehouse
                 {
                     Almacen = almacenInfo,
                     SolicitudesMateriales = solicitudesMateriales,
                     OrdenesCompras = ordenesCompra,
+                    Requisiciones = listaRequisiciones,
                     Secciones = secciones,
                     Articulos = articulos
                 };
@@ -207,6 +273,23 @@ namespace TriadRestockSystem.Controllers
 
                 _db.SaveChanges();
                 return Ok();
+            }
+
+            return Unauthorized();
+        }
+
+        [HttpGet("inventarioAlmacen")]
+        public IActionResult InventarioAlmacen(int id)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                var inventario = _db.InventarioAlmacen(id);
+                return Ok(inventario);
             }
 
             return Unauthorized();
