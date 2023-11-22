@@ -253,3 +253,15 @@ export const createRequisitionsModel = () => {
 		IdDocumento: 0,
 	}
 }
+
+export const createWharehouesesModel = () => {
+	return {
+		Id: 0,
+		Nombre: '',
+		IdEstado: 0,
+		Descripcion: '',
+		Ubicacion: '',
+		Espacio: '',
+		
+	}
+}
