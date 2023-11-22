@@ -36,6 +36,10 @@ import useWharehouseStates from '../hooks/useWharehouseStates'
 import useZonesTypes from '../hooks/useZonesTypes'
 import '../styles/DefaultContentStyle.css'
 import CustomTable from './CustomTable'
+import RequisitionAutomaticForm from './RequisitionAutomaticForm'
+import WharehouseDatatables from './WharehouseDatatables'
+import WharehouseInfo from './WharehouseInfo'
+import WharehouseInventory from './WharehouseInventory'
 import WharehouseInvetoryEntryForm from './WharehouseInventoryEntryForm'
 import WharehouseSectionForm from './WharehouseSectionForm'
 import WharehouseSectionStockForm from './WharehouseSectionStockForm'
@@ -50,6 +54,17 @@ const ALMACENES_SECCIONES_ESTANTERIAS_URL =
 	'/api/data/getAlmacenSeccionesEstanterias'
 const ARTICULOS_MARCAS_URL = '/api/data/getMarcasArticulos'
 const ARTICULOS_IMPUESTOS_URL = '/api/data/getImpuestosArticulos'
+
+const wharehouseMenuOptions = [
+	{
+		key: '0',
+		label: 'Inventario'
+	},
+	{
+		key: '1',
+		label: 'Requisición automática'
+	}
+]
 
 const sectionMenuOptions = [
 	{
@@ -75,44 +90,6 @@ const sectionStockMenuOptions = [
 	}
 ]
 
-// const customNoDataText = (
-// 	<Empty
-// 		image={Empty.PRESENTED_IMAGE_SIMPLE}
-// 		description='No existen registros'
-// 	/>
-// )
-
-// const timeLine = [
-// 	{
-// 		children: (
-// 			<p>
-// 				<span style={{ fontWeight: '500' }}>{text}</span>
-// 				<br />
-// 				<span style={{ fontWeight: '300' }}>8/10/2023 12:09 PM</span>
-// 			</p>
-// 		)
-// 	},
-// 	{
-// 		children: (
-// 			<p>
-// 				<span style={{ fontWeight: '500' }}>OC-122 - Título de la compra</span>
-// 				<br />
-// 				<span style={{ fontWeight: '300' }}>8/10/2023 12:09 PM</span>
-// 			</p>
-// 		)
-// 	},
-// 	{
-// 		color: 'grey',
-// 		children: (
-// 			<p>
-// 				<span style={{ fontWeight: '500' }}>{text}</span>
-// 				<br />
-// 				<span style={{ fontWeight: '300' }}>8/10/2023 12:09 PM</span>
-// 			</p>
-// 		)
-// 	}
-// ]
-
 const Wharehouse = () => {
 	const location = useLocation()
 	const navigate = useNavigate()
@@ -126,6 +103,8 @@ const Wharehouse = () => {
 	const [viewModel, setViewModel] = useState({})
 
 	const [wharehouseData, setWharehouseData] = useState({})
+	const [dataTablesLoading, setDataTableLoading] = useState(false)
+	const [requisitions, setRequisitions] = useState([])
 	const [sections, setSections] = useState([])
 	const [shelvesInUse, setShelvesInUse] = useState(0)
 	const [shelves, setShelves] = useState(0)
@@ -142,6 +121,33 @@ const Wharehouse = () => {
 	const [pendingTableState, setPendingTableState] = useState(true)
 	const pendingTableRef = useRef()
 	const [pendingTableKey, setPendingTableKey] = useState(Date.now())
+
+	// Descriptions
+	const [wharehouseDescriptionsStatus, setWharehouseDescriptionStatus] =
+		useState(false)
+
+	const handleWharehouseDescriptionsStatus = () => {
+		setWharehouseDescriptionStatus(!wharehouseDescriptionsStatus)
+	}
+	// Descriptions
+
+	// Inventory
+	const [wharehouseInventoryStatus, setWharehouseInventoryStatus] =
+		useState(false)
+
+	const handleWharehouseInventoryStatus = () => {
+		setWharehouseInventoryStatus(!wharehouseInventoryStatus)
+	}
+	// Inventory
+
+	// Automatic Requisition
+	const [automaticRequisitionStatus, setAutomaticRequisitionStatus] =
+		useState(false)
+
+	const handleAutomaticRequisitionStatus = () => {
+		setAutomaticRequisitionStatus(!automaticRequisitionStatus)
+	}
+	// Automatic Requisition
 
 	// Section Form
 
@@ -373,10 +379,6 @@ const Wharehouse = () => {
 
 	// Wharehouse Info Form
 
-	const handleShowInfo = () => {
-		console.log(wharehouseData)
-	}
-
 	// Wharehouse Info Form
 
 	// Wharehouse Modal
@@ -445,33 +447,6 @@ const Wharehouse = () => {
 					</Tag>
 				)
 			},
-			// {
-			// 	title: 'Artículo',
-			// 	key: 'artículo',
-			// 	render: (_, childRecord) => (
-			// 		<span>{`${childRecord.articulo} (${childRecord.codigoArticulo})`}</span>
-			// 	)
-			// },
-			// {
-			// 	title: 'Unidad',
-			// 	dataIndex: 'unidadMedida',
-			// 	key: 'unidadMedida'
-			// },
-			// {
-			// 	title: 'Capacidad',
-			// 	dataIndex: 'capacidadMaxima',
-			// 	key: 'capacidadMaxima'
-			// },
-			// {
-			// 	title: 'Mínimo Req.',
-			// 	dataIndex: 'minimoRequerido',
-			// 	key: 'minimoRequerido'
-			// },
-			// {
-			// 	title: 'Existencias',
-			// 	dataIndex: 'existencias',
-			// 	key: 'existencias'
-			// },
 			{
 				title: '',
 				key: 'action',
@@ -595,44 +570,6 @@ const Wharehouse = () => {
 		}
 	]
 
-	const pendingColumns = [
-		{
-			title: 'Codigo',
-			dataIndex: 'codigo',
-			key: 'codigo',
-			width: 90
-		},
-		{
-			title: 'Proveedor',
-			dataIndex: 'proveedor',
-			key: 'proveedor',
-			width: 180,
-			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
-		},
-		{
-			title: 'Total',
-			dataIndex: 'total',
-			key: 'total',
-			width: 150
-		},
-		{
-			title: 'Fecha Estimada',
-			dataIndex: 'fecha',
-			key: 'fecha',
-			width: 140
-		},
-		{
-			title: 'Acciones',
-			dataIndex: 'accion',
-			key: 'accion',
-			render: (_, record) => (
-				<Space>
-					<Button>Detalle</Button>
-				</Space>
-			)
-		}
-	]
-
 	const loadWharehouseData = async () => {
 		try {
 			const response = await axiosPrivate.get(
@@ -645,6 +582,7 @@ const Wharehouse = () => {
 				setViewModel(data)
 
 				setWharehouseData(data.almacen)
+				setRequisitions(data.requisiciones)
 				setSections(data.secciones)
 
 				let shelves = 0
@@ -668,6 +606,7 @@ const Wharehouse = () => {
 				setSectionFormValues(sectionFormModelValues)
 
 				setTableState(false)
+				setDataTableLoading(false)
 			}
 		} catch (error) {
 			console.log(error)
@@ -717,8 +656,9 @@ const Wharehouse = () => {
 
 	useEffect(() => {
 		loadWharehouseData()
+		setDataTableLoading(true)
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [customState])
+	}, [customState, automaticRequisitionStatus])
 
 	useEffect(() => {
 		setPendingOrders(procurementOrders)
@@ -759,6 +699,21 @@ const Wharehouse = () => {
 	return (
 		<>
 			<div className='page-content-container'>
+				<WharehouseInfo
+					data={wharehouseData}
+					status={wharehouseDescriptionsStatus}
+					toggle={handleWharehouseDescriptionsStatus}
+				/>
+				<WharehouseInventory
+					id={wharehouseData?.idAlmacen}
+					status={wharehouseInventoryStatus}
+					toggle={handleWharehouseInventoryStatus}
+				/>
+				<RequisitionAutomaticForm
+					id={wharehouseData?.idAlmacen}
+					status={automaticRequisitionStatus}
+					toggle={handleAutomaticRequisitionStatus}
+				/>
 				<WharehouseSectionForm
 					initialValues={sectionFormValues}
 					zonesTypes={zonesTypes}
@@ -874,32 +829,45 @@ const Wharehouse = () => {
 						</div>
 					</div>
 					<div className='info-container'>
-						<Button type='dashed' onClick={handleShowInfo}>
+						{/* <Button
+							style={{ marginRight: '0.5rem' }}
+							type='dashed'
+							onClick={handleWharehouseDescriptionsStatus}
+						>
 							Información General
 						</Button>
+						<Button type='primary' onClick={handleWharehouseInventoryStatus}>
+							Inventario
+						</Button> */}
+						<Dropdown.Button
+							menu={{
+								items: wharehouseMenuOptions,
+								onClick: ({ key }) => {
+									switch (key) {
+										case '0':
+											handleWharehouseInventoryStatus()
+											break
+										case '1':
+											handleAutomaticRequisitionStatus()
+											break
+										default:
+											break
+									}
+								}
+							}}
+							onClick={handleWharehouseDescriptionsStatus}
+							icon={<CaretDownOutlined />}
+						>
+							Información
+						</Dropdown.Button>
 					</div>
 				</div>
 				<div className='main-one-container'>
 					<div>
-						<div style={{ marginBottom: '1.5rem' }}>
-							<span
-								style={{
-									fontSize: '1rem',
-									fontWeight: '500',
-									color: '#8c8c8c'
-								}}
-							>
-								Ordenes de compra pendientes
-							</span>
-						</div>
-						<CustomTable
-							tableKey={pendingTableKey}
-							tableRef={pendingTableRef}
-							tableState={pendingTableState}
-							tableClases='custom-table-style no-hover'
-							columns={pendingColumns}
-							dataSource={pendingOrders}
-							scrollable={false}
+						<WharehouseDatatables
+							id={wharehouseData?.idAlmacen}
+							loading={dataTablesLoading}
+							requisitions={requisitions}
 						/>
 					</div>
 					<div style={{ width: '30%' }}>

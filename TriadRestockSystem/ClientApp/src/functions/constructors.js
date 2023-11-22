@@ -33,7 +33,6 @@ export const createFamiliesModel = () => {
 	}
 }
 
-
 export const createItemsModel = () => {
 	return {
 		IdArticulo: 0,
@@ -236,7 +235,7 @@ export const createConceptModel = () => {
 }
 
 export const createPurchaseOrderModel = () => {
-	return{
+	return {
 		IdOrdenCompra: 0,
 		IdDocumento: 0,
 		IdAlmacen: 0,
@@ -248,11 +247,20 @@ export const createPurchaseOrderModel = () => {
 }
 
 export const createRequisitionsModel = () => {
-	return{
+	return {
 		IdRequisicion: 0,
+		Key: 0,
 		IdDocumento: 0,
+		Numero: '',
+		IdEstado: 0,
+		Estado: '',
+		Fecha: null,
+		FechaFormateada: '',
+		IdAlmacen: 0,
+		Articulos: []
 	}
 }
+
 
 export const createWharehouesesModel = () => {
 	return {
@@ -265,3 +273,4 @@ export const createWharehouesesModel = () => {
 		
 	}
 }
+

@@ -13,6 +13,12 @@ public partial class Requisicione
 
     public int IdDocumento { get; set; }
 
+    public int IdAlmacen { get; set; }
+
+    [ForeignKey("IdAlmacen")]
+    [InverseProperty("Requisiciones")]
+    public virtual Almacene IdAlmacenNavigation { get; set; } = null!;
+
     [ForeignKey("IdDocumento")]
     [InverseProperty("Requisiciones")]
     public virtual Documento IdDocumentoNavigation { get; set; } = null!;

@@ -472,6 +472,10 @@ public partial class InventarioDBContext : DbContext
 
         modelBuilder.Entity<Requisicione>(entity =>
         {
+            entity.HasOne(d => d.IdAlmacenNavigation).WithMany(p => p.Requisiciones)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Requisiciones_Almacenes");
+
             entity.HasOne(d => d.IdDocumentoNavigation).WithMany(p => p.Requisiciones)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Requisiciones_Documentos");
