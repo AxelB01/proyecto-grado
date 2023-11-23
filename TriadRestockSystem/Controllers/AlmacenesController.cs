@@ -53,6 +53,47 @@ namespace TriadRestockSystem.Controllers
             return Ok(result);
         }
 
+        [HttpPost("guardarAlmacen")]
+        public IActionResult GuardarFamilia(vmWharehouse model)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                Almacene? almacen = _db.Almacenes.FirstOrDefault(v => v.IdAlmacen == model.IdAlmacen);
+                if (almacen == null)
+                {
+                    almacen = new Almacene
+                    {
+                        IdEstado = (int)model.IdEstado,
+                        CreadoPor = user.IdUsuario,
+                        FechaCreacion = DateTime.Now,
+                    };
+                    _db.Almacenes.Add(almacen);
+                }
+                else
+                {
+                    almacen.ModificadoPor = user.IdUsuario;
+                    almacen.FechaModificacion = DateTime.Now;
+                }
+
+                almacen.Nombre = model.Nombre;
+                almacen.Descripcion = model.Descripcion.Trim();
+                almacen.Ubicacion = model.Ubicacion;
+                
+                almacen.Espacio = model.Espacio;
+
+
+                _db.SaveChanges();
+                return Ok();
+            }
+
+            return Unauthorized();
+        }
+
         [HttpGet("getAlmacen")]
         public IActionResult GetAlmacen(int id)
         {

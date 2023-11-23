@@ -9,6 +9,8 @@ import useAxiosPrivate from '../hooks/usePrivateAxios'
 import useWharehouseStates from '../hooks/useWharehouseStates'
 import '../styles/DefaultContentStyle.css'
 import CustomTable from './CustomTable'
+import WarehousesForm from './WarehousesForm'
+import { createWharehouesesModel } from '../functions/constructors'
 
 const GET_WHAREHOUSES = 'api/almacenes/getAlmacenes'
 
@@ -21,11 +23,18 @@ const Wharehouses = () => {
 	const [loading, setLoading] = useState(false)
 
 	const wharehouseStates = useWharehouseStates().items
+	const estado = useWharehouseStates()
 
 	const [tableState, setTableState] = useState(true)
 	// const [tableLoading, setTableLoading] = useState({})
 	const tableRef = useRef()
 	const [tableKey, setTableKey] = useState(Date.now())
+	const [open, setOpen] = useState(false)
+	const [title, setTitle] = useState('')
+	
+	const [wharehouseFormInitialValues, setWharehouseFormInitialValues] = useState(
+		createWharehouesesModel()
+	)
 
 	const handleFiltersReset = () => {
 		if (tableRef.current) {
@@ -185,12 +194,38 @@ const Wharehouses = () => {
 		)
 	}
 
+
+	const showWharehousesForm = () => {
+		setOpen(true)
+	}
+
+	const closeWharehousesForm = () => {
+		setOpen(false)
+		setLoading(false)
+	}
+
+	const handleResetSuppliersForm = () => {
+		setWharehouseFormInitialValues(createWharehouesesModel())
+		setTitle('Registrar almacen')
+		showWharehousesForm()
+	}
+
+	
 	return (
 		<>
+			<WarehousesForm
+				title={title}
+				open={open}
+				onClose={closeWharehousesForm}
+				estado={estado}
+				initialValues={wharehouseFormInitialValues}
+				loading={loading}
+				handleLoading={setLoading}
+			/>
 			<div className='page-content-container'>
 				<div className='btn-container'>
 					<div className='right'>
-						<Button type='primary' icon={<PlusOutlined />} onClick={() => {}}>
+						<Button type='primary' icon={<PlusOutlined />} onClick={handleResetSuppliersForm}>
 							Nuevo Almacén
 						</Button>
 						<Button
