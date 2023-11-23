@@ -31,16 +31,23 @@ const WharehouseForm = ({
 	const [form] = Form.useForm()
 
 	useEffect(() => {
-		console.log(initialValues)
-		const { Id, Nombre, IdEstado, Descripcion, Ubicacion, Espacio } =
-			initialValues
+		const {
+			IdAlmacen,
+			Nombre,
+			IdEstado,
+			Descripcion,
+			Ubicacion,
+			Espacio,
+			IdsPersonal
+		} = initialValues
 		form.setFieldsValue({
-			id: Id,
+			id: IdAlmacen,
 			idEstado: IdEstado === 1,
 			nombre: Nombre,
 			descripcion: Descripcion,
 			ubicacion: Ubicacion,
-			espacio: Espacio
+			espacio: Espacio,
+			personal: IdsPersonal
 		})
 		setSwitchValue(IdEstado === 1)
 	}, [form, initialValues])
@@ -78,13 +85,14 @@ const WharehouseForm = ({
 
 	const onFinish = values => {
 		const model = createWharehouesesModel()
-		model.Id = values.id
+		model.IdAlmacen = values.id
 		model.Nombre = values.nombre
 		model.IdEstado = values.estado ? 1 : 2
 		model.Descripcion = values.descripcion
-		model.Ubicacion = values.values
+		model.Ubicacion = values.ubicacion
 		model.Espacio = values.espacio
 		model.IdsPersonal = values.personal
+
 		saveWharehouses(model)
 	}
 
