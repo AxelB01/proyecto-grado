@@ -264,7 +264,7 @@ export const createRequisitionsModel = () => {
 
 export const createWharehouesesModel = () => {
 	return {
-		Id: 0,
+		IdAlmacen: 0,
 		Nombre: '',
 		IdEstado: 0,
 		Descripcion: '',

@@ -44,7 +44,7 @@ namespace TriadRestockSystem.Controllers
                     {
                         u.IdUsuario,
                         u.IdUsuarioNavigation.Login,
-                        Nombre = u.IdUsuarioNavigation.Nombres.Trim() + (u.IdUsuarioNavigation.Apellidos!.Length > 0 ? u.IdUsuarioNavigation.Apellidos.Trim() : ""),
+                        Nombre = u.IdUsuarioNavigation.Nombres.Trim() + (u.IdUsuarioNavigation.Apellidos!.Length > 0 ? (" " + u.IdUsuarioNavigation.Apellidos.Trim()) : ""),
                         Puesto = u.IdRolNavigation.Descripcion
                     }).ToList()
                 })
@@ -106,7 +106,6 @@ namespace TriadRestockSystem.Controllers
                         IdUsuario = item.IdUsuario,
                         IdRol = item.IdRols.First().IdRol
                     };
-
 
                     usuariosAlmacen.Add(usuarioAlmacen);
                 }

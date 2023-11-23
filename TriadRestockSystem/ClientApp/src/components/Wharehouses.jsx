@@ -70,6 +70,28 @@ const Wharehouses = () => {
 		}
 	}
 
+	const loadWharehouseData = id => {
+		const wharehouseData = data.filter(d => d.key === id)[0]
+		const model = createWharehouesesModel()
+		model.IdAlmacen = wharehouseData.key
+		model.Nombre = wharehouseData.nombre
+		model.Descripcion = wharehouseData.descripcion
+		model.Ubicacion = wharehouseData.ubicacion
+		model.Espacio = wharehouseData.espacio
+		model.IdsPersonal = wharehouseData.personal.map(p => {
+			return p.idUsuario
+		})
+		model.IdEstado = wharehouseData.idEstado
+
+		setWharehouseFormInitialValues(model)
+	}
+
+	useEffect(() => {
+		if (wharehouseFormInitialValues.Id !== 0) {
+			setOpen(true)
+		}
+	}, [wharehouseFormInitialValues])
+
 	useEffect(() => {
 		if (!open) {
 			getWharehouses()
@@ -125,7 +147,13 @@ const Wharehouses = () => {
 					}}
 				>
 					<Tooltip title='Editar'>
-						<Button type='text' icon={<EditOutlined />} onClick={() => {}} />
+						<Button
+							type='text'
+							icon={<EditOutlined />}
+							onClick={() => {
+								loadWharehouseData(record.key)
+							}}
+						/>
 					</Tooltip>
 					<Tooltip title='Entrar'>
 						<Button
