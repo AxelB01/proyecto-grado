@@ -260,3 +260,17 @@ export const createRequisitionsModel = () => {
 		Articulos: []
 	}
 }
+
+
+export const createWharehouesesModel = () => {
+	return {
+		Id: 0,
+		Nombre: '',
+		IdEstado: 0,
+		Descripcion: '',
+		Ubicacion: '',
+		Espacio: '',
+		
+	}
+}
+
