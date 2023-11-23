@@ -6,6 +6,9 @@ const AuthContext = createContext({})
 export const AuthProvider = ({ children }) => {
 	const {
 		validLogin,
+		firstname,
+		lastname,
+		fullname,
 		username,
 		password,
 		roles,
@@ -23,6 +26,9 @@ export const AuthProvider = ({ children }) => {
 		<AuthContext.Provider
 			value={{
 				validLogin,
+				firstname,
+				lastname,
+				fullname,
 				username,
 				password,
 				roles,
@@ -44,6 +50,9 @@ export const AuthProvider = ({ children }) => {
 const useAuth = () => {
 	const [auth, setAuth] = useState({
 		validLogin: false,
+		firstname: '',
+		lastname: '',
+		fullname: '',
 		username: '',
 		password: '',
 		roles: [],
@@ -53,6 +62,9 @@ const useAuth = () => {
 
 	const createAuth = (
 		validLogin,
+		firstname,
+		lastname,
+		fullname,
 		username,
 		password,
 		roles,
@@ -62,6 +74,9 @@ const useAuth = () => {
 	) => {
 		setAuth({
 			validLogin,
+			firstname,
+			lastname,
+			fullname,
 			username,
 			password,
 			roles,
@@ -71,6 +86,9 @@ const useAuth = () => {
 
 		const storedAuth = StoredAuth(
 			validLogin,
+			firstname,
+			lastname,
+			fullname,
 			username,
 			password,
 			roles,
@@ -96,6 +114,9 @@ const useAuth = () => {
 		if (!isStringEmpty(storedAuth)) {
 			const {
 				storedLogin,
+				storedFirstname,
+				storedLastname,
+				storedFullname,
 				storedUsername,
 				storedPassword,
 				storedRoles,
@@ -103,6 +124,9 @@ const useAuth = () => {
 			} = JSON.parse(storedAuth)
 			createAuth(
 				storedLogin,
+				storedFirstname,
+				storedLastname,
+				storedFullname,
 				storedUsername,
 				storedPassword,
 				storedRoles,
@@ -130,6 +154,9 @@ const useAuth = () => {
 		setAuth({
 			validLogin: false,
 			username: '',
+			firstname: '',
+			lastname: '',
+			fullname: '',
 			password: '',
 			roles: [],
 			token: '',
@@ -154,9 +181,21 @@ const useAuth = () => {
 	}
 }
 
-const StoredAuth = (validLogin, username, password, roles, refreshtoken) => {
+const StoredAuth = (
+	validLogin,
+	firstname,
+	lastname,
+	fullname,
+	username,
+	password,
+	roles,
+	refreshtoken
+) => {
 	return {
 		storedLogin: validLogin,
+		storedFirstname: firstname,
+		storedLastname: lastname,
+		storedFullname: fullname,
 		storedUsername: username,
 		storedPassword: password,
 		storedRoles: roles,

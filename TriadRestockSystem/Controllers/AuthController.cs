@@ -53,6 +53,9 @@ namespace TriadRestockSystem.Controllers
 
                     var response = new
                     {
+                        firstname = user.Nombres,
+                        lastname = user.Apellidos,
+                        fullname = $"{user.Nombres} {user.Apellidos}".Trim(),
                         username = user.Login.ToLower(),
                         password = user.Password,
                         roles,

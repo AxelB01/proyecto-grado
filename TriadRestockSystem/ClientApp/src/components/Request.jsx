@@ -1,13 +1,14 @@
 import {
 	CheckOutlined,
-	DeleteOutlined,
+	ContainerOutlined,
 	DownloadOutlined,
 	LoadingOutlined,
 	MinusCircleOutlined,
 	PlusOutlined,
 	QuestionCircleOutlined,
 	SaveOutlined,
-	SendOutlined
+	SendOutlined,
+	StopOutlined
 } from '@ant-design/icons'
 import {
 	Button,
@@ -23,6 +24,7 @@ import {
 } from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import RolesNames from '../config/roles'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { createRequestModel } from '../functions/constructors'
@@ -34,6 +36,7 @@ import useItems from '../hooks/useItems'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
 import '../styles/Request.css'
+import RequestRejectModal from './RequestRejectModal'
 
 const antIcon = (
 	<LoadingOutlined
@@ -48,13 +51,14 @@ const GET_SINGLE_REQUEST = 'api/solicitudes/getSolicitud'
 const SAVE_REQUEST = 'api/solicitudes/guardarSolicitud'
 const SEND_REQUEST = 'api/solicitudes/enviarSolicitud'
 const APPROVE_REQUEST = 'api/solicitudes/aprobarSolicitud'
+const ARCHIVE_REQUEST = 'api/solicitudes/archivarSolicitud'
 
 const Request = () => {
 	const location = useLocation()
 	const navigate = useNavigate()
 	const [customState, setCustomState] = useState(null)
 
-	const { validLogin } = useContext(AuthContext)
+	const { validLogin, roles } = useContext(AuthContext)
 	const { handleLayout, handleBreadcrumb, openMessage } =
 		useContext(LayoutContext)
 
@@ -79,9 +83,16 @@ const Request = () => {
 
 	const [sending, setSending] = useState(false)
 	const [approving, setApproving] = useState(false)
+	const [archiving, setArchiving] = useState(false)
 
 	const [selectedItems, setSelectedItems] = useState([])
 	const [availableItems, setAvailableItems] = useState([])
+
+	const [rejectModalStatus, setRejectModalStatus] = useState(false)
+
+	const handleRejectModalStatus = () => {
+		setRejectModalStatus(!rejectModalStatus)
+	}
 
 	const loadRequest = async () => {
 		let breadcrumbLastItemText = 'Nueva solicitud'
@@ -120,6 +131,7 @@ const Request = () => {
 					model.IdCreadoPor = data.idCreadoPor
 					model.CreadoPor = data.creadoPor
 					model.Detalles = data.detalles
+					model.CausaRechazo = data.causaRechazo
 
 					setViewModel(model)
 
@@ -176,6 +188,24 @@ const Request = () => {
 		}
 	}
 
+	const archiveRequest = async () => {
+		try {
+			setArchiving(true)
+			const id = values.idSolicitud
+			const response = await axiosPrivate.post(ARCHIVE_REQUEST, id)
+			const status = response?.status
+			if (status === 200) {
+				openMessage('success', 'Solicitud archivada')
+				setCustomState(null)
+				navigate(location.pathname, { state: id })
+			}
+		} catch (error) {
+			console.log(error)
+		} finally {
+			setArchiving(false)
+		}
+	}
+
 	const approveRequest = async () => {
 		try {
 			setApproving(true)
@@ -192,6 +222,12 @@ const Request = () => {
 		} finally {
 			setApproving(false)
 		}
+	}
+
+	const reloadRequest = () => {
+		const id = customState
+		setCustomState(null)
+		navigate(location.pathname, { state: id })
 	}
 
 	const handleCatalogLoad = () => {
@@ -374,6 +410,12 @@ const Request = () => {
 
 	return (
 		<>
+			<RequestRejectModal
+				id={customState}
+				status={rejectModalStatus}
+				toggle={handleRejectModalStatus}
+				reload={reloadRequest}
+			/>
 			{edit && loading ? (
 				<div
 					style={{
@@ -416,12 +458,17 @@ const Request = () => {
 							)}
 						</div>
 						<div>
-							{requestState !== 'Aprobado' ? (
+							{requestState !== 'Aprobado' && requestState !== 'Archivado' ? (
 								<Button
 									icon={<SaveOutlined />}
 									type='primary'
 									loading={saving}
-									disabled={saving}
+									disabled={
+										saving ||
+										(requestState !== '' &&
+											requestState !== 'Borrador' &&
+											requestState !== 'Rechazado')
+									}
 									onClick={handleSubmit}
 								>
 									Guardar
@@ -429,9 +476,12 @@ const Request = () => {
 							) : (
 								''
 							)}
-							{edit && requestState !== 'Aprobado' ? (
+							{edit &&
+							requestState !== 'Aprobado' &&
+							requestState !== 'Archivado' ? (
 								<>
-									{requestState === 'Borrador' ? (
+									{requestState === 'Borrador' ||
+									requestState === 'Rechazado' ? (
 										<>
 											<Popconfirm
 												title='Enviar solicitud'
@@ -451,7 +501,8 @@ const Request = () => {
 												</Button>
 											</Popconfirm>
 										</>
-									) : (
+									) : roles.includes(RolesNames.ADMINISTRADOR) ||
+									  roles.includes(RolesNames.CENTROCOSTOS_ENCARGADO) ? (
 										<>
 											<Popconfirm
 												title='Aprobar solicitud'
@@ -471,26 +522,55 @@ const Request = () => {
 												</Button>
 											</Popconfirm>
 										</>
+									) : null}
+									{requestState === 'En proceso' ? (
+										<>
+											<Popconfirm
+												title='Rechazar solicitud'
+												description='¿Desea rechazar esta solicitud?'
+												icon={
+													<QuestionCircleOutlined style={{ color: 'red' }} />
+												}
+												onConfirm={handleRejectModalStatus}
+												onCancel={() => {}}
+												okText='Continuar'
+												cancelText='Cancelar'
+											>
+												<Button
+													type='primary'
+													style={{ marginLeft: '0.95rem' }}
+													icon={<StopOutlined />}
+													danger
+												>
+													Rechazar
+												</Button>
+											</Popconfirm>
+										</>
+									) : (
+										<>
+											<Popconfirm
+												title='Archivar solicitud'
+												description='¿Desea archivar esta solicitud?'
+												icon={
+													<QuestionCircleOutlined style={{ color: 'red' }} />
+												}
+												onConfirm={archiveRequest}
+												onCancel={() => {}}
+												okText='Archivar'
+												cancelText='Cancelar'
+											>
+												<Button
+													type='primary'
+													style={{ marginLeft: '0.95rem' }}
+													icon={<ContainerOutlined />}
+													loading={archiving}
+													danger
+												>
+													Archivar
+												</Button>
+											</Popconfirm>
+										</>
 									)}
-									<Popconfirm
-										placement='topLeft'
-										title='Descartar solicitud'
-										description='¿Desea descartar esta solicitud?'
-										icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
-										onConfirm={() => {}}
-										onCancel={() => {}}
-										okText='Eliminar'
-										cancelText='Cancelar'
-									>
-										<Button
-											type='primary'
-											style={{ marginLeft: '0.95rem' }}
-											icon={<DeleteOutlined />}
-											danger
-										>
-											Descartar
-										</Button>
-									</Popconfirm>
 								</>
 							) : (
 								''
@@ -770,6 +850,20 @@ const Request = () => {
 					</div>
 				</div>
 			)}
+			<div>
+				{viewModel?.Estado === 'Rechazado' ? (
+					<>
+						<Col span={20}>
+							<span style={{ fontWeight: 'bold' }}>Causa del rechazo</span>
+							<br />
+							<br />
+							<Input.TextArea rows={3} value={viewModel?.CausaRechazo} />
+							<br />
+							<br />
+						</Col>
+					</>
+				) : null}
+			</div>
 		</>
 	)
 }

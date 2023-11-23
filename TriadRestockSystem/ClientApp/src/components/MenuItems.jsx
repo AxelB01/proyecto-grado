@@ -1,17 +1,18 @@
 import {
 	AppstoreAddOutlined,
 	HomeOutlined,
+	LogoutOutlined,
 	MoneyCollectOutlined,
 	ProfileOutlined,
 	ReadOutlined,
+	ReconciliationOutlined,
 	SettingOutlined,
 	ShareAltOutlined,
+	ShoppingOutlined,
 	SolutionOutlined,
 	TagsOutlined,
 	TeamOutlined,
-	UserOutlined,
-	ShoppingOutlined,
-	ReconciliationOutlined
+	UserOutlined
 } from '@ant-design/icons'
 import RolesNames from '../config/roles'
 
@@ -30,7 +31,7 @@ const getItem = (label, key, icon, children, type, roles) => {
 	}
 }
 
-const MenuItems = [
+export const MenuItems = [
 	getItem(
 		'Inicio',
 		'0',
@@ -46,7 +47,11 @@ const MenuItems = [
 		<AppstoreAddOutlined style={iconStyle} />,
 		null,
 		null,
-		[RolesNames.ADMINISTRADOR, RolesNames.ALMACEN_ENCARGADO]
+		[
+			RolesNames.ADMINISTRADOR,
+			RolesNames.ALMACEN_ENCARGADO,
+			RolesNames.ALMACEN_AUXILIAR
+		]
 	),
 	getItem('Familias', '3', <ShareAltOutlined style={iconStyle} />, null, null, [
 		RolesNames.ADMINISTRADOR,
@@ -60,7 +65,8 @@ const MenuItems = [
 	]),
 	getItem('Catálogos', '5', <ReadOutlined style={iconStyle} />, null, null, [
 		RolesNames.ADMINISTRADOR,
-		RolesNames.ALMACEN_ENCARGADO
+		RolesNames.ALMACEN_ENCARGADO,
+		RolesNames.ALMACEN_AUXILIAR
 	]),
 	{ type: 'divider' },
 	getItem(
@@ -75,36 +81,10 @@ const MenuItems = [
 			RolesNames.CENTROCOSTOS_AUXILIAR
 		]
 	),
-	// getItem(
-	// 	'Requisiciones',
-	// 	'7',
-	// 	<FileSearchOutlined style={iconStyle} />,
-	// 	null,
-	// 	null,
-	// 	[
-	// 		RolesNames.ADMINISTRADOR,
-	// 		RolesNames.ALMACEN_ENCARGADO,
-	// 		RolesNames.ALMACEN_AUXILIAR,
-	// 		RolesNames.COMPRAS
-	// 	]
-	// ),
 	getItem('Proveedores', '10', <TeamOutlined style={iconStyle} />, null, null, [
 		RolesNames.ADMINISTRADOR,
 		RolesNames.COMPRAS
 	]),
-	// getItem(
-	// 	'Órdenes de compra',
-	// 	'8',
-	// 	<FileDoneOutlined style={iconStyle} />,
-	// 	null,
-	// 	null,
-	// 	[RolesNames.ADMINISTRADOR, RolesNames.COMPRAS]
-	// ),
-	// { type: 'divider' },
-	// getItem('Bancos', '11', <BankOutlined style={iconStyle} />, null, null, [
-	// 	RolesNames.ADMINISTRADOR,
-	// 	RolesNames.PRESUPUESTO
-	// ]),
 	{ type: 'divider' },
 	getItem(
 		'Centros de costo',
@@ -114,22 +94,22 @@ const MenuItems = [
 		null,
 		[RolesNames.ADMINISTRADOR, RolesNames.PRESUPUESTO]
 	),
-	{ type: 'divider' },	
+	{ type: 'divider' },
 	getItem(
 		'Ordenes de Compra',
 		'14',
 		<ShoppingOutlined style={iconStyle} />,
 		null,
 		null,
-		[RolesNames.ADMINISTRADOR, RolesNames.PRESUPUESTO]
+		[RolesNames.ADMINISTRADOR, RolesNames.COMPRAS]
 	),
 	getItem(
 		'Requisiciones',
 		'15',
-		<ReconciliationOutlined  style={iconStyle} />,
+		<ReconciliationOutlined style={iconStyle} />,
 		null,
 		null,
-		[RolesNames.ADMINISTRADOR, RolesNames.PRESUPUESTO]
+		[RolesNames.ADMINISTRADOR, RolesNames.COMPRAS]
 	),
 	getItem(
 		'Configuración',
@@ -145,4 +125,9 @@ const MenuItems = [
 	)
 ]
 
-export default MenuItems
+export const UserMenuItems = [
+	{
+		type: 'divider'
+	},
+	getItem('Cerrar sesión', 'logout', <LogoutOutlined />)
+]

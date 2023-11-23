@@ -16,6 +16,7 @@
         public int IdRevisadoPor { get; set; }
         public string RevisadoPor { get; set; } = string.Empty;
         public RequestItem[] Detalles { get; set; } = Array.Empty<RequestItem>();
+        public string? CausaRechazo { get; set; }
     }
 
     public class RequestItem

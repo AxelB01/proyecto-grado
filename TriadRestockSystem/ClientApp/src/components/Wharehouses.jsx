@@ -1,21 +1,29 @@
-import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
-import { Avatar, Button, Progress, Space, Tag, Tooltip } from 'antd'
+import {
+	EditOutlined,
+	ExpandAltOutlined,
+	PlusOutlined,
+	ReloadOutlined
+} from '@ant-design/icons'
+import { Avatar, Button, Space, Tag, Tooltip } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
+import RolesNames from '../config/roles'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
+import { createWharehouesesModel } from '../functions/constructors'
 import { sleep } from '../functions/sleep'
+import useDataList from '../hooks/useDataList'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import useWharehouseStates from '../hooks/useWharehouseStates'
 import '../styles/DefaultContentStyle.css'
 import CustomTable from './CustomTable'
-import WarehousesForm from './WarehousesForm'
-import { createWharehouesesModel } from '../functions/constructors'
+import WharehouseForm from './WharehouseForm'
 
 const GET_WHAREHOUSES = 'api/almacenes/getAlmacenes'
+const GET_WHAREHOUSES_STAFF = 'api/almacenes/almacenPersonal'
 
 const Wharehouses = () => {
-	const { validLogin } = useContext(AuthContext)
+	const { validLogin, roles } = useContext(AuthContext)
 	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
 	const axiosPrivate = useAxiosPrivate()
 	const navigate = useNavigate()
@@ -24,6 +32,7 @@ const Wharehouses = () => {
 
 	const wharehouseStates = useWharehouseStates().items
 	const estado = useWharehouseStates()
+	const personal = useDataList(GET_WHAREHOUSES_STAFF)
 
 	const [tableState, setTableState] = useState(true)
 	// const [tableLoading, setTableLoading] = useState({})
@@ -31,10 +40,9 @@ const Wharehouses = () => {
 	const [tableKey, setTableKey] = useState(Date.now())
 	const [open, setOpen] = useState(false)
 	const [title, setTitle] = useState('')
-	
-	const [wharehouseFormInitialValues, setWharehouseFormInitialValues] = useState(
-		createWharehouesesModel()
-	)
+
+	const [wharehouseFormInitialValues, setWharehouseFormInitialValues] =
+		useState(createWharehouesesModel())
 
 	const handleFiltersReset = () => {
 		if (tableRef.current) {
@@ -61,6 +69,13 @@ const Wharehouses = () => {
 			setLoading(false)
 		}
 	}
+
+	useEffect(() => {
+		if (!open) {
+			getWharehouses()
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [open])
 
 	useEffect(() => {
 		document.title = 'Almacenes'
@@ -94,6 +109,34 @@ const Wharehouses = () => {
 	}, [])
 
 	const columns = [
+		{
+			title: '',
+			dataIndex: 'accion',
+			width: 100,
+			render: (_, record) => (
+				<Space
+					size='middle'
+					align='center'
+					style={{
+						width: '100%',
+						display: 'flex',
+						flexDirection: 'row',
+						justifyContent: 'center'
+					}}
+				>
+					<Tooltip title='Editar'>
+						<Button type='text' icon={<EditOutlined />} onClick={() => {}} />
+					</Tooltip>
+					<Tooltip title='Entrar'>
+						<Button
+							type='text'
+							icon={<ExpandAltOutlined />}
+							onClick={() => navigate('/wharehouse', { state: record.key })}
+						/>
+					</Tooltip>
+				</Space>
+			)
+		},
 		{
 			title: 'Nombre',
 			dataIndex: 'nombre',
@@ -141,45 +184,21 @@ const Wharehouses = () => {
 					</Avatar.Group>
 				</>
 			)
-		},
-		{
-			title: 'Despachos',
-			dataIndex: 'despachos',
-			render: (_, record) => (
-				<Tooltip title='3 Completadas / 3 En proceso / 6 Por hacer'>
-					<Progress
-						percent={60}
-						success={{ percent: 30 }}
-						status='active'
-						size='small'
-					/>
-				</Tooltip>
-			)
-		},
-		{
-			title: '',
-			dataIndex: 'accion',
-			width: 80,
-			render: (_, record) => (
-				<Space
-					size='middle'
-					align='center'
-					style={{
-						width: '100%',
-						display: 'flex',
-						flexDirection: 'row',
-						justifyContent: 'center'
-					}}
-				>
-					<Button
-						type='text'
-						onClick={() => navigate('/wharehouse', { state: record.key })}
-					>
-						Entrar
-					</Button>
-				</Space>
-			)
 		}
+		// {
+		// 	title: 'Despachos',
+		// 	dataIndex: 'despachos',
+		// 	render: (_, record) => (
+		// 		<Tooltip title='3 Completadas / 3 En proceso / 6 Por hacer'>
+		// 			<Progress
+		// 				percent={60}
+		// 				success={{ percent: 30 }}
+		// 				status='active'
+		// 				size='small'
+		// 			/>
+		// 		</Tooltip>
+		// 	)
+		// },
 	]
 
 	const expandedRowRender = record => {
@@ -193,7 +212,6 @@ const Wharehouses = () => {
 			</p>
 		)
 	}
-
 
 	const showWharehousesForm = () => {
 		setOpen(true)
@@ -210,10 +228,13 @@ const Wharehouses = () => {
 		showWharehousesForm()
 	}
 
-	
+	useEffect(() => {
+		console.log(personal)
+	}, [personal])
+
 	return (
 		<>
-			<WarehousesForm
+			<WharehouseForm
 				title={title}
 				open={open}
 				onClose={closeWharehousesForm}
@@ -221,13 +242,21 @@ const Wharehouses = () => {
 				initialValues={wharehouseFormInitialValues}
 				loading={loading}
 				handleLoading={setLoading}
+				personal={personal}
 			/>
 			<div className='page-content-container'>
 				<div className='btn-container'>
 					<div className='right'>
-						<Button type='primary' icon={<PlusOutlined />} onClick={handleResetSuppliersForm}>
-							Nuevo Almacén
-						</Button>
+						{roles.includes(RolesNames.ADMINISTRADOR) ||
+						roles.includes(RolesNames.ALMACEN_ENCARGADO) ? (
+							<Button
+								type='primary'
+								icon={<PlusOutlined />}
+								onClick={handleResetSuppliersForm}
+							>
+								Nuevo Almacén
+							</Button>
+						) : null}
 						<Button
 							style={{
 								display: 'flex',

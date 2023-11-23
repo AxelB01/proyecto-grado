@@ -54,7 +54,7 @@ namespace TriadRestockSystem.Controllers
         }
 
         [HttpPost("guardarAlmacen")]
-        public IActionResult GuardarFamilia(vmWharehouse model)
+        public IActionResult GuardarAlmacen(vmWharehouse model)
         {
             var login = HttpContext.Items["Username"] as string;
             var pass = HttpContext.Items["Password"] as string;
@@ -63,12 +63,14 @@ namespace TriadRestockSystem.Controllers
 
             if (user != null)
             {
-                Almacene? almacen = _db.Almacenes.FirstOrDefault(v => v.IdAlmacen == model.IdAlmacen);
+                Almacene? almacen = _db.Almacenes
+                    .Include(v => v.UsuariosAlmacenes)
+                    .FirstOrDefault(v => v.IdAlmacen == model.IdAlmacen);
+
                 if (almacen == null)
                 {
                     almacen = new Almacene
                     {
-                        IdEstado = (int)model.IdEstado,
                         CreadoPor = user.IdUsuario,
                         FechaCreacion = DateTime.Now,
                     };
@@ -80,14 +82,39 @@ namespace TriadRestockSystem.Controllers
                     almacen.FechaModificacion = DateTime.Now;
                 }
 
+                almacen.IdEstado = model.IdEstado.GetValueOrDefault();
                 almacen.Nombre = model.Nombre;
                 almacen.Descripcion = model.Descripcion.Trim();
                 almacen.Ubicacion = model.Ubicacion;
-                
                 almacen.Espacio = model.Espacio;
 
+                var roles = _db.Roles
+                    .Where(r => new int[] { 2, 3 }.Contains(r.IdRol))
+                    .ToList();
+
+                var usuarios = _db.Usuarios
+                    .Include(u => u.IdRols)
+                    .Where(u => model.IdsPersonal.Contains(u.IdUsuario) && u.IdRols.Any(r => roles.Contains(r)))
+                    .ToList();
+
+                List<UsuariosAlmacene> usuariosAlmacen = new();
+
+                foreach (var item in usuarios)
+                {
+                    UsuariosAlmacene usuarioAlmacen = new()
+                    {
+                        IdUsuario = item.IdUsuario,
+                        IdRol = item.IdRols.First().IdRol
+                    };
+
+
+                    usuariosAlmacen.Add(usuarioAlmacen);
+                }
+
+                almacen.UsuariosAlmacenes = usuariosAlmacen;
 
                 _db.SaveChanges();
+
                 return Ok();
             }
 
@@ -331,6 +358,23 @@ namespace TriadRestockSystem.Controllers
             {
                 var inventario = _db.InventarioAlmacen(id);
                 return Ok(inventario);
+            }
+
+            return Unauthorized();
+        }
+
+        [HttpGet("almacenPersonal")]
+        public IActionResult AlmacenPersonal()
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                var response = _db.AlmacenGetPersonal();
+                return Ok(new { items = response });
             }
 
             return Unauthorized();
