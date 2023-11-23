@@ -60,7 +60,8 @@ export const createRequestModel = () => {
 		RevisadoPor: '',
 		Justificacion: '',
 		Notas: '',
-		Detalles: []
+		Detalles: [],
+		CausaRechazo: ''
 	}
 }
 
@@ -261,7 +262,6 @@ export const createRequisitionsModel = () => {
 	}
 }
 
-
 export const createWharehouesesModel = () => {
 	return {
 		Id: 0,
@@ -270,7 +270,13 @@ export const createWharehouesesModel = () => {
 		Descripcion: '',
 		Ubicacion: '',
 		Espacio: '',
-		
+		IdsPersonal: []
 	}
 }
 
+export const createRejectRequestModel = () => {
+	return {
+		IdSolicitud: 0,
+		Causa: ''
+	}
+}

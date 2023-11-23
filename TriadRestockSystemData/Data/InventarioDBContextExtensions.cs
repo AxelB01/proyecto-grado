@@ -118,5 +118,12 @@ namespace TriadRestockSystemData.Data
                 .Query<vmRequisicionAlmacenArticulo>("RequisicionGetItemsById", new { id }, commandType: CommandType.StoredProcedure)
                 .ToList();
         }
+
+        public static IList<vmAlmacenPersonal> AlmacenGetPersonal(this InventarioDBContext context)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmAlmacenPersonal>("AlmacenGetPersonal", commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
     }
 }

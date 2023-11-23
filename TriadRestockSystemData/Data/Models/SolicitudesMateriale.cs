@@ -15,6 +15,10 @@ public partial class SolicitudesMateriale
 
     public int IdCentroCostos { get; set; }
 
+    [StringLength(300)]
+    [Unicode(false)]
+    public string? CausaRechazo { get; set; }
+
     [ForeignKey("IdCentroCostos")]
     [InverseProperty("SolicitudesMateriales")]
     public virtual CentrosCosto IdCentroCostosNavigation { get; set; } = null!;
