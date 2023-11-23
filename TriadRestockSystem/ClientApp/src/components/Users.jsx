@@ -131,10 +131,25 @@ const Users = () => {
 
 	const columns = [
 		{
+			title: '',
+			key: 'accion',
+			fixed: 'left',
+			width: 60,
+			render: (_, record) => (
+				<Space size='middle' align='center'>
+					<Button
+						type='text'
+						icon={<EditOutlined />}
+						onClick={() => handleEditUser(record)}
+					/>
+				</Space>
+			)
+		},
+		{
 			title: 'Código',
 			dataIndex: 'id',
 			key: 'id',
-			width: 150,
+			width: 110,
 			fixed: 'left',
 			filterType: 'text search'
 		},
@@ -142,19 +157,21 @@ const Users = () => {
 			title: 'Nombre',
 			dataIndex: 'nombre',
 			key: 'nombre',
-			fixed: 'left',
+			width: 250,
 			filterType: 'text search'
 		},
 		{
 			title: 'Login',
 			dataIndex: 'login',
 			key: 'login',
+			width: 180,
 			filterType: 'text search'
 		},
 		{
 			title: 'Estado',
 			dataIndex: 'estado',
 			key: 'estado',
+			width: 100,
 			filterType: 'custom filter',
 			data: usuarioEstados,
 			render: state => (
@@ -174,6 +191,7 @@ const Users = () => {
 			title: 'Fecha de creación',
 			dataIndex: 'fecha',
 			key: 'fecha',
+			width: 200,
 			filterType: 'date sorter',
 			dateFormat: 'DD/MM/YYYY'
 		},
@@ -181,23 +199,9 @@ const Users = () => {
 			title: 'Creado por',
 			dataIndex: 'creadoPor',
 			key: 'creadoPor',
+			width: 140,
 			filterType: 'text search',
 			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
-		},
-		{
-			title: 'Acciones',
-			key: 'accion',
-			fixed: 'right',
-			render: (_, record) => (
-				<Space size='middle' align='center'>
-					<Button
-						icon={<EditOutlined />}
-						onClick={() => handleEditUser(record)}
-					>
-						Editar
-					</Button>
-				</Space>
-			)
 		}
 	]
 

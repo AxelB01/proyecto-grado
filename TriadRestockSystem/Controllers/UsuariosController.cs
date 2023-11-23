@@ -156,6 +156,12 @@ namespace TriadRestockSystem.Controllers
                     var newCentrosCostos = _db.CentrosCostos
                         .Where(c => model.CostCenters.Contains(c.IdCentroCosto))
                         .ToList();
+
+                    if (!model.Roles.Contains(6) || !model.Roles.Contains(7))
+                    {
+                        newCentrosCostos.Clear();
+                    }
+
                     usuario.IdCentroCostos = newCentrosCostos;
 
                     _db.SaveChanges();

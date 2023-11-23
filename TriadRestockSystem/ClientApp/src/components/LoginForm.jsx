@@ -41,10 +41,25 @@ const LoginForm = () => {
 			})
 			if (response?.status === 200) {
 				const data = response?.data
-				const { username, password, roles, token, refreshtoken } = data
+				const {
+					firstname,
+					lastname,
+					fullname,
+					username,
+					password,
+					roles,
+					token,
+					refreshtoken
+				} = data
+
+				console.log(roles)
+
 				destroyStoredAuth()
 				createAuth(
 					true,
+					firstname,
+					lastname,
+					fullname,
 					username,
 					password,
 					roles,

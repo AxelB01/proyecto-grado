@@ -73,7 +73,8 @@ const UserForm = ({
 		const roles = values?.roles
 
 		if (roles !== undefined) {
-			const costCenterRoleSelected = values.roles.includes(4)
+			const costCenterRoleSelected =
+				values.roles.includes(6) || values.roles.includes(7)
 			setDisabled(!costCenterRoleSelected)
 			setRequired(costCenterRoleSelected)
 		}

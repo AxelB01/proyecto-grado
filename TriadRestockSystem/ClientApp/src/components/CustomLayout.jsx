@@ -1,37 +1,34 @@
-import { LogoutOutlined } from '@ant-design/icons'
-import { Avatar, Breadcrumb, Dropdown, Layout, Menu } from 'antd'
+import { UserOutlined } from '@ant-design/icons'
+import { Avatar, Breadcrumb, Layout, Menu, Popover } from 'antd'
 import Animate from 'rc-animate'
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
+import { capitalizeFirstLetters } from '../functions/refractors'
 import '../styles/DefaultContentStyle.css'
 import Loader from './Loader'
-import MenuItems from './MenuItems'
+import { MenuItems, UserMenuItems } from './MenuItems'
 
 const { Header, Content, Sider } = Layout
 
-const items = [
-	{
-		label: (
-			<a style={{ textDecoration: 'none' }}>
-				<LogoutOutlined style={{ marginRight: '0.4rem' }} /> Cerrar sesión
-			</a>
-		),
-		key: 0
-	}
-]
-
 const CustomLayout = ({ children }) => {
-	const { username, roles, destroyStoredAuth } = useContext(AuthContext)
+	const { fullname, username, roles, destroyStoredAuth } =
+		useContext(AuthContext)
 	const { active, collapsed, breadcrumb, handleSlider } =
 		useContext(LayoutContext)
 	const navigate = useNavigate()
 	const [isSiderFixed, setIsSiderFixed] = useState(false)
 
-	const onClick = () => {
-		destroyStoredAuth()
-		window.location.reload()
+	const handleUserMenuOption = e => {
+		switch (e.key) {
+			case 'logout':
+				destroyStoredAuth()
+				window.location.reload()
+				break
+			default:
+				break
+		}
 	}
 
 	const handleMenuOption = e => {
@@ -175,7 +172,89 @@ const CustomLayout = ({ children }) => {
 							paddingRight: '1rem'
 						}}
 					>
-						<Dropdown menu={{ items, onClick }} trigger={['click']}>
+						<Popover
+							content={
+								<>
+									<div
+										style={{
+											display: 'flex',
+											flexDirection: 'column',
+											justifyContent: 'center',
+											marginLeft: '1rem',
+											marginRight: '1rem'
+										}}
+									>
+										<div style={{ display: 'flex', justifyContent: 'center' }}>
+											<Avatar size={64} icon={<UserOutlined />} />
+										</div>
+										<span
+											style={{
+												fontSize: '1rem',
+												fontWeight: 600,
+												width: '100%',
+												textAlign: 'center'
+											}}
+										>
+											{fullname}
+										</span>
+										{roles.map(r => {
+											let text = ''
+
+											switch (r) {
+												case 'ADMINISTRADOR':
+													text = 'Administrador'
+													break
+												case 'ALMACEN_ENCARGADO':
+													text = 'Encargado de almacén'
+													break
+												case 'ALMACEN_AUXILIAR':
+													text = 'Auxiliar de almacén'
+													break
+												case 'PRESUPUESTO':
+													text = 'Presupuesto'
+													break
+												case 'COMPRAS':
+													text = 'Compras'
+													break
+												case 'CENTROCOSTOS_ENCARGADO':
+													text = 'Encargado de Centro de costo'
+													break
+												case 'CENTROCOSTOS_AUXILIAR':
+													text = 'Auxiliar de Centro de costo'
+													break
+												default:
+													break
+											}
+
+											return (
+												<span
+													key={r}
+													style={{
+														fontSize: '0.65rem',
+														width: '100%',
+														textAlign: 'center'
+													}}
+												>
+													{text}
+												</span>
+											)
+										})}
+									</div>
+									<div style={{ marginTop: '0.5rem' }}>
+										<Menu
+											style={{ border: 'none' }}
+											mode='inline'
+											items={UserMenuItems}
+											onClick={handleUserMenuOption}
+										/>
+									</div>
+								</>
+							}
+							trigger='click'
+						>
+							<Avatar size='large'>{capitalizeFirstLetters(fullname)}</Avatar>
+						</Popover>
+						{/* <Dropdown menu={{ items, onClick }} trigger={['click']}>
 							<a onClick={e => e.preventDefault()}>
 								<Avatar
 									style={{
@@ -185,7 +264,7 @@ const CustomLayout = ({ children }) => {
 									size='large'
 								></Avatar>
 							</a>
-						</Dropdown>
+						</Dropdown> */}
 					</div>
 				</div>
 			</Header>
