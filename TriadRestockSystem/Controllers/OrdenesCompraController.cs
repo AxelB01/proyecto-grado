@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TriadRestockSystem.Security;
@@ -10,7 +9,7 @@ namespace TriadRestockSystem.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [JwtData]
-    [Authorize(Roles = RolesNames.ADMINISTRADOR + "," + RolesNames.COMPRAS)]
+    [Authorize]
     public class OrdenesCompraController : ControllerBase
     {
         private readonly InventarioDBContext _db;
@@ -55,7 +54,7 @@ namespace TriadRestockSystem.Controllers
                  {
                      Key = x.IdRequisicion,
                      Id = x.IdRequisicion,
-               
+
                  })
                  .ToList();
             return Ok(result);

@@ -10,6 +10,7 @@ import PurchaseOrder from './components/PurchaseOrder'
 import Request from './components/Request'
 import Requests from './components/Requests'
 import Requisitions from './components/Requisitions'
+import Roles from './components/Roles'
 import Suppliers from './components/Suppliers'
 import Units from './components/Units'
 import Users from './components/Users'
@@ -46,11 +47,6 @@ const AppRoutes = [
 		index: false,
 		path: '/request',
 		element: <Request />
-	},
-	{
-		index: false,
-		path: '/families',
-		element: <Families />
 	},
 	{
 		index: false,
@@ -106,6 +102,11 @@ const AppRoutes = [
 		index: false,
 		path: '/requisitions',
 		element: <Requisitions />
+	},
+	{
+		index: false,
+		path: '/roles',
+		element: <Roles />
 	}
 ]
 

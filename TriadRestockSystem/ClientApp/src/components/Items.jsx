@@ -1,12 +1,16 @@
-import { EditOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
+import {
+	EditOutlined,
+	HomeOutlined,
+	PlusOutlined,
+	ReloadOutlined
+} from '@ant-design/icons'
 import { Button, Space, Statistic } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
-import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { createItemsModel } from '../functions/constructors'
-import { sleep } from '../functions/sleep'
+import { userHasAccessToModule } from '../functions/validation'
 import useFamilies from '../hooks/useFamilies'
 import useItemsTypes from '../hooks/useItemsTypes'
 import useMeasurementUnits from '../hooks/useMeasurementUnits'
@@ -15,13 +19,21 @@ import '../styles/DefaultContentStyle.css'
 import CustomTable from './CustomTable'
 import ItemsForm from './ItemsFrom'
 
+const MODULE = 'Artículos'
+
 const ITEMS_DATA_URL = '/api/articulos/getArticulos'
 const GET_ITEMS_DATA = '/api/articulos/getArticulo'
 
 const Items = () => {
-	const { validLogin } = useContext(AuthContext)
-	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
-	const navigate = useNavigate()
+	const { validLogin, roles } = useContext(AuthContext)
+	const {
+		display,
+		handleLayout,
+		handleLayoutLoading,
+		handleBreadcrumb,
+		navigateToPath
+	} = useContext(LayoutContext)
+
 	const [title, setTitle] = useState('')
 	const axiosPrivate = useAxiosPrivate()
 	const [data, setData] = useState([])
@@ -62,34 +74,55 @@ const Items = () => {
 
 	useEffect(() => {
 		document.title = 'Artículos'
-		async function waitForUpdate() {
-			await sleep(1000)
+		const breadcrumbItems = [
+			{
+				title: (
+					<a onClick={() => navigateToPath('/')}>
+						<span className='breadcrumb-item'>
+							<HomeOutlined />
+						</span>
+					</a>
+				)
+			},
+			{
+				title: (
+					<a onClick={() => {}}>
+						<span className='breadcrumb-item'>Artículos</span>
+					</a>
+				)
+			}
+		]
+
+		handleBreadcrumb([])
+
+		if (validLogin !== undefined && validLogin !== null) {
+			if (validLogin) {
+				handleLayout(true)
+				handleBreadcrumb(breadcrumbItems)
+			} else {
+				handleLayout(false)
+			}
 		}
 
-		if (!validLogin) {
-			waitForUpdate()
-			handleLayout(false)
-			navigate('/login')
-		} else {
-			handleLayout(true)
-
-			const breadcrumbItems = [
-				{
-					title: (
-						<a onClick={() => navigate('/items')}>
-							<span className='breadcrumb-item'>
-								{/* <TagsOutlined /> */}
-								<span className='breadcrumb-item-title'>Artículos</span>
-							</span>
-						</a>
-					)
-				}
-			]
-
-			handleBreadcrumb(breadcrumbItems)
-		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [validLogin])
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (display) {
+				handleLayoutLoading(false)
+			}
+		}, 200)
+		return () => {
+			clearInterval(interval)
+		}
+	}, [display, handleLayoutLoading])
+
+	useEffect(() => {
+		if (!validLogin) {
+			navigateToPath('/login')
+		}
+	}, [validLogin, roles, navigateToPath])
 
 	useEffect(() => {
 		const getItemsData = async () => {
@@ -168,18 +201,21 @@ const Items = () => {
 			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
 		},
 		{
-			title: 'Acciones',
+			title: '',
 			key: 'accion',
 			fixed: 'right',
 			render: (_, record) => (
 				<Space size='middle' align='center'>
-					<Button
-						icon={<EditOutlined />}
-						onClick={() => handleEditRequest(record.id)}
-						loading={tableLoading[record.id]}
-					>
-						Editar
-					</Button>
+					{userHasAccessToModule(MODULE, 'creation', roles) ||
+					userHasAccessToModule(MODULE, 'management', roles) ? (
+						<Button
+							icon={<EditOutlined />}
+							onClick={() => handleEditRequest(record.id)}
+							loading={tableLoading[record.id]}
+						>
+							Editar
+						</Button>
+					) : null}
 				</Space>
 			)
 		}
@@ -219,7 +255,7 @@ const Items = () => {
 				...prevState,
 				[id]: false
 			}))
-			
+
 			setItemsFormInitialValues(model)
 			setTitle('Editar articulo')
 			showItemsForm()
@@ -250,17 +286,21 @@ const Items = () => {
 			</div>
 			<div className='btn-container'>
 				<div className='right'>
-					<Button
-						style={{
-							display: 'flex',
-							alignItems: 'center'
-						}}
-						type='primary'
-						icon={<PlusOutlined />}
-						onClick={handleResetItemsForm}
-					>
-						Nuevo Articulo
-					</Button>
+					{userHasAccessToModule(MODULE, 'creation', roles) ||
+					userHasAccessToModule(MODULE, 'management', roles) ? (
+						<Button
+							style={{
+								display: 'flex',
+								alignItems: 'center'
+							}}
+							type='primary'
+							icon={<PlusOutlined />}
+							onClick={handleResetItemsForm}
+						>
+							Nuevo Articulo
+						</Button>
+					) : null}
+
 					<Button
 						style={{
 							display: 'flex',

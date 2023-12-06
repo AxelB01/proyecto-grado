@@ -1,27 +1,35 @@
 import {
 	EditOutlined,
+	EyeOutlined,
 	FileAddOutlined,
+	HomeOutlined,
 	ReloadOutlined
 } from '@ant-design/icons'
 import { Button, Space, Tag } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
-import { useNavigate } from 'react-router'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
-import { sleep } from '../functions/sleep'
+import { userHasAccessToModule } from '../functions/validation'
 import useCostCenters from '../hooks/useCostCenters'
 import useDocumentStates from '../hooks/useDocumentStates'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
 import CustomTable from './CustomTable'
 
+const MODULE = 'Solicitudes de materiales'
+
 const GET_REQUESTS_LIST = 'api/solicitudes/getSolicitudes'
 
 const Requests = () => {
-	const { validLogin } = useContext(AuthContext)
-	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
-	const navigate = useNavigate()
+	const { validLogin, roles } = useContext(AuthContext)
+	const {
+		display,
+		handleLayout,
+		handleLayoutLoading,
+		handleBreadcrumb,
+		navigateToPath
+	} = useContext(LayoutContext)
 
 	const axiosPrivate = useAxiosPrivate()
 
@@ -36,7 +44,7 @@ const Requests = () => {
 			...prevState,
 			[rowId]: true
 		}))
-		navigate('/request', { state: rowId })
+		navigateToPath('/request', { Id: rowId })
 	}
 
 	const getRequestsList = async () => {
@@ -55,34 +63,57 @@ const Requests = () => {
 
 	useEffect(() => {
 		document.title = 'Solicitudes'
-		async function waitForUpdate() {
-			await sleep(1000)
-		}
+		const breadcrumbItems = [
+			{
+				title: (
+					<a onClick={() => navigateToPath('/')}>
+						<span className='breadcrumb-item'>
+							<HomeOutlined />
+						</span>
+					</a>
+				)
+			},
+			{
+				title: (
+					<a onClick={() => {}}>
+						<span className='breadcrumb-item'>Solicitudes</span>
+					</a>
+				)
+			}
+		]
 
-		if (!validLogin) {
-			waitForUpdate()
-			handleLayout(false)
-			navigate('/login')
-		} else {
-			handleLayout(true)
-			const breadcrumbItems = [
-				{
-					title: (
-						<a onClick={() => navigate('/requests')}>
-							<span className='breadcrumb-item'>
-								{/* <SolutionOutlined /> */}
-								<span className='breadcrumb-item-title'>Solicitudes</span>
-							</span>
-						</a>
-					)
-				}
-			]
-			handleBreadcrumb(breadcrumbItems)
-			getRequestsList()
+		handleBreadcrumb([])
+
+		if (validLogin !== undefined && validLogin !== null) {
+			if (validLogin) {
+				handleLayout(true)
+				handleBreadcrumb(breadcrumbItems)
+
+				getRequestsList()
+			} else {
+				handleLayout(false)
+			}
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [validLogin])
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (display) {
+				handleLayoutLoading(false)
+			}
+		}, 200)
+		return () => {
+			clearInterval(interval)
+		}
+	}, [display, handleLayoutLoading])
+
+	useEffect(() => {
+		if (!validLogin) {
+			navigateToPath('/login')
+		}
+	}, [validLogin, roles, navigateToPath])
 
 	const [tableState, setTableState] = useState(true)
 	const tableRef = useRef()
@@ -172,11 +203,24 @@ const Requests = () => {
 			render: (_, record) => (
 				<Space size='middle' align='center'>
 					<Button
-						icon={<EditOutlined />}
+						icon={
+							userHasAccessToModule(MODULE, 'view', roles) ? (
+								<EyeOutlined />
+							) : (
+								<EditOutlined />
+							)
+						}
 						onClick={() => handleEditRequest(record.key)}
 						loading={loading[record.key]}
 					>
-						{loading[record.key] ? 'Cargando' : 'Editar'}
+						{loading[record.key]
+							? 'Cargando'
+							: userHasAccessToModule(MODULE, 'view', roles)
+							? 'Ver'
+							: userHasAccessToModule(MODULE, 'creation', roles) ||
+							  userHasAccessToModule(MODULE, 'management', roles)
+							? 'Editar'
+							: ''}
 					</Button>
 				</Space>
 			)
@@ -188,13 +232,16 @@ const Requests = () => {
 			<div className='page-content-container'>
 				<div className='btn-container'>
 					<div className='right'>
-						<Button
-							type='primary'
-							icon={<FileAddOutlined />}
-							onClick={() => navigate('/request')}
-						>
-							Nueva solicitud
-						</Button>
+						{userHasAccessToModule(MODULE, 'creation', roles) ||
+						userHasAccessToModule(MODULE, 'management', roles) ? (
+							<Button
+								type='primary'
+								icon={<FileAddOutlined />}
+								onClick={() => navigateToPath('/request', { Id: 0 })}
+							>
+								Nueva solicitud
+							</Button>
+						) : null}
 						<Button
 							style={{
 								display: 'flex',

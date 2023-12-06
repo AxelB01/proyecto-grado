@@ -11,12 +11,7 @@ namespace TriadRestockSystem.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [JwtData]
-    [Authorize(Roles =
-        RolesNames.ADMINISTRADOR + "," +
-        RolesNames.ALMACEN_ENCARGADO + "," +
-        RolesNames.ALAMCEN_AUXILIAR + "," +
-        RolesNames.CENTROCOSTOS_ENCARGADO + "," +
-        RolesNames.CENTROCOSTOS_AUXILIAR)]
+    [Authorize]
     public class SolicitudesController : ControllerBase
     {
         private readonly InventarioDBContext _db;
@@ -63,6 +58,8 @@ namespace TriadRestockSystem.Controllers
                     var solicitud = _db.SolicitudesMateriales
                         .Include(x => x.IdDocumentoNavigation)
                         .ThenInclude(x => x.IdEstadoNavigation)
+                        .Include(x => x.IdDocumentoNavigation)
+                        .ThenInclude(x => x.CreadoPorNavigation)
                         .Include(x => x.IdCentroCostosNavigation)
                         .Include(x => x.SolicitudesMaterialesDetalles)
                         .ThenInclude(x => x.IdArticuloNavigation)

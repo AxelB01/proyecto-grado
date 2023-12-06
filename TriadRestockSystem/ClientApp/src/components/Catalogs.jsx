@@ -1,5 +1,6 @@
 import {
 	EditOutlined,
+	HomeOutlined,
 	PlusOutlined,
 	ReloadOutlined,
 	TagsOutlined
@@ -7,14 +8,13 @@ import {
 import { Button, Space, Statistic } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
-import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import {
 	createCatalogItemsModel,
 	createCatalogModel
 } from '../functions/constructors'
-import { sleep } from '../functions/sleep'
+import { userHasAccessToModule } from '../functions/validation'
 import useItems from '../hooks/useItems'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
@@ -22,15 +22,22 @@ import CatalogsForm from './CatalogsForm'
 import CatalogsItemsForm from './CatalogsItemsForm'
 import CustomTable from './CustomTable'
 
+const MODULE = 'Catálogos de artículos'
+
 const CATALOGOS_GET = '/api/catalogos/getCatalogo'
 const CATALOGOS_URL = '/api/catalogos/getCatalogos'
 
 const Catalogs = () => {
-	const { validLogin } = useContext(AuthContext)
-	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
+	const { validLogin, roles } = useContext(AuthContext)
+	const {
+		display,
+		handleLayout,
+		handleLayoutLoading,
+		handleBreadcrumb,
+		navigateToPath
+	} = useContext(LayoutContext)
 
 	const axiosPrivate = useAxiosPrivate()
-	const navigate = useNavigate()
 	const [catalogs, setCatalogs] = useState([])
 
 	const [open, setOpen] = useState(false)
@@ -204,17 +211,21 @@ const Catalogs = () => {
 			dateFormat: 'DD/MM/YYYY'
 		},
 		{
-			title: 'Acciones',
+			title: '',
 			key: 'action',
 			render: (_, record) => (
 				<Space size='middle' align='center'>
-					<Button
-						icon={<EditOutlined />}
-						loading={loading[record.id]}
-						onClick={() => handleEditCatalogs(record.id)}
-					>
-						Editar
-					</Button>
+					{userHasAccessToModule(MODULE, 'creation', roles) ||
+					userHasAccessToModule(MODULE, 'management', roles) ? (
+						<Button
+							icon={<EditOutlined />}
+							loading={loading[record.id]}
+							onClick={() => handleEditCatalogs(record.id)}
+						>
+							Editar
+						</Button>
+					) : null}
+
 					<Button
 						icon={<TagsOutlined />}
 						loading={loading2[record.id]}
@@ -228,34 +239,56 @@ const Catalogs = () => {
 	]
 
 	useEffect(() => {
-		document.title = 'Catalogos'
-		async function waitForUpdate() {
-			await sleep(1000)
+		document.title = 'Catálogos'
+		const breadcrumbItems = [
+			{
+				title: (
+					<a onClick={() => navigateToPath('/')}>
+						<span className='breadcrumb-item'>
+							<HomeOutlined />
+						</span>
+					</a>
+				)
+			},
+			{
+				title: (
+					<a onClick={() => {}}>
+						<span className='breadcrumb-item'>Catálogos</span>
+					</a>
+				)
+			}
+		]
+
+		handleBreadcrumb([])
+
+		if (validLogin !== undefined && validLogin !== null) {
+			if (validLogin) {
+				handleLayout(true)
+				handleBreadcrumb(breadcrumbItems)
+			} else {
+				handleLayout(false)
+			}
 		}
 
-		if (!validLogin) {
-			waitForUpdate()
-			handleLayout(false)
-			navigate('/login')
-		} else {
-			handleLayout(true)
-
-			const breadcrumbItems = [
-				{
-					title: (
-						<a onClick={() => navigate('/catalogs')}>
-							<span className='breadcrumb-item'>
-								<span className='breadcrumb-item-title'>Catalogos</span>
-							</span>
-						</a>
-					)
-				}
-			]
-
-			handleBreadcrumb(breadcrumbItems)
-		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [validLogin])
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (display) {
+				handleLayoutLoading(false)
+			}
+		}, 200)
+		return () => {
+			clearInterval(interval)
+		}
+	}, [display, handleLayoutLoading])
+
+	useEffect(() => {
+		if (!validLogin) {
+			navigateToPath('/login')
+		}
+	}, [validLogin, roles, navigateToPath])
 
 	return (
 		<>
@@ -286,17 +319,21 @@ const Catalogs = () => {
 				</div>
 				<div className='btn-container'>
 					<div className='right'>
-						<Button
-							style={{
-								display: 'flex',
-								alignItems: 'center'
-							}}
-							type='primary'
-							icon={<PlusOutlined />}
-							onClick={() => handleOpen(true)}
-						>
-							Nuevo Catálogo
-						</Button>
+						{userHasAccessToModule(MODULE, 'creation', roles) ||
+						userHasAccessToModule(MODULE, 'management', roles) ? (
+							<Button
+								style={{
+									display: 'flex',
+									alignItems: 'center'
+								}}
+								type='primary'
+								icon={<PlusOutlined />}
+								onClick={() => handleOpen(true)}
+							>
+								Nuevo Catálogo
+							</Button>
+						) : null}
+
 						<Button
 							style={{
 								display: 'flex',

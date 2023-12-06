@@ -1,17 +1,15 @@
 import {
 	EditOutlined,
 	ExpandAltOutlined,
+	HomeOutlined,
 	PlusOutlined,
 	ReloadOutlined
 } from '@ant-design/icons'
 import { Avatar, Button, Space, Tag, Tooltip } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router'
-import RolesNames from '../config/roles'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { createWharehouesesModel } from '../functions/constructors'
-import { sleep } from '../functions/sleep'
 import useDataList from '../hooks/useDataList'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import useWharehouseStates from '../hooks/useWharehouseStates'
@@ -24,9 +22,15 @@ const GET_WHAREHOUSES_STAFF = 'api/almacenes/almacenPersonal'
 
 const Wharehouses = () => {
 	const { validLogin, roles } = useContext(AuthContext)
-	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
+	const {
+		display,
+		handleLayout,
+		handleLayoutLoading,
+		handleBreadcrumb,
+		navigateToPath
+	} = useContext(LayoutContext)
+
 	const axiosPrivate = useAxiosPrivate()
-	const navigate = useNavigate()
 	const [data, setData] = useState([])
 	const [loading, setLoading] = useState(false)
 
@@ -42,7 +46,7 @@ const Wharehouses = () => {
 	const [title, setTitle] = useState('')
 
 	const [wharehouseFormInitialValues, setWharehouseFormInitialValues] =
-		useState(createWharehouesesModel())
+		useState({})
 
 	const handleFiltersReset = () => {
 		if (tableRef.current) {
@@ -87,7 +91,7 @@ const Wharehouses = () => {
 	}
 
 	useEffect(() => {
-		if (wharehouseFormInitialValues.Id !== 0) {
+		if (Object.keys(wharehouseFormInitialValues).length !== 0) {
 			setOpen(true)
 		}
 	}, [wharehouseFormInitialValues])
@@ -101,34 +105,57 @@ const Wharehouses = () => {
 
 	useEffect(() => {
 		document.title = 'Almacenes'
-		async function waitForUpdate() {
-			await sleep(1000)
-		}
+		const breadcrumbItems = [
+			{
+				title: (
+					<a onClick={() => navigateToPath('/')}>
+						<span className='breadcrumb-item'>
+							<HomeOutlined />
+						</span>
+					</a>
+				)
+			},
+			{
+				title: (
+					<a onClick={() => {}}>
+						<span className='breadcrumb-item'>Almacenes</span>
+					</a>
+				)
+			}
+		]
 
-		if (!validLogin) {
-			waitForUpdate()
-			handleLayout(false)
-			navigate('/login')
-		} else {
-			handleLayout(true)
-			const breadcrumbItems = [
-				{
-					title: (
-						<a onClick={() => navigate('/wharehouses')}>
-							<span className='breadcrumb-item'>
-								{/* <SolutionOutlined /> */}
-								<span className='breadcrumb-item-title'>Almacenes</span>
-							</span>
-						</a>
-					)
-				}
-			]
-			handleBreadcrumb(breadcrumbItems)
-			getWharehouses()
+		handleBreadcrumb([])
+
+		if (validLogin !== undefined && validLogin !== null) {
+			if (validLogin) {
+				handleLayout(true)
+				handleBreadcrumb(breadcrumbItems)
+
+				getWharehouses()
+			} else {
+				handleLayout(false)
+			}
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [validLogin])
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (display) {
+				handleLayoutLoading(false)
+			}
+		}, 200)
+		return () => {
+			clearInterval(interval)
+		}
+	}, [display, handleLayoutLoading])
+
+	useEffect(() => {
+		if (!validLogin) {
+			navigateToPath('/login')
+		}
+	}, [validLogin, roles, navigateToPath])
 
 	const columns = [
 		{
@@ -159,7 +186,7 @@ const Wharehouses = () => {
 						<Button
 							type='text'
 							icon={<ExpandAltOutlined />}
-							onClick={() => navigate('/wharehouse', { state: record.key })}
+							onClick={() => navigateToPath('/wharehouse', { Id: record.key })}
 						/>
 					</Tooltip>
 				</Space>
@@ -275,16 +302,13 @@ const Wharehouses = () => {
 			<div className='page-content-container'>
 				<div className='btn-container'>
 					<div className='right'>
-						{roles.includes(RolesNames.ADMINISTRADOR) ||
-						roles.includes(RolesNames.ALMACEN_ENCARGADO) ? (
-							<Button
-								type='primary'
-								icon={<PlusOutlined />}
-								onClick={handleResetSuppliersForm}
-							>
-								Nuevo Almacén
-							</Button>
-						) : null}
+						<Button
+							type='primary'
+							icon={<PlusOutlined />}
+							onClick={handleResetSuppliersForm}
+						>
+							Nuevo Almacén
+						</Button>
 						<Button
 							style={{
 								display: 'flex',

@@ -58,6 +58,8 @@ public partial class InventarioDBContext : DbContext
 
     public virtual DbSet<Marca> Marcas { get; set; }
 
+    public virtual DbSet<Modulo> Modulos { get; set; }
+
     public virtual DbSet<OrdenesCompra> OrdenesCompras { get; set; }
 
     public virtual DbSet<OrdenesCompraDetalle> OrdenesCompraDetalles { get; set; }
@@ -77,6 +79,8 @@ public partial class InventarioDBContext : DbContext
     public virtual DbSet<RequisicionesDetalle> RequisicionesDetalles { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
+
+    public virtual DbSet<RolesModulo> RolesModulos { get; set; }
 
     public virtual DbSet<SolicitudesDespacho> SolicitudesDespachos { get; set; }
 
@@ -135,6 +139,23 @@ public partial class InventarioDBContext : DbContext
                     {
                         j.HasKey("IdAlmacen", "IdCentroCosto");
                         j.ToTable("AlmacenesCentrosCostos");
+                    });
+
+            entity.HasMany(d => d.IdFamilia).WithMany(p => p.IdAlmacens)
+                .UsingEntity<Dictionary<string, object>>(
+                    "AlmacenesFamilia",
+                    r => r.HasOne<FamiliasArticulo>().WithMany()
+                        .HasForeignKey("IdFamilia")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_AlmacenesFamilias_FamiliasArticulos"),
+                    l => l.HasOne<Almacene>().WithMany()
+                        .HasForeignKey("IdAlmacen")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_AlmacenesFamilias_Almacenes"),
+                    j =>
+                    {
+                        j.HasKey("IdAlmacen", "IdFamilia");
+                        j.ToTable("AlmacenesFamilias");
                     });
         });
 
@@ -392,6 +413,11 @@ public partial class InventarioDBContext : DbContext
             entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.MarcaModificadoPorNavigations).HasConstraintName("FK_MarcasArticulos_Usuarios1");
         });
 
+        modelBuilder.Entity<Modulo>(entity =>
+        {
+            entity.Property(e => e.IdModulo).ValueGeneratedNever();
+        });
+
         modelBuilder.Entity<OrdenesCompra>(entity =>
         {
             entity.HasOne(d => d.IdAlmacenNavigation).WithMany(p => p.OrdenesCompras)
@@ -405,6 +431,17 @@ public partial class InventarioDBContext : DbContext
             entity.HasOne(d => d.IdProveedorNavigation).WithMany(p => p.OrdenesCompras)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_OrdenesCompra_Proveedores");
+        });
+
+        modelBuilder.Entity<OrdenesCompraDetalle>(entity =>
+        {
+            entity.HasOne(d => d.IdArticuloNavigation).WithMany(p => p.OrdenesCompraDetalles)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_OrdenesCompraDetalles_Articulos");
+
+            entity.HasOne(d => d.IdOrdenCompraNavigation).WithMany(p => p.OrdenesCompraDetalles)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_OrdenesCompraDetalles_OrdenesCompra");
         });
 
         modelBuilder.Entity<Presupuesto>(entity =>
@@ -529,6 +566,21 @@ public partial class InventarioDBContext : DbContext
         modelBuilder.Entity<Role>(entity =>
         {
             entity.Property(e => e.IdRol).ValueGeneratedNever();
+
+            entity.HasOne(d => d.CreadoPorNavigation).WithMany(p => p.RoleCreadoPorNavigations).HasConstraintName("FK_Roles_Usuarios");
+
+            entity.HasOne(d => d.ModificadoPorNavigation).WithMany(p => p.RoleModificadoPorNavigations).HasConstraintName("FK_Roles_Usuarios1");
+        });
+
+        modelBuilder.Entity<RolesModulo>(entity =>
+        {
+            entity.HasOne(d => d.IdModuloNavigation).WithMany(p => p.RolesModulos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RolesModulos_Modulos");
+
+            entity.HasOne(d => d.IdRolNavigation).WithMany(p => p.RolesModulos)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RolesModulos_Roles");
         });
 
         modelBuilder.Entity<SolicitudesDespacho>(entity =>

@@ -1,15 +1,14 @@
 import {
 	EditOutlined,
+	HomeOutlined,
 	ReloadOutlined,
 	UserAddOutlined
 } from '@ant-design/icons'
 import { Button, Space, Statistic, Tag } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
-import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
-import { sleep } from '../functions/sleep'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import useUserStates from '../hooks/useUserStates'
 import '../styles/DefaultContentStyle.css'
@@ -22,10 +21,17 @@ const CENTROS_COSTOS_URL = '/api/usuarios/getCentrosCostos'
 const GET_USER_URL = '/api/usuarios/getUsuario'
 
 const Users = () => {
-	const { validLogin } = useContext(AuthContext)
-	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
+	const { validLogin, roles } = useContext(AuthContext)
+	const {
+		display,
+		handleLayout,
+		handleLayoutLoading,
+		handleBreadcrumb,
+		navigateToPath
+	} = useContext(LayoutContext)
+
 	const axiosPrivate = useAxiosPrivate()
-	const navigate = useNavigate()
+	// const navigate = useNavigate()
 	const [data, setData] = useState([])
 	const [loading, setLoading] = useState(false)
 	const [rolesItems, setRolesItems] = useState([])
@@ -238,36 +244,59 @@ const Users = () => {
 
 	useEffect(() => {
 		document.title = 'Usuarios'
-		async function waitForUpdate() {
-			await sleep(1000)
+		const breadcrumbItems = [
+			{
+				title: (
+					<a onClick={() => navigateToPath('/')}>
+						<span className='breadcrumb-item'>
+							<HomeOutlined />
+						</span>
+					</a>
+				)
+			},
+			{
+				title: (
+					<a onClick={() => {}}>
+						<span className='breadcrumb-item'>Usuarios</span>
+					</a>
+				)
+			}
+		]
+
+		handleBreadcrumb([])
+
+		if (validLogin !== undefined && validLogin !== null) {
+			if (validLogin) {
+				handleLayout(true)
+				handleBreadcrumb(breadcrumbItems)
+
+				getUsersData()
+				getRolesItems()
+				getCentrosCostosItems()
+			} else {
+				handleLayout(false)
+			}
 		}
 
-		if (!validLogin) {
-			waitForUpdate()
-			handleLayout(false)
-			navigate('/login')
-		} else {
-			handleLayout(true)
-			getUsersData()
-			getRolesItems()
-			getCentrosCostosItems()
-
-			const breadcrumbItems = [
-				{
-					title: (
-						<a onClick={() => navigate('/users')}>
-							<span className='breadcrumb-item'>
-								<span className='breadcrumb-item-title'>Usuarios</span>
-							</span>
-						</a>
-					)
-				}
-			]
-
-			handleBreadcrumb(breadcrumbItems)
-		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [validLogin])
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (display) {
+				handleLayoutLoading(false)
+			}
+		}, 200)
+		return () => {
+			clearInterval(interval)
+		}
+	}, [display, handleLayoutLoading])
+
+	useEffect(() => {
+		if (!validLogin) {
+			navigateToPath('/login')
+		}
+	}, [validLogin, roles, navigateToPath])
 
 	return (
 		<>

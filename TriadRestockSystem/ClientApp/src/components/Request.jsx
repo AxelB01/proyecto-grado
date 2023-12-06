@@ -2,6 +2,7 @@ import {
 	CheckOutlined,
 	ContainerOutlined,
 	DownloadOutlined,
+	HomeOutlined,
 	LoadingOutlined,
 	MinusCircleOutlined,
 	PlusOutlined,
@@ -28,8 +29,11 @@ import RolesNames from '../config/roles'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { createRequestModel } from '../functions/constructors'
-import { sleep } from '../functions/sleep'
-import { isObjectNotEmpty, isStringEmpty } from '../functions/validation'
+import {
+	isObjectNotEmpty,
+	isStringEmpty,
+	userHasAccessToModule
+} from '../functions/validation'
 import useCatalogs from '../hooks/useCatalogs'
 import useCostCenters from '../hooks/useCostCenters'
 import useItems from '../hooks/useItems'
@@ -47,6 +51,8 @@ const antIcon = (
 	/>
 )
 
+const MODULE = 'Solicitudes de materiales'
+
 const GET_SINGLE_REQUEST = 'api/solicitudes/getSolicitud'
 const SAVE_REQUEST = 'api/solicitudes/guardarSolicitud'
 const SEND_REQUEST = 'api/solicitudes/enviarSolicitud'
@@ -59,8 +65,14 @@ const Request = () => {
 	const [customState, setCustomState] = useState(null)
 
 	const { validLogin, roles } = useContext(AuthContext)
-	const { handleLayout, handleBreadcrumb, openMessage } =
-		useContext(LayoutContext)
+	const {
+		display,
+		handleLayout,
+		handleLayoutLoading,
+		handleBreadcrumb,
+		openMessage,
+		navigateToPath
+	} = useContext(LayoutContext)
 
 	const [edit, setEdit] = useState(
 		customState !== undefined && customState !== null
@@ -95,20 +107,28 @@ const Request = () => {
 	}
 
 	const loadRequest = async () => {
-		let breadcrumbLastItemText = 'Nueva solicitud'
-
 		const breadcrumbItems = [
 			{
 				title: (
-					<a onClick={() => navigate('/requests')}>
+					<a onClick={() => navigateToPath('/')}>
 						<span className='breadcrumb-item'>
-							{/* <SolutionOutlined /> */}
-							<span className='breadcrumb-item-title'>Solicitudes</span>
+							<HomeOutlined />
 						</span>
+					</a>
+				)
+			},
+			{
+				title: (
+					<a onClick={() => navigateToPath('/requests')}>
+						<span className='breadcrumb-item'>Solicitudes</span>
 					</a>
 				)
 			}
 		]
+
+		handleBreadcrumb([])
+
+		let breadcrumbLastItemText = 'Nueva solicitud'
 
 		if (customState !== undefined && customState !== null) {
 			try {
@@ -151,7 +171,17 @@ const Request = () => {
 				</a>
 			)
 		})
-		handleBreadcrumb(breadcrumbItems)
+
+		setTimeout(() => {
+			if (validLogin !== undefined && validLogin !== null) {
+				if (validLogin) {
+					handleLayout(true)
+					handleBreadcrumb(breadcrumbItems)
+				} else {
+					handleLayout(false)
+				}
+			}
+		}, 100)
 	}
 
 	const saveRequest = async model => {
@@ -327,27 +357,56 @@ const Request = () => {
 
 	useEffect(() => {
 		const { state } = location
-		setCustomState(state)
-
-		setEdit(state !== undefined && state !== null)
-
+		setCustomState(state.Id)
+		setEdit(state.Id !== undefined && state.Id !== null)
 		document.title = 'Solicitud'
-		async function waitForUpdate() {
-			await sleep(1000)
-		}
 
-		if (!validLogin) {
-			waitForUpdate()
-			handleLayout(false)
-			navigate('/login')
-		} else {
-			handleLayout(true)
-		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [location])
+	}, [validLogin, location])
 
 	useEffect(() => {
-		loadRequest()
+		const interval = setInterval(() => {
+			if (display) {
+				handleLayoutLoading(false)
+			}
+		}, 200)
+		return () => {
+			clearInterval(interval)
+		}
+	}, [display, handleLayoutLoading])
+
+	useEffect(() => {
+		if (!validLogin) {
+			navigateToPath('/login')
+		}
+	}, [validLogin, roles, navigateToPath])
+
+	// useEffect(() => {
+	// 	const { state } = location
+	// 	setCustomState(state)
+
+	// 	setEdit(state !== undefined && state !== null)
+
+	// 	document.title = 'Solicitud'
+	// 	async function waitForUpdate() {
+	// 		await sleep(1000)
+	// 	}
+
+	// 	if (!validLogin) {
+	// 		waitForUpdate()
+	// 		handleLayout(false)
+	// 		navigate('/login')
+	// 	} else {
+	// 		handleLayout(true)
+	// 	}
+	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
+	// }, [location])
+
+	useEffect(() => {
+		console.log(customState)
+		if (customState !== undefined && customState !== null) {
+			loadRequest()
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [customState])
 
@@ -467,7 +526,8 @@ const Request = () => {
 										saving ||
 										(requestState !== '' &&
 											requestState !== 'Borrador' &&
-											requestState !== 'Rechazado')
+											requestState !== 'Rechazado') ||
+										userHasAccessToModule(MODULE, 'view', roles)
 									}
 									onClick={handleSubmit}
 								>
@@ -495,7 +555,10 @@ const Request = () => {
 													style={{ marginLeft: '0.95rem' }}
 													icon={<SendOutlined />}
 													loading={sending}
-													disabled={sending}
+													disabled={
+														sending ||
+														userHasAccessToModule(MODULE, 'view', roles)
+													}
 												>
 													Enviar
 												</Button>
@@ -516,7 +579,10 @@ const Request = () => {
 													style={{ marginLeft: '0.95rem' }}
 													icon={<CheckOutlined />}
 													loading={approving}
-													disabled={approving}
+													disabled={
+														approving ||
+														!userHasAccessToModule(MODULE, 'management', roles)
+													}
 												>
 													Aprobar
 												</Button>
@@ -540,6 +606,9 @@ const Request = () => {
 													type='primary'
 													style={{ marginLeft: '0.95rem' }}
 													icon={<StopOutlined />}
+													disabled={
+														!userHasAccessToModule(MODULE, 'management', roles)
+													}
 													danger
 												>
 													Rechazar
@@ -564,6 +633,11 @@ const Request = () => {
 													style={{ marginLeft: '0.95rem' }}
 													icon={<ContainerOutlined />}
 													loading={archiving}
+													disabled={userHasAccessToModule(
+														MODULE,
+														'view',
+														roles
+													)}
 													danger
 												>
 													Archivar

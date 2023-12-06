@@ -280,3 +280,18 @@ export const createRejectRequestModel = () => {
 		Causa: ''
 	}
 }
+
+export const createModelRole = () => {
+	return {
+		IdRole: 0,
+		Role: '',
+		Description: ''
+	}
+}
+
+export const createRolePermissionsModel = () => {
+	return {
+		IdRole: 0,
+		Permissions: []
+	}
+}

@@ -1,14 +1,15 @@
 import {
 	EditOutlined,
+	HomeOutlined,
 	ReloadOutlined,
 	UserAddOutlined
 } from '@ant-design/icons'
 import { Button, Space, Statistic, Tag } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
-import { sleep } from '../functions/sleep'
+import { createSuppliersModel } from '../functions/constructors'
+import { userHasAccessToModule } from '../functions/validation'
 import useCountries from '../hooks/useCountries'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import useSupplierStates from '../hooks/useSupplierStates'
@@ -16,15 +17,21 @@ import useSuppliersTypes from '../hooks/useSuppliersTypes'
 import '../styles/DefaultContentStyle.css'
 import CustomTable from './CustomTable'
 import SuppliersForm from './SuppliersForm'
-import { createSuppliersModel } from '../functions/constructors'
+
+const MODULE = 'Proveedores'
 
 const SUPPLIERS_DATA_URL = '/api/proveedores/getProveedores'
 const GET_SUPPLIER_DATA = '/api/proveedores/getProveedor'
 
 const Suppliers = () => {
-	const { validLogin } = useContext(AuthContext)
-	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
-	const navigate = useNavigate()
+	const { validLogin, roles } = useContext(AuthContext)
+	const {
+		display,
+		handleLayout,
+		handleLayoutLoading,
+		handleBreadcrumb,
+		navigateToPath
+	} = useContext(LayoutContext)
 
 	const [title, setTitle] = useState('')
 	const axiosPrivate = useAxiosPrivate()
@@ -51,7 +58,6 @@ const Suppliers = () => {
 
 	const [suppliersFormInitialValues, setSuppliersFormInitialValues] = useState(
 		createSuppliersModel()
-
 	)
 
 	const columns = [
@@ -81,7 +87,7 @@ const Suppliers = () => {
 			dataIndex: 'tipoProveedor',
 			key: 'tipoProveedor',
 			filterType: 'text search',
-			data:tipoProveedores
+			data: tipoProveedores
 		},
 		{
 			title: 'Estado',
@@ -92,11 +98,8 @@ const Suppliers = () => {
 			render: state => (
 				<>
 					{
-						<Tag
-							color={state === 1 ? 'geekblue':'volcano'}
-							key={state}
-						>
-							{state === 1 ? 'Activo': 'Inactivo'}
+						<Tag color={state === 1 ? 'geekblue' : 'volcano'} key={state}>
+							{state === 1 ? 'Activo' : 'Inactivo'}
 						</Tag>
 					}
 				</>
@@ -135,14 +138,14 @@ const Suppliers = () => {
 			dataIndex: 'correoElectronico',
 			key: 'correoElectronico',
 			width: 100,
-			filterType: 'text search',
+			filterType: 'text search'
 		},
 		{
 			title: 'Fecha de creación',
 			dataIndex: 'fecha',
 			key: 'fecha',
 			filterType: 'date sorter',
-			dateFormat: 'DD/MM/YYYY',
+			dateFormat: 'DD/MM/YYYY'
 		},
 		{
 			title: 'Creado por',
@@ -152,17 +155,19 @@ const Suppliers = () => {
 			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
 		},
 		{
-			title: 'Acciones',
+			title: '',
 			key: 'accion',
 			fixed: 'right',
 			render: (_, record) => (
 				<Space size='middle' align='center'>
-					<Button
-						icon={<EditOutlined />}
-						onClick={() => handleEditSupplier(record.id)}
-					>
-						Editar
-					</Button>
+					{!userHasAccessToModule(MODULE, 'view', roles) ? (
+						<Button
+							icon={<EditOutlined />}
+							onClick={() => handleEditSupplier(record.id)}
+						>
+							Editar
+						</Button>
+					) : null}
 				</Space>
 			)
 		}
@@ -193,7 +198,7 @@ const Suppliers = () => {
 		setTitle('Registrar Suplidor')
 		showSuppliersForm()
 	}
-	
+
 	const handleEditSupplier = async id => {
 		try {
 			const respose = await axiosPrivate.get(`${GET_SUPPLIER_DATA}?id=${id}`)
@@ -223,38 +228,61 @@ const Suppliers = () => {
 
 	useEffect(() => {
 		document.title = 'Proveedores'
-		async function waitForUpdate() {
-			await sleep(1000)
+		const breadcrumbItems = [
+			{
+				title: (
+					<a onClick={() => navigateToPath('/')}>
+						<span className='breadcrumb-item'>
+							<HomeOutlined />
+						</span>
+					</a>
+				)
+			},
+			{
+				title: (
+					<a onClick={() => {}}>
+						<span className='breadcrumb-item'>Proveedores</span>
+					</a>
+				)
+			}
+		]
+
+		handleBreadcrumb([])
+
+		if (validLogin !== undefined && validLogin !== null) {
+			if (validLogin) {
+				handleLayout(true)
+				handleBreadcrumb(breadcrumbItems)
+			} else {
+				handleLayout(false)
+			}
 		}
 
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [validLogin])
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (display) {
+				handleLayoutLoading(false)
+			}
+		}, 200)
+		return () => {
+			clearInterval(interval)
+		}
+	}, [display, handleLayoutLoading])
+
+	useEffect(() => {
 		if (!validLogin) {
-			waitForUpdate()
-			handleLayout(false)
-			navigate('/login')
-		} else {
-			handleLayout(true)
-			getSuppliersData()
-
-			const breadcrumbItems = [
-				{
-					title: (
-						<a onClick={() => navigate('/suppliers')}>
-							<span className='breadcrumb-item'>
-								<span className='breadcrumb-item-title'>Proveedores</span>
-							</span>
-						</a>
-					)
-				}
-			]
-
-			handleBreadcrumb(breadcrumbItems)
+			navigateToPath('/login')
 		}
-	}, [])
+	}, [validLogin, roles, navigateToPath])
 
-	useEffect(()=>{
+	useEffect(() => {
 		if (!open) {
 			getSuppliersData()
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [open])
 
 	return (
@@ -278,13 +306,15 @@ const Suppliers = () => {
 			</div>
 			<div className='btn-container'>
 				<div className='right'>
-					<Button
-						type='primary'
-						icon={<UserAddOutlined />}
-						onClick={handleResetSuppliersForm}
-					>
-						Nuevo Suplidor
-					</Button>
+					{!userHasAccessToModule(MODULE, 'view', roles) ? (
+						<Button
+							type='primary'
+							icon={<UserAddOutlined />}
+							onClick={handleResetSuppliersForm}
+						>
+							Nuevo Suplidor
+						</Button>
+					) : null}
 					<Button
 						style={{
 							display: 'flex',

@@ -1,61 +1,69 @@
 import { HomeOutlined } from '@ant-design/icons'
-import { useContext, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useContext, useEffect } from 'react'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
-import { sleep } from '../functions/sleep'
 import '../styles/Home.css'
 import BarGraphics from './Graphics/BarGraphics'
 import DoughnutGraphics from './Graphics/DonughtGraphics'
 import LineGraphics from './Graphics/LineGraphics'
-import Loader from './Loader'
 
 const Home = () => {
 	const { validLogin } = useContext(AuthContext)
-	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
-	const navigate = useNavigate()
-	const [loaded, setLoaded] = useState(true)
+	const {
+		display,
+		handleLayout,
+		handleLayoutLoading,
+		handleBreadcrumb,
+		navigateToPath
+	} = useContext(LayoutContext)
 
 	useEffect(() => {
 		document.title = 'Inicio'
-		async function waitForUpdate() {
-			await sleep(1000)
-		}
 
-		if (!validLogin || validLogin == null || validLogin === undefined) {
-			waitForUpdate()
-			handleLayout(false)
-			navigate('/login')
+		const breadcrumbItems = [
+			{
+				title: (
+					<a onClick={() => navigateToPath('/')}>
+						<span className='breadcrumb-item'>
+							<HomeOutlined />
+						</span>
+					</a>
+				)
+			}
+		]
+
+		handleBreadcrumb([])
+
+		if (validLogin !== undefined && validLogin !== null) {
+			if (validLogin) {
+				handleLayout(true)
+				handleBreadcrumb(breadcrumbItems)
+			}
 		} else {
-			handleLayout(true)
-			setLoaded(false)
-
-			const breadcrumbItems = [
-				{
-					title: (
-						<a onClick={() => navigate('/')}>
-							<span className='breadcrumb-item'>
-								<HomeOutlined />
-							</span>
-						</a>
-					)
-				}
-			]
-			handleBreadcrumb(breadcrumbItems)
+			handleLayout(false)
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
 
-	// return loaded ? (
-	// 	<Loader />
-	// ) : (
-	// 	<>
-	// 		<p></p>
-	// 	</>
-	// )
-	return loaded ? (
-		<Loader />
-	) : (
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [validLogin])
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (display) {
+				handleLayoutLoading(false)
+			}
+		}, 200)
+		return () => {
+			clearInterval(interval)
+		}
+	}, [display, handleLayoutLoading])
+
+	useEffect(() => {
+		if (!validLogin) {
+			navigateToPath('/login')
+		}
+	}, [validLogin, navigateToPath])
+
+	return (
 		<>
 			<div className='main-content'>
 				<div className='card-contain'>
