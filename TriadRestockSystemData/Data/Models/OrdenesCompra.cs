@@ -42,6 +42,9 @@ public partial class OrdenesCompra
     [InverseProperty("IdOrdenCompraNavigation")]
     public virtual ICollection<Inventario> Inventarios { get; set; } = new List<Inventario>();
 
+    [InverseProperty("IdOrdenCompraNavigation")]
+    public virtual ICollection<OrdenesCompraDetalle> OrdenesCompraDetalles { get; set; } = new List<OrdenesCompraDetalle>();
+
     [ForeignKey("IdOrdenCompra")]
     [InverseProperty("IdOrdenCompras")]
     public virtual ICollection<Requisicione> IdRequisicions { get; set; } = new List<Requisicione>();

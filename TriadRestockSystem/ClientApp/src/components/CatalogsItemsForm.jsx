@@ -1,8 +1,12 @@
 import { Button, Col, Empty, Form, Modal, Row, Transfer } from 'antd'
 import { useContext, useEffect, useState } from 'react'
+import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { createCatalogItemsModel } from '../functions/constructors'
+import { userHasAccessToModule } from '../functions/validation'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
+
+const MODULE = 'Catálogos de artículos'
 
 const SAVE_CATALOG_ITEMS = '/api/catalogos/guardarArticulosCatalogo'
 
@@ -28,6 +32,7 @@ const CatalogsItemsForm = ({
 	handleLoading
 }) => {
 	const axiosPrivate = useAxiosPrivate()
+	const { roles } = useContext(AuthContext)
 	const { openMessage } = useContext(LayoutContext)
 	const [title, setTitle] = useState('')
 	const [form] = Form.useForm()
@@ -115,6 +120,7 @@ const CatalogsItemsForm = ({
 						type='primary'
 						loading={loading}
 						onClick={handleSubmit}
+						disabled={!userHasAccessToModule(MODULE, 'creation', roles)}
 					>
 						Guardar
 					</Button>

@@ -22,4 +22,12 @@ public partial class OrdenesCompraDetalle
 
     [Column(TypeName = "decimal(18, 2)")]
     public decimal Cantidad { get; set; }
+
+    [ForeignKey("IdArticulo")]
+    [InverseProperty("OrdenesCompraDetalles")]
+    public virtual Articulo IdArticuloNavigation { get; set; } = null!;
+
+    [ForeignKey("IdOrdenCompra")]
+    [InverseProperty("OrdenesCompraDetalles")]
+    public virtual OrdenesCompra IdOrdenCompraNavigation { get; set; } = null!;
 }

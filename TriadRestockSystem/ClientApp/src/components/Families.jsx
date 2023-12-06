@@ -1,30 +1,35 @@
 import {
 	EditOutlined,
+	HomeOutlined,
 	ReloadOutlined,
 	UserAddOutlined
 } from '@ant-design/icons'
 import { Button, Space, Statistic } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
-import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { createFamiliesModel } from '../functions/constructors'
-import { sleep } from '../functions/sleep'
-import useBankAccounts from '../hooks/useBankAccounts'
-import useBanks from '../hooks/useBanks'
+import { userHasAccessToModule } from '../functions/validation'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
 import CustomTable from './CustomTable'
 import FamiliesForm from './FamiliesForm'
 
+const MODULE = 'Familias de artículos'
+
 const FAMILIES_DATA_URL = '/api/familias/getFamilias'
 const GET_FAMILY_DATA = '/api/familias/getFamilia'
 
 const Families = () => {
-	const { validLogin } = useContext(AuthContext)
-	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
-	const navigate = useNavigate()
+	const { validLogin, roles } = useContext(AuthContext)
+	const {
+		display,
+		handleLayout,
+		handleLayoutLoading,
+		handleBreadcrumb,
+		navigateToPath
+	} = useContext(LayoutContext)
 
 	const [title, setTitle] = useState('')
 	const axiosPrivate = useAxiosPrivate()
@@ -32,8 +37,8 @@ const Families = () => {
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
 
-	const banks = useBanks().items
-	const banksAccounts = useBankAccounts().items
+	// const banks = useBanks().items
+	// const banksAccounts = useBankAccounts().items
 
 	const [tableState, setTableState] = useState(true)
 	const tableRef = useRef()
@@ -56,33 +61,57 @@ const Families = () => {
 
 	useEffect(() => {
 		document.title = 'Familias'
-		async function waitForUpdate() {
-			await sleep(1000)
+		const breadcrumbItems = [
+			{
+				title: (
+					<a onClick={() => navigateToPath('/')}>
+						<span className='breadcrumb-item'>
+							<HomeOutlined />
+						</span>
+					</a>
+				)
+			},
+			{
+				title: (
+					<a onClick={() => {}}>
+						<span className='breadcrumb-item'>Familias</span>
+					</a>
+				)
+			}
+		]
+
+		handleBreadcrumb([])
+
+		if (validLogin !== undefined && validLogin !== null) {
+			if (validLogin) {
+				handleLayout(true)
+				handleBreadcrumb(breadcrumbItems)
+
+				getFamiliesData()
+			} else {
+				handleLayout(false)
+			}
 		}
 
-		if (!validLogin) {
-			waitForUpdate()
-			handleLayout(false)
-			navigate('/login')
-		} else {
-			handleLayout(true)
-			getFamiliesData()
-			const breadcrumbItems = [
-				{
-					title: (
-						<a onClick={() => navigate('/families')}>
-							<span className='breadcrumb-item'>
-								<span className='breadcrumb-item-title'>Familias</span>
-							</span>
-						</a>
-					)
-				}
-			]
-
-			handleBreadcrumb(breadcrumbItems)
-		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [validLogin])
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (display) {
+				handleLayoutLoading(false)
+			}
+		}, 200)
+		return () => {
+			clearInterval(interval)
+		}
+	}, [display, handleLayoutLoading])
+
+	useEffect(() => {
+		if (!validLogin) {
+			navigateToPath('/login')
+		}
+	}, [validLogin, roles, navigateToPath])
 
 	const columns = [
 		{
@@ -124,16 +153,19 @@ const Families = () => {
 			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
 		},
 		{
-			title: 'Acciones',
+			title: '',
 			key: 'accion',
 			render: (_, record) => (
 				<Space size='middle' align='center'>
-					<Button
-						icon={<EditOutlined />}
-						onClick={() => handleEditFamily(record)}
-					>
-						Editar
-					</Button>
+					{userHasAccessToModule(MODULE, 'creation', roles) ||
+					userHasAccessToModule(MODULE, 'management', roles) ? (
+						<Button
+							icon={<EditOutlined />}
+							onClick={() => handleEditFamily(record)}
+						>
+							Editar
+						</Button>
+					) : null}
 				</Space>
 			)
 		}
@@ -184,8 +216,8 @@ const Families = () => {
 	return (
 		<>
 			<FamiliesForm
-				banks={banks}
-				banksAccounts={banksAccounts}
+				banks={[]}
+				banksAccounts={[]}
 				title={title}
 				open={open}
 				handleOpen={closeFamiliesForm}
@@ -203,13 +235,17 @@ const Families = () => {
 			</div>
 			<div className='btn-container'>
 				<div className='right'>
-					<Button
-						type='primary'
-						icon={<UserAddOutlined />}
-						onClick={handleResetFamiliesForm}
-					>
-						Nuevo familia
-					</Button>
+					{userHasAccessToModule(MODULE, 'creation', roles) ||
+					userHasAccessToModule(MODULE, 'management', roles) ? (
+						<Button
+							type='primary'
+							icon={<UserAddOutlined />}
+							onClick={handleResetFamiliesForm}
+						>
+							Nuevo familia
+						</Button>
+					) : null}
+
 					<Button
 						style={{
 							display: 'flex',

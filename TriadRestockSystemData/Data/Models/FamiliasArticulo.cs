@@ -34,4 +34,8 @@ public partial class FamiliasArticulo
     [ForeignKey("ModificadoPor")]
     [InverseProperty("FamiliasArticuloModificadoPorNavigations")]
     public virtual Usuario? ModificadoPorNavigation { get; set; }
+
+    [ForeignKey("IdFamilia")]
+    [InverseProperty("IdFamilia")]
+    public virtual ICollection<Almacene> IdAlmacens { get; set; } = new List<Almacene>();
 }

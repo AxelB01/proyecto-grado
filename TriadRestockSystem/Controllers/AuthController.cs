@@ -40,11 +40,27 @@ namespace TriadRestockSystem.Controllers
 
                 var user = _db.Usuarios
                     .Include(u => u.IdRols)
+                    .ThenInclude(u => u.RolesModulos)
+                    .ThenInclude(r => r.IdModuloNavigation)
                     .FirstOrDefault(u => u.Login.Equals(login.Username.ToLower().Trim()) && u.Password!.Equals(encryptedPass));
 
                 if (user != null)
                 {
-                    var roles = user.IdRols.Select(r => r.Rol).ToList();
+                    var roles = user.IdRols
+                        .Select(r => new
+                        {
+                            Role = r.IdRol,
+                            RoleName = r.Rol,
+                            Permissions = r.RolesModulos.Select(p => new
+                            {
+                                Module = p.IdModuloNavigation.Modulo1,
+                                View = p.Vista,
+                                Creation = p.Creacion,
+                                Management = p.Gestion
+                            }).ToList()
+                        })
+                        .ToList();
+
                     var token = CreateToken(user);
                     var refreshtoken = CreateRefreshToken();
 

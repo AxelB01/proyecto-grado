@@ -3,6 +3,7 @@ import {
 	CaretDownOutlined,
 	DownloadOutlined,
 	FormOutlined,
+	HomeOutlined,
 	PlusOutlined,
 	ReloadOutlined
 } from '@ant-design/icons'
@@ -20,7 +21,7 @@ import {
 } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 import CountUp from 'react-countup'
-import { useLocation, useNavigate } from 'react-router'
+import { useLocation } from 'react-router'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import {
@@ -28,7 +29,6 @@ import {
 	createWharehouseSectionModel,
 	createWharehouseSectionStockModel
 } from '../functions/constructors'
-import { sleep } from '../functions/sleep'
 import useItemStates from '../hooks/useItemStates'
 import useItems from '../hooks/useItems'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
@@ -92,11 +92,16 @@ const sectionStockMenuOptions = [
 
 const Wharehouse = () => {
 	const location = useLocation()
-	const navigate = useNavigate()
 	const [customState, setCustomState] = useState(null)
 
-	const { validLogin } = useContext(AuthContext)
-	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
+	const { validLogin, roles } = useContext(AuthContext)
+	const {
+		display,
+		handleLayout,
+		handleLayoutLoading,
+		handleBreadcrumb,
+		navigateToPath
+	} = useContext(LayoutContext)
 	const axiosPrivate = useAxiosPrivate()
 
 	const wharehouseStates = useWharehouseStates().items
@@ -615,44 +620,65 @@ const Wharehouse = () => {
 
 	useEffect(() => {
 		const { state } = location
-		setCustomState(state)
+		setCustomState(state.Id)
 
 		document.title = 'Almacén'
-		async function waitForUpdate() {
-			await sleep(1000)
-		}
+		const breadcrumbItems = [
+			{
+				title: (
+					<a onClick={() => navigateToPath('/')}>
+						<span className='breadcrumb-item'>
+							<HomeOutlined />
+						</span>
+					</a>
+				)
+			},
+			{
+				title: (
+					<a onClick={() => navigateToPath('/wharehouses')}>
+						<span className='breadcrumb-item'>Almacenes</span>
+					</a>
+				)
+			},
+			{
+				title: (
+					<a onClick={() => {}}>
+						<span className='breadcrumb-item'>Almacén</span>
+					</a>
+				)
+			}
+		]
 
-		if (!validLogin) {
-			waitForUpdate()
-			handleLayout(false)
-			navigate('/login')
-		} else {
-			handleLayout(true)
-			const breadcrumbItems = [
-				{
-					title: (
-						<a onClick={() => navigate('/wharehouses')}>
-							<span className='breadcrumb-item'>
-								<span className='breadcrumb-item-title'>Almacenes</span>
-							</span>
-						</a>
-					)
-				},
-				{
-					title: (
-						<a>
-							<span className='breadcrumb-item'>
-								<span className='breadcrumb-item-title'>Almacén</span>
-							</span>
-						</a>
-					)
-				}
-			]
-			handleBreadcrumb(breadcrumbItems)
+		handleBreadcrumb([])
+
+		if (validLogin !== undefined && validLogin !== null) {
+			if (validLogin) {
+				handleLayout(true)
+				handleBreadcrumb(breadcrumbItems)
+			} else {
+				handleLayout(false)
+			}
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [location])
+	}, [validLogin, location])
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (display) {
+				handleLayoutLoading(false)
+			}
+		}, 200)
+		return () => {
+			clearInterval(interval)
+		}
+	}, [display, handleLayoutLoading])
+
+	useEffect(() => {
+		if (!validLogin) {
+			navigateToPath('/login')
+		}
+	}, [validLogin, roles, navigateToPath])
 
 	useEffect(() => {
 		loadWharehouseData()

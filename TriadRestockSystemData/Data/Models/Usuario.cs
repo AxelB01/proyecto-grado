@@ -155,6 +155,12 @@ public partial class Usuario
     public virtual ICollection<RegistroPago> RegistroPagoModificadoPorNavigations { get; set; } = new List<RegistroPago>();
 
     [InverseProperty("CreadoPorNavigation")]
+    public virtual ICollection<Role> RoleCreadoPorNavigations { get; set; } = new List<Role>();
+
+    [InverseProperty("ModificadoPorNavigation")]
+    public virtual ICollection<Role> RoleModificadoPorNavigations { get; set; } = new List<Role>();
+
+    [InverseProperty("CreadoPorNavigation")]
     public virtual ICollection<UnidadesMedida> UnidadesMedidaCreadoPorNavigations { get; set; } = new List<UnidadesMedida>();
 
     [InverseProperty("ModificadoPorNavigation")]

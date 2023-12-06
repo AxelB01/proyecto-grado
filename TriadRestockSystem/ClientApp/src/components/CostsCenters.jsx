@@ -1,6 +1,7 @@
 import {
 	AuditOutlined,
 	EditOutlined,
+	HomeOutlined,
 	PlusOutlined,
 	ReloadOutlined
 } from '@ant-design/icons'
@@ -11,7 +12,7 @@ import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { createCostCenterModel } from '../functions/constructors'
-import { sleep } from '../functions/sleep'
+import { userHasAccessToModule } from '../functions/validation'
 import useBankAccounts from '../hooks/useBankAccounts'
 import useBanks from '../hooks/useBanks'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
@@ -19,12 +20,20 @@ import '../styles/DefaultContentStyle.css'
 import CostsCentersForm from './CostsCentersForm'
 import CustomTable from './CustomTable'
 
+const MODULE = 'Centros de costos'
+
 const CENTROS_COSTOS_URL = '/api/configuraciones/getCostsCentersData'
 const CENTRO_COSTO_GET = '/api/configuraciones/getCentroCostos'
 
 const CostsCenters = () => {
-	const { validLogin } = useContext(AuthContext)
-	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
+	const { validLogin, roles } = useContext(AuthContext)
+	const {
+		display,
+		handleLayout,
+		handleLayoutLoading,
+		handleBreadcrumb,
+		navigateToPath
+	} = useContext(LayoutContext)
 
 	const axiosPrivate = useAxiosPrivate()
 	const navigate = useNavigate()
@@ -162,13 +171,16 @@ const CostsCenters = () => {
 			width: 240,
 			render: (_, record) => (
 				<Space size='middle' align='center'>
-					<Button
-						icon={<EditOutlined />}
-						loading={loading[record.id]}
-						onClick={() => handleEditCostCenter(record.id)}
-					>
-						Editar
-					</Button>
+					{!userHasAccessToModule(MODULE, 'view', roles) ? (
+						<Button
+							icon={<EditOutlined />}
+							loading={loading[record.id]}
+							onClick={() => handleEditCostCenter(record.id)}
+						>
+							Editar
+						</Button>
+					) : null}
+
 					<Button icon={<AuditOutlined />} onClick={() => {}}>
 						Historial
 					</Button>
@@ -179,34 +191,55 @@ const CostsCenters = () => {
 
 	useEffect(() => {
 		document.title = 'Centros de costos'
-		async function waitForUpdate() {
-			await sleep(1000)
+		const breadcrumbItems = [
+			{
+				title: (
+					<a onClick={() => navigateToPath('/')}>
+						<span className='breadcrumb-item'>
+							<HomeOutlined />
+						</span>
+					</a>
+				)
+			},
+			{
+				title: (
+					<a onClick={() => {}}>
+						<span className='breadcrumb-item'>Centros de costos</span>
+					</a>
+				)
+			}
+		]
+
+		handleBreadcrumb([])
+
+		if (validLogin !== undefined && validLogin !== null) {
+			if (validLogin) {
+				handleLayout(true)
+				handleBreadcrumb(breadcrumbItems)
+			} else {
+				handleLayout(false)
+			}
 		}
 
-		if (!validLogin) {
-			waitForUpdate()
-			handleLayout(false)
-			navigate('/login')
-		} else {
-			handleLayout(true)
-
-			const breadcrumbItems = [
-				{
-					title: (
-						<a onClick={() => navigate('/costsCenters')}>
-							<span className='breadcrumb-item'>
-								{/* <MoneyCollectOutlined /> */}
-								<span className='breadcrumb-item-title'>Centros de costos</span>
-							</span>
-						</a>
-					)
-				}
-			]
-
-			handleBreadcrumb(breadcrumbItems)
-		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [validLogin])
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (display) {
+				handleLayoutLoading(false)
+			}
+		}, 200)
+		return () => {
+			clearInterval(interval)
+		}
+	}, [display, handleLayoutLoading])
+
+	useEffect(() => {
+		if (!validLogin) {
+			navigateToPath('/login')
+		}
+	}, [validLogin, roles, navigateToPath])
 
 	return (
 		<>
@@ -231,17 +264,19 @@ const CostsCenters = () => {
 				</div>
 				<div className='btn-container'>
 					<div className='right'>
-						<Button
-							style={{
-								display: 'flex',
-								alignItems: 'center'
-							}}
-							type='primary'
-							icon={<PlusOutlined />}
-							onClick={() => handleOpen(true)}
-						>
-							Nuevo Centro de costos
-						</Button>
+						{!userHasAccessToModule(MODULE, 'view', roles) ? (
+							<Button
+								style={{
+									display: 'flex',
+									alignItems: 'center'
+								}}
+								type='primary'
+								icon={<PlusOutlined />}
+								onClick={() => handleOpen(true)}
+							>
+								Nuevo Centro de costos
+							</Button>
+						) : null}
 						<Button
 							style={{
 								display: 'flex',

@@ -70,6 +70,9 @@ public partial class Articulo
     public virtual Usuario? ModificadoPorNavigation { get; set; }
 
     [InverseProperty("IdArticuloNavigation")]
+    public virtual ICollection<OrdenesCompraDetalle> OrdenesCompraDetalles { get; set; } = new List<OrdenesCompraDetalle>();
+
+    [InverseProperty("IdArticuloNavigation")]
     public virtual ICollection<RequisicionesDetalle> RequisicionesDetalles { get; set; } = new List<RequisicionesDetalle>();
 
     [InverseProperty("IdArticuloNavigation")]

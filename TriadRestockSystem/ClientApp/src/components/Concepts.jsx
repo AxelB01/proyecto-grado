@@ -1,11 +1,13 @@
-import { CaretDownOutlined, EditOutlined } from '@ant-design/icons'
+import {
+	CaretDownOutlined,
+	EditOutlined,
+	HomeOutlined
+} from '@ant-design/icons'
 import { Button, Dropdown, Space } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { createConceptModel } from '../functions/constructors'
-import { sleep } from '../functions/sleep'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
 import ConceptForm from './ConceptForm'
@@ -25,39 +27,67 @@ const parentConceptMenuOptions = [
 ]
 
 const Concepts = () => {
-	const navigate = useNavigate()
+	const { validLogin, roles } = useContext(AuthContext)
+	const {
+		display,
+		handleLayout,
+		handleLayoutLoading,
+		handleBreadcrumb,
+		navigateToPath
+	} = useContext(LayoutContext)
 	const axiosPrivate = useAxiosPrivate()
-	const { validLogin } = useContext(AuthContext)
-	const { handleLayout, handleBreadcrumb } = useContext(LayoutContext)
 
 	useEffect(() => {
 		document.title = 'Conceptos'
-		async function waitForUpdate() {
-			await sleep(1000)
-		}
+		const breadcrumbItems = [
+			{
+				title: (
+					<a onClick={() => navigateToPath('/')}>
+						<span className='breadcrumb-item'>
+							<HomeOutlined />
+						</span>
+					</a>
+				)
+			},
+			{
+				title: (
+					<a onClick={() => {}}>
+						<span className='breadcrumb-item'>Conceptos</span>
+					</a>
+				)
+			}
+		]
 
-		if (!validLogin) {
-			waitForUpdate()
-			handleLayout(false)
-			navigate('/login')
-		} else {
-			handleLayout(true)
-			const breadcrumbItems = [
-				{
-					title: (
-						<a onClick={() => navigate('/wharehouses')}>
-							<span className='breadcrumb-item'>
-								<span className='breadcrumb-item-title'>Conceptos</span>
-							</span>
-						</a>
-					)
-				}
-			]
-			handleBreadcrumb(breadcrumbItems)
+		handleBreadcrumb([])
+
+		if (validLogin !== undefined && validLogin !== null) {
+			if (validLogin) {
+				handleLayout(true)
+				handleBreadcrumb(breadcrumbItems)
+			} else {
+				handleLayout(false)
+			}
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [validLogin])
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (display) {
+				handleLayoutLoading(false)
+			}
+		}, 200)
+		return () => {
+			clearInterval(interval)
+		}
+	}, [display, handleLayoutLoading])
+
+	useEffect(() => {
+		if (!validLogin) {
+			navigateToPath('/login')
+		}
+	}, [validLogin, roles, navigateToPath])
 
 	const expandedRowRender = record => {
 		const expandedColumns = [

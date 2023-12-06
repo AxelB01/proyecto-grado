@@ -125,5 +125,10 @@ namespace TriadRestockSystemData.Data
                 .Query<vmAlmacenPersonal>("AlmacenGetPersonal", commandType: CommandType.StoredProcedure)
                 .ToList();
         }
+
+        public static void RolesModulosSetUp(this InventarioDBContext context, int idRol)
+        {
+            context.Database.GetDbConnection().Execute("RolesModulosSetUp", new { idRol }, context.Database.CurrentTransaction?.GetDbTransaction(), commandType: CommandType.StoredProcedure);
+        }
     }
 }

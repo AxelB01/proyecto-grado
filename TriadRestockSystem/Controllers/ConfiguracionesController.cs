@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TriadRestockSystem.Security;
 using TriadRestockSystem.ViewModels;
 using TriadRestockSystemData.Data;
@@ -11,14 +12,7 @@ namespace TriadRestockSystem.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [JwtData]
-    [Authorize(Roles =
-        RolesNames.ADMINISTRADOR + "," +
-        RolesNames.ALAMCEN_AUXILIAR + "," +
-        RolesNames.ALMACEN_ENCARGADO + "," +
-        RolesNames.CENTROCOSTOS_AUXILIAR + "," +
-        RolesNames.CENTROCOSTOS_ENCARGADO + "," +
-        RolesNames.COMPRAS + "," +
-        RolesNames.PRESUPUESTO)]
+    [Authorize]
     public class ConfiguracionesController : Controller
     {
         private readonly InventarioDBContext _db;
@@ -490,6 +484,141 @@ namespace TriadRestockSystem.Controllers
             return Forbid();
         }
 
+        [HttpGet("getRolesModules")]
+        public IActionResult GetRolesModules()
+        {
+            var roles = _db.Roles
+                .Include(r => r.RolesModulos)
+                .ThenInclude(rm => rm.IdModuloNavigation)
+                .Select(r => new
+                {
+                    Key = r.IdRol,
+                    Role = r.Rol,
+                    Description = r.Descripcion,
+                    Permissions = r.RolesModulos.Select(rm => new
+                    {
+                        Key = $"{r.IdRol}-{rm.IdModulo}",
+                        Module = rm.IdModuloNavigation.Modulo1,
+                        View = rm.Vista,
+                        Creation = rm.Creacion,
+                        Management = rm.Gestion
+                    }).ToList()
+                })
+                .ToList();
+
+            var modules = _db.Modulos
+                .Select(m => new
+                {
+                    Key = m.IdModulo,
+                    Module = m.Modulo1
+                })
+                .ToList();
+
+            return Ok(new { roles, modules });
+        }
+
+        [HttpPost("saveRole")]
+        public IActionResult SaveRole(vmRole model)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                using var dbTran = _db.Database.BeginTransaction();
+                try
+                {
+
+                    var rol = _db.Roles
+                        .Include(r => r.RolesModulos)
+                        .FirstOrDefault(r => r.IdRol == model.IdRole);
+
+                    if (rol == null)
+                    {
+                        rol = new Role
+                        {
+                            IdRol = _db.Roles.Count() + 1,
+                            CreadoPor = user.IdUsuario,
+                            FechaCreacion = DateTime.Now
+                        };
+
+                        _db.Roles.Add(rol);
+                    }
+                    else
+                    {
+                        rol.ModificadoPor = user.IdUsuario;
+                        rol.FechaModificacion = DateTime.Now;
+                    }
+
+                    rol.Rol = model.Role;
+                    rol.Descripcion = model.Description;
+
+                    _db.SaveChanges();
+
+                    if (rol.RolesModulos.Count == 0)
+                    {
+                        _db.RolesModulosSetUp(rol.IdRol);
+                    }
+
+                    dbTran.Commit();
+
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    dbTran.Rollback();
+                    return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
+                }
+            }
+
+            return Forbid();
+        }
+
+        [HttpPost("saveRolePermissions")]
+        public IActionResult SaveRolePermissions(vmRolePermissions model)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                using var dbTran = _db.Database.BeginTransaction();
+                try
+                {
+                    var role = _db.Roles
+                        .Include(r => r.RolesModulos)
+                        .First(r => r.IdRol == model.IdRole);
+
+                    var datetime = DateTime.Now;
+
+                    foreach (var item in model.Permissions)
+                    {
+                        var permission = role.RolesModulos.First(rm => rm.IdModulo == item.Id);
+                        permission.Vista = item.View;
+                        permission.Creacion = item.Creation;
+                        permission.Gestion = item.Management;
+                        permission.ModificadoPor = user.IdUsuario;
+                        permission.FechaModificacion = datetime;
+                    }
+
+                    _db.SaveChanges();
+                    dbTran.Commit();
+
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    dbTran.Rollback();
+                    return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
+                }
+            }
+
+            return Forbid();
+        }
     }
 }
 

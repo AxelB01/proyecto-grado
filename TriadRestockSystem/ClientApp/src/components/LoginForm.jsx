@@ -13,7 +13,7 @@ const LOGIN_URL = 'api/auth/login'
 
 const LoginForm = () => {
 	const { createAuth, destroyStoredAuth } = useContext(AuthContext)
-	const { openMessage } = useContext(LayoutContext)
+	const { handleLayoutLoading, openMessage } = useContext(LayoutContext)
 
 	const [form] = Form.useForm()
 	const values = Form.useWatch([], form)
@@ -40,6 +40,7 @@ const LoginForm = () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 			if (response?.status === 200) {
+				handleLayoutLoading(true)
 				const data = response?.data
 				const {
 					firstname,
@@ -51,8 +52,6 @@ const LoginForm = () => {
 					token,
 					refreshtoken
 				} = data
-
-				console.log(roles)
 
 				destroyStoredAuth()
 				createAuth(
