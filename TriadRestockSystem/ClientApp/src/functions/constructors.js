@@ -295,3 +295,10 @@ export const createRolePermissionsModel = () => {
 		Permissions: []
 	}
 }
+
+export const createWharehouseFamiliesModel = () => {
+	return {
+		Id: 0,
+		Families: []
+	}
+}

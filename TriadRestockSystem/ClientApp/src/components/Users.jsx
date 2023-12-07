@@ -226,6 +226,7 @@ const Users = () => {
 		try {
 			const response = await axiosPrivate.get(ROLES_URL)
 			const items = response?.data.items
+			console.log(items)
 			setRolesItems(items)
 		} catch (error) {
 			console.log(error)

@@ -71,13 +71,22 @@ const UserForm = ({
 
 	useEffect(() => {
 		const roles = values?.roles
-
 		if (roles !== undefined) {
-			const costCenterRoleSelected =
-				values.roles.includes(6) || values.roles.includes(7)
-			setDisabled(!costCenterRoleSelected)
-			setRequired(costCenterRoleSelected)
+			const rolesPermissions = rolesItems.filter(r => roles.includes(r.key))
+			let hasCostCenterPermissions = false
+			rolesPermissions.forEach(r => {
+				if (!hasCostCenterPermissions) {
+					const permission = r.permissions.filter(
+						p => p.module === 'Solicitudes de materiales'
+					)[0]
+					hasCostCenterPermissions =
+						permission.view || permission.creation || permission.management
+				}
+			})
+			setDisabled(!hasCostCenterPermissions)
+			setRequired(hasCostCenterPermissions)
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [values])
 
 	const saveUser = async model => {
@@ -341,6 +350,7 @@ const UserForm = ({
 									mode='multiple'
 									allowClear
 									placeholder='Seleccione uno o varios roles'
+									optionFilterProp='label'
 									options={rolesItems.map(rol => {
 										return { value: rol.key, label: rol.text }
 									})}

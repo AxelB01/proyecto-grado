@@ -26,9 +26,11 @@ import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import {
 	createInventoryEntryModel,
+	createWharehouseFamiliesModel,
 	createWharehouseSectionModel,
 	createWharehouseSectionStockModel
 } from '../functions/constructors'
+import useDataList from '../hooks/useDataList'
 import useItemStates from '../hooks/useItemStates'
 import useItems from '../hooks/useItems'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
@@ -38,9 +40,11 @@ import '../styles/DefaultContentStyle.css'
 import CustomTable from './CustomTable'
 import RequisitionAutomaticForm from './RequisitionAutomaticForm'
 import WharehouseDatatables from './WharehouseDatatables'
+import WharehouseFamiliesForm from './WharehouseFamiliesForm'
 import WharehouseInfo from './WharehouseInfo'
 import WharehouseInventory from './WharehouseInventory'
 import WharehouseInvetoryEntryForm from './WharehouseInventoryEntryForm'
+import WharehouseItemsSorting from './WharehouseItemsSorting'
 import WharehouseSectionForm from './WharehouseSectionForm'
 import WharehouseSectionStockForm from './WharehouseSectionStockForm'
 import WharehouseSectionStockModal from './WharehouseSectionStockModal'
@@ -54,6 +58,7 @@ const ALMACENES_SECCIONES_ESTANTERIAS_URL =
 	'/api/data/getAlmacenSeccionesEstanterias'
 const ARTICULOS_MARCAS_URL = '/api/data/getMarcasArticulos'
 const ARTICULOS_IMPUESTOS_URL = '/api/data/getImpuestosArticulos'
+const GET_FAMILIAS = '/api/data/getFamilias'
 
 const wharehouseMenuOptions = [
 	{
@@ -63,6 +68,14 @@ const wharehouseMenuOptions = [
 	{
 		key: '1',
 		label: 'Requisición automática'
+	},
+	{
+		key: '2',
+		label: 'Familias'
+	},
+	{
+		key: '3',
+		label: 'Ordenamiento de artículos'
 	}
 ]
 
@@ -117,6 +130,7 @@ const Wharehouse = () => {
 	const [requests, setRequests] = useState([])
 	const [procurementOrders, setProcurementOrders] = useState([])
 	const [pendingOrders, setPendingOrders] = useState([])
+	const families = useDataList(GET_FAMILIAS)
 	const [timelineItems, setTimelineItems] = useState([])
 
 	const [tableState, setTableState] = useState(true)
@@ -276,6 +290,26 @@ const Wharehouse = () => {
 	}, [openStockForm])
 
 	// Stock Form
+
+	// Families Form
+	const [familiesFormStatus, setFamiliesFormStatus] = useState(false)
+	const [familiesFormInitialValues, setFamiliesFormInitialValues] = useState({})
+
+	const toggleFamiliesFormModal = () => {
+		setFamiliesFormStatus(!familiesFormStatus)
+	}
+
+	// Families Form
+
+	// Sorting of articles
+	const [sortingFormStatus, setSortingFormStatus] = useState(false)
+	const [sortingFormInitialValues, setSortingFormInitialValues] = useState([])
+
+	const toggleSortingFormModal = () => {
+		setSortingFormStatus(!sortingFormStatus)
+	}
+
+	// Sorting of articles
 
 	// Inventory Entry Form
 
@@ -590,6 +624,13 @@ const Wharehouse = () => {
 				setRequisitions(data.requisiciones)
 				setSections(data.secciones)
 
+				const familiesFormModel = createWharehouseFamiliesModel()
+				familiesFormModel.Id = data.almacen.key
+				familiesFormModel.Families = data.familias.map(f => {
+					return f.key
+				})
+				setFamiliesFormInitialValues(familiesFormModel)
+
 				let shelves = 0
 				let shelvesInUSe = 0
 
@@ -722,6 +763,17 @@ const Wharehouse = () => {
 		setPendingTableState(false)
 	}, [procurementOrders])
 
+	useEffect(() => {
+		if (!familiesFormStatus) {
+			loadWharehouseData()
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [familiesFormStatus])
+
+	useEffect(() => {
+		console.log(familiesFormInitialValues)
+	}, [familiesFormInitialValues])
+
 	return (
 		<>
 			<div className='page-content-container'>
@@ -780,6 +832,18 @@ const Wharehouse = () => {
 					loading={inventoryEntryFormLoading}
 					handleLoading={handleInventoryEntryFormLoading}
 					handleRefreshData={loadWharehouseData}
+				/>
+				<WharehouseFamiliesForm
+					open={familiesFormStatus}
+					toggle={toggleFamiliesFormModal}
+					source={families}
+					access={true}
+					initialValues={familiesFormInitialValues}
+				/>
+				<WharehouseItemsSorting
+					open={sortingFormStatus}
+					toggle={toggleSortingFormModal}
+					initialValues={sortingFormInitialValues}
 				/>
 				<div className='outter-info-container'>
 					<div className='info-container'>
@@ -875,6 +939,12 @@ const Wharehouse = () => {
 											break
 										case '1':
 											handleAutomaticRequisitionStatus()
+											break
+										case '2':
+											toggleFamiliesFormModal()
+											break
+										case '3':
+											toggleSortingFormModal()
 											break
 										default:
 											break

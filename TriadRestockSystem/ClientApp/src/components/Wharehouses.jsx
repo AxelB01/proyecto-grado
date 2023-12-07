@@ -1,6 +1,6 @@
 import {
+	ArrowRightOutlined,
 	EditOutlined,
-	ExpandAltOutlined,
 	HomeOutlined,
 	PlusOutlined,
 	ReloadOutlined
@@ -10,12 +10,15 @@ import { useContext, useEffect, useRef, useState } from 'react'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { createWharehouesesModel } from '../functions/constructors'
+import { userHasAccessToModule } from '../functions/validation'
 import useDataList from '../hooks/useDataList'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import useWharehouseStates from '../hooks/useWharehouseStates'
 import '../styles/DefaultContentStyle.css'
 import CustomTable from './CustomTable'
 import WharehouseForm from './WharehouseForm'
+
+const MODULE = 'Almacenes'
 
 const GET_WHAREHOUSES = 'api/almacenes/getAlmacenes'
 const GET_WHAREHOUSES_STAFF = 'api/almacenes/almacenPersonal'
@@ -177,6 +180,7 @@ const Wharehouses = () => {
 						<Button
 							type='text'
 							icon={<EditOutlined />}
+							disabled={userHasAccessToModule(MODULE, 'view', roles)}
 							onClick={() => {
 								loadWharehouseData(record.key)
 							}}
@@ -185,7 +189,7 @@ const Wharehouses = () => {
 					<Tooltip title='Entrar'>
 						<Button
 							type='text'
-							icon={<ExpandAltOutlined />}
+							icon={<ArrowRightOutlined />}
 							onClick={() => navigateToPath('/wharehouse', { Id: record.key })}
 						/>
 					</Tooltip>
@@ -302,13 +306,15 @@ const Wharehouses = () => {
 			<div className='page-content-container'>
 				<div className='btn-container'>
 					<div className='right'>
-						<Button
-							type='primary'
-							icon={<PlusOutlined />}
-							onClick={handleResetSuppliersForm}
-						>
-							Nuevo Almacén
-						</Button>
+						{!userHasAccessToModule(MODULE, 'view', roles) ? (
+							<Button
+								type='primary'
+								icon={<PlusOutlined />}
+								onClick={handleResetSuppliersForm}
+							>
+								Nuevo Almacén
+							</Button>
+						) : null}
 						<Button
 							style={{
 								display: 'flex',

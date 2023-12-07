@@ -11,5 +11,6 @@ namespace TriadRestockSystem.ViewModels
         public List<OrdenesCompra> OrdenesCompras { get; set; } = new List<OrdenesCompra>();
         public List<vmAlmacenSeccion> Secciones { get; set; } = new List<vmAlmacenSeccion>();
         public List<vmAlmacenArticulo> Articulos { get; set; } = new List<vmAlmacenArticulo>();
+        public List<vmAlmacenFamilia> Familias { get; set; } = new List<vmAlmacenFamilia>();
     }
 }
