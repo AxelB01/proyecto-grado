@@ -223,6 +223,11 @@ const Wharehouse = () => {
 	// Stock Form
 
 	const items = useItems().items
+
+	useEffect(() => {
+		console.log(items)
+	}, [items])
+
 	const [idSectionStock, setIdSectionStock] = useState(0)
 	const [stockFormValues, setStockFormValues] = useState(
 		createWharehouseSectionStockModel()
@@ -843,6 +848,7 @@ const Wharehouse = () => {
 				<WharehouseItemsSorting
 					open={sortingFormStatus}
 					toggle={toggleSortingFormModal}
+					items={items}
 					initialValues={sortingFormInitialValues}
 				/>
 				<div className='outter-info-container'>
