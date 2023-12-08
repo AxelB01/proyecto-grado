@@ -290,6 +290,10 @@ const Catalogs = () => {
 		}
 	}, [validLogin, roles, navigateToPath])
 
+	useEffect(() => {
+		console.log(itemsList)
+	}, [itemsList])
+
 	return (
 		<>
 			<div className='page-content-container'>

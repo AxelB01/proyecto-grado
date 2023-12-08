@@ -135,6 +135,7 @@ namespace TriadRestockSystem.Controllers
                 .ThenInclude(a => a.IdUsuarioNavigation)
                 .Include(a => a.UsuariosAlmacenes)
                 .ThenInclude(a => a.IdRolNavigation)
+                .Include(a => a.IdFamilia)
                 .FirstOrDefault(a => a.IdAlmacen == id);
 
             if (almacen != null)
@@ -164,6 +165,7 @@ namespace TriadRestockSystem.Controllers
                 var solicitudesMateriales = _db.SolicitudesMaterialesByIdAlm(almacen.IdAlmacen).ToList();
                 var ordenesCompra = almacen.OrdenesCompras.ToList();
                 var secciones = almacen.AlmacenesSecciones
+                    .Where(s => s.IdAlmacen == id)
                     .Select(s => new vmAlmacenSeccion
                     {
                         IdAlmacenSeccion = s.IdAlmacenSeccion,
@@ -251,6 +253,14 @@ namespace TriadRestockSystem.Controllers
                     listaRequisiciones.Add(requisicion);
                 }
 
+                var familias = almacen.IdFamilia
+                    .Select(f => new vmAlmacenFamilia
+                    {
+                        Key = f.IdFamilia,
+                        Name = f.Familia
+                    })
+                    .ToList();
+
                 var model = new Wharehouse
                 {
                     Almacen = almacenInfo,
@@ -258,7 +268,8 @@ namespace TriadRestockSystem.Controllers
                     OrdenesCompras = ordenesCompra,
                     Requisiciones = listaRequisiciones,
                     Secciones = secciones,
-                    Articulos = articulos
+                    Articulos = articulos,
+                    Familias = familias,
                 };
 
                 return Ok(model);
@@ -377,6 +388,45 @@ namespace TriadRestockSystem.Controllers
             }
 
             return Unauthorized();
+        }
+
+        [HttpPost("guardarAlmacenesFamilias")]
+        public IActionResult GuardarAlmacenFamilias(vmWharehouseFamilies model)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                using var dbTran = _db.Database.BeginTransaction();
+                try
+                {
+                    var almacen = _db.Almacenes
+                        .Include(a => a.IdFamilia)
+                        .First(a => a.IdAlmacen == model.Id);
+
+                    var familias = _db.FamiliasArticulos
+                        .Where(f => model.Families.Contains(f.IdFamilia))
+                        .ToList();
+
+                    almacen.IdFamilia = familias;
+
+                    _db.SaveChanges();
+                    dbTran.Commit();
+
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    dbTran.Rollback();
+                    return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
+                }
+
+            }
+
+            return Forbid();
         }
     }
 }

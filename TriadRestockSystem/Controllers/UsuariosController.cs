@@ -81,10 +81,20 @@ namespace TriadRestockSystem.Controllers
         public IActionResult GetRoles()
         {
             var response = _db.Roles
+                .Include(r => r.RolesModulos)
+                .ThenInclude(rm => rm.IdModuloNavigation)
                 .Select(r => new
                 {
                     Key = r.IdRol,
-                    Text = r.Descripcion
+                    Text = r.Rol,
+                    Permissions = r.RolesModulos.Select(rm => new
+                    {
+                        Key = rm.IdModulo,
+                        Module = rm.IdModuloNavigation.Modulo1,
+                        View = rm.Vista,
+                        Creation = rm.Creacion,
+                        Management = rm.Gestion
+                    })
                 })
                 .ToList();
 
