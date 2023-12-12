@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace TriadRestockSystemData.Data.Models;
+namespace TriadRestockSystem.Data.Models;
 
 public partial class Almacene
 {

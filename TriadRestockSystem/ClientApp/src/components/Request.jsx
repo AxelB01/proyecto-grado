@@ -3,7 +3,6 @@ import {
 	ContainerOutlined,
 	DownloadOutlined,
 	HomeOutlined,
-	LoadingOutlined,
 	MinusCircleOutlined,
 	PlusOutlined,
 	QuestionCircleOutlined,
@@ -20,12 +19,10 @@ import {
 	Popconfirm,
 	Row,
 	Select,
-	Spin,
 	Tag
 } from 'antd'
 import { useContext, useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import RolesNames from '../config/roles'
+import { useLocation } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { createRequestModel } from '../functions/constructors'
@@ -42,15 +39,6 @@ import '../styles/DefaultContentStyle.css'
 import '../styles/Request.css'
 import RequestRejectModal from './RequestRejectModal'
 
-const antIcon = (
-	<LoadingOutlined
-		style={{
-			fontSize: 46
-		}}
-		spin
-	/>
-)
-
 const MODULE = 'Solicitudes de materiales'
 
 const GET_SINGLE_REQUEST = 'api/solicitudes/getSolicitud'
@@ -61,7 +49,6 @@ const ARCHIVE_REQUEST = 'api/solicitudes/archivarSolicitud'
 
 const Request = () => {
 	const location = useLocation()
-	const navigate = useNavigate()
 	const [customState, setCustomState] = useState(null)
 
 	const { validLogin, roles } = useContext(AuthContext)
@@ -74,13 +61,8 @@ const Request = () => {
 		navigateToPath
 	} = useContext(LayoutContext)
 
-	const [edit, setEdit] = useState(
-		customState !== undefined && customState !== null
-	)
+	const [editable, setEditable] = useState(true)
 	const [viewModel, setViewModel] = useState({})
-	const [loading, setLoading] = useState(
-		customState !== undefined && customState !== null
-	)
 	const [requestCode, setRequestCode] = useState('Nueva solicitud')
 	const [requestState, setRequestState] = useState('')
 
@@ -126,8 +108,6 @@ const Request = () => {
 			}
 		]
 
-		handleBreadcrumb([])
-
 		let breadcrumbLastItemText = 'Nueva solicitud'
 
 		if (customState !== undefined && customState !== null) {
@@ -161,27 +141,39 @@ const Request = () => {
 				}
 			} catch (error) {
 				console.log(error)
+			} finally {
+				breadcrumbItems.push({
+					title: (
+						<a>
+							<span className='breadcrumb-item'>{breadcrumbLastItemText}</span>
+						</a>
+					)
+				})
+
+				handleBreadcrumb(breadcrumbItems)
 			}
 		}
-
-		breadcrumbItems.push({
-			title: (
-				<a>
-					<span className='breadcrumb-item'>{breadcrumbLastItemText}</span>
-				</a>
-			)
-		})
 
 		setTimeout(() => {
 			if (validLogin !== undefined && validLogin !== null) {
 				if (validLogin) {
 					handleLayout(true)
-					handleBreadcrumb(breadcrumbItems)
 				} else {
 					handleLayout(false)
 				}
 			}
-		}, 100)
+		}, 1500)
+
+		// setTimeout(() => {
+		// 	if (validLogin !== undefined && validLogin !== null) {
+		// 		if (validLogin) {
+		// 			handleLayout(true)
+		// 			handleBreadcrumb(breadcrumbItems)
+		// 		} else {
+		// 			handleLayout(false)
+		// 		}
+		// 	}
+		// }, 100)
 	}
 
 	const saveRequest = async model => {
@@ -190,8 +182,8 @@ const Request = () => {
 			const status = response?.status
 			if (status === 200) {
 				openMessage('success', 'Solicitud guardada correctamente')
-				setCustomState(null)
-				navigate(location.pathname, { state: response.data })
+				// setCustomState(null)
+				navigateToPath(location.pathname, { Id: response.data })
 			}
 		} catch (error) {
 			console.log(error)
@@ -209,7 +201,7 @@ const Request = () => {
 			if (status === 200) {
 				openMessage('success', 'Solicitud enviada')
 				setCustomState(null)
-				navigate(location.pathname, { state: id })
+				navigateToPath(location.pathname, { Id: id })
 			}
 		} catch (error) {
 			console.log(error)
@@ -227,7 +219,7 @@ const Request = () => {
 			if (status === 200) {
 				openMessage('success', 'Solicitud archivada')
 				setCustomState(null)
-				navigate(location.pathname, { state: id })
+				navigateToPath(location.pathname, { Id: id })
 			}
 		} catch (error) {
 			console.log(error)
@@ -245,7 +237,7 @@ const Request = () => {
 			if (status === 200) {
 				openMessage('success', 'Solicitud aprobada')
 				setCustomState(null)
-				navigate(location.pathname, { state: id })
+				navigateToPath(location.pathname, { Id: id })
 			}
 		} catch (error) {
 			console.log(error)
@@ -257,7 +249,7 @@ const Request = () => {
 	const reloadRequest = () => {
 		const id = customState
 		setCustomState(null)
-		navigate(location.pathname, { state: id })
+		navigateToPath(location.pathname, { Id: id })
 	}
 
 	const handleCatalogLoad = () => {
@@ -358,7 +350,7 @@ const Request = () => {
 	useEffect(() => {
 		const { state } = location
 		setCustomState(state.Id)
-		setEdit(state.Id !== undefined && state.Id !== null)
+		setEditable(state.Id !== undefined && state.Id !== null)
 		document.title = 'Solicitud'
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -403,7 +395,6 @@ const Request = () => {
 	// }, [location])
 
 	useEffect(() => {
-		console.log(customState)
 		if (customState !== undefined && customState !== null) {
 			loadRequest()
 		}
@@ -437,8 +428,6 @@ const Request = () => {
 					return detalle.idArticulo
 				})
 			)
-
-			setLoading(false)
 		}
 	}, [form, viewModel])
 
@@ -446,7 +435,7 @@ const Request = () => {
 		if (values !== undefined) {
 			const selectedItems = values.articulos
 				?.map((e, i) => {
-					const itemValue = parseInt(edit ? e?.articulo.value : e?.articulo)
+					const itemValue = parseInt(editable ? e?.articulo.value : e?.articulo)
 					if (isNaN(itemValue)) {
 						return null
 					}
@@ -475,121 +464,109 @@ const Request = () => {
 				toggle={handleRejectModalStatus}
 				reload={reloadRequest}
 			/>
-			{edit && loading ? (
-				<div
-					style={{
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						height: '100%'
-					}}
-				>
-					<Spin indicator={antIcon} />
-				</div>
-			) : (
-				<div className='page-content-container'>
-					<div className='content-header'>
-						<div style={{ display: 'flex', flexDirection: 'row' }}>
-							<span className='title'>{requestCode}</span>
-							{isStringEmpty(requestState) ? (
-								''
-							) : (
-								<>
-									<Tag
-										style={{
-											display: 'flex',
-											alignItems: 'center',
-											marginLeft: '1rem'
-										}}
-										color={
-											requestState === 'Borrador'
-												? 'geekblue'
-												: requestState === 'En proceso'
-												? 'yellow'
-												: requestState === 'Aprobado'
-												? 'green'
-												: 'volcano'
-										}
-									>
-										{requestState.toUpperCase()}
-									</Tag>
-								</>
-							)}
-						</div>
-						<div>
-							{requestState !== 'Aprobado' && requestState !== 'Archivado' ? (
-								<Button
-									icon={<SaveOutlined />}
-									type='primary'
-									loading={saving}
-									disabled={
-										saving ||
-										(requestState !== '' &&
-											requestState !== 'Borrador' &&
-											requestState !== 'Rechazado') ||
-										userHasAccessToModule(MODULE, 'view', roles)
+			<div className='page-content-container'>
+				<div className='content-header'>
+					<div style={{ display: 'flex', flexDirection: 'row' }}>
+						<span className='title'>{requestCode}</span>
+						{isStringEmpty(requestState) ? (
+							''
+						) : (
+							<>
+								<Tag
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										marginLeft: '1rem'
+									}}
+									color={
+										requestState === 'Borrador'
+											? 'geekblue'
+											: requestState === 'En proceso'
+											? 'yellow'
+											: requestState === 'Aprobado'
+											? 'green'
+											: 'volcano'
 									}
-									onClick={handleSubmit}
 								>
-									Guardar
-								</Button>
-							) : (
-								''
-							)}
-							{edit &&
-							requestState !== 'Aprobado' &&
-							requestState !== 'Archivado' ? (
-								<>
-									{requestState === 'Borrador' ||
-									requestState === 'Rechazado' ? (
-										<>
-											<Popconfirm
-												title='Enviar solicitud'
-												description='¿Desea enviar esta solicitud?'
-												onConfirm={sendRequest}
-												onCancel={() => {}}
-												okText='Enviar'
-												cancelText='Cancelar'
+									{requestState.toUpperCase()}
+								</Tag>
+							</>
+						)}
+					</div>
+					<div>
+						{requestState !== 'Aprobado' && requestState !== 'Archivado' ? (
+							<Button
+								icon={<SaveOutlined />}
+								type='primary'
+								loading={saving}
+								disabled={
+									saving ||
+									(requestState !== '' &&
+										requestState !== 'Borrador' &&
+										requestState !== 'Rechazado') ||
+									userHasAccessToModule(MODULE, 'view', roles)
+								}
+								onClick={handleSubmit}
+							>
+								Guardar
+							</Button>
+						) : (
+							''
+						)}
+						{editable &&
+						requestState !== 'Aprobado' &&
+						requestState !== 'Archivado' ? (
+							<>
+								{requestState === 'Borrador' || requestState === 'Rechazado' ? (
+									<>
+										<Popconfirm
+											title='Enviar solicitud'
+											description='¿Desea enviar esta solicitud?'
+											onConfirm={sendRequest}
+											onCancel={() => {}}
+											okText='Enviar'
+											cancelText='Cancelar'
+										>
+											<Button
+												style={{ marginLeft: '0.95rem' }}
+												icon={<SendOutlined />}
+												loading={sending}
+												disabled={
+													sending ||
+													userHasAccessToModule(MODULE, 'view', roles)
+												}
 											>
-												<Button
-													style={{ marginLeft: '0.95rem' }}
-													icon={<SendOutlined />}
-													loading={sending}
-													disabled={
-														sending ||
-														userHasAccessToModule(MODULE, 'view', roles)
-													}
-												>
-													Enviar
-												</Button>
-											</Popconfirm>
-										</>
-									) : roles.includes(RolesNames.ADMINISTRADOR) ||
-									  roles.includes(RolesNames.CENTROCOSTOS_ENCARGADO) ? (
-										<>
-											<Popconfirm
-												title='Aprobar solicitud'
-												description='¿Desea aprobar esta solicitud?'
-												onConfirm={approveRequest}
-												onCancel={() => {}}
-												okText='Aprobar'
-												cancelText='Cancelar'
+												Enviar
+											</Button>
+										</Popconfirm>
+									</>
+								) : userHasAccessToModule(MODULE, 'management', roles) &&
+								  requestState !== '' ? (
+									<>
+										<Popconfirm
+											title='Aprobar solicitud'
+											description='¿Desea aprobar esta solicitud?'
+											onConfirm={approveRequest}
+											onCancel={() => {}}
+											okText='Aprobar'
+											cancelText='Cancelar'
+										>
+											<Button
+												style={{ marginLeft: '0.95rem' }}
+												icon={<CheckOutlined />}
+												loading={approving}
+												disabled={
+													approving ||
+													!userHasAccessToModule(MODULE, 'management', roles)
+												}
 											>
-												<Button
-													style={{ marginLeft: '0.95rem' }}
-													icon={<CheckOutlined />}
-													loading={approving}
-													disabled={
-														approving ||
-														!userHasAccessToModule(MODULE, 'management', roles)
-													}
-												>
-													Aprobar
-												</Button>
-											</Popconfirm>
-										</>
-									) : null}
-									{requestState === 'En proceso' ? (
+												Aprobar
+											</Button>
+										</Popconfirm>
+									</>
+								) : null}
+								{requestState === 'En proceso' ? (
+									userHasAccessToModule(MODULE, 'management', roles) ? (
 										<>
 											<Popconfirm
 												title='Rechazar solicitud'
@@ -615,315 +592,304 @@ const Request = () => {
 												</Button>
 											</Popconfirm>
 										</>
-									) : (
-										<>
-											<Popconfirm
-												title='Archivar solicitud'
-												description='¿Desea archivar esta solicitud?'
-												icon={
-													<QuestionCircleOutlined style={{ color: 'red' }} />
-												}
-												onConfirm={archiveRequest}
-												onCancel={() => {}}
-												okText='Archivar'
-												cancelText='Cancelar'
+									) : null
+								) : requestState !== '' ? (
+									<>
+										<Popconfirm
+											title='Archivar solicitud'
+											description='¿Desea archivar esta solicitud?'
+											icon={<QuestionCircleOutlined style={{ color: 'red' }} />}
+											onConfirm={archiveRequest}
+											onCancel={() => {}}
+											okText='Archivar'
+											cancelText='Cancelar'
+										>
+											<Button
+												type='primary'
+												style={{ marginLeft: '0.95rem' }}
+												icon={<ContainerOutlined />}
+												loading={archiving}
+												disabled={userHasAccessToModule(MODULE, 'view', roles)}
+												danger
 											>
-												<Button
-													type='primary'
-													style={{ marginLeft: '0.95rem' }}
-													icon={<ContainerOutlined />}
-													loading={archiving}
-													disabled={userHasAccessToModule(
-														MODULE,
-														'view',
-														roles
-													)}
-													danger
-												>
-													Archivar
-												</Button>
-											</Popconfirm>
-										</>
-									)}
-								</>
-							) : (
-								''
-							)}
-						</div>
-					</div>
-					<div
-						className='body-container'
-						style={{ display: 'flex', flex: '1', flexDirection: 'column' }}
-					>
-						<div>
-							<Form
-								form={form}
-								name='form_request'
-								layout='vertical'
-								onFinish={onFinish}
-								onFinishFailed={onFinishFailed}
-								requiredMark={false}
-							>
-								<Form.Item
-									name='idSolicitud'
-									style={{
-										display: 'none'
-									}}
-								>
-									<Input type='hidden' />
-								</Form.Item>
-
-								<Row gutter={16}>
-									<Col span={12}>
-										<Form.Item
-											name='centroCostos'
-											label='Centro de costos'
-											rules={[
-												{
-													required: true,
-													message: 'Debe seleccionar un Centro de Costos'
-												}
-											]}
-											hasFeedback={!edit}
-										>
-											<Select
-												showSearch
-												filterOption={handleFilterOption}
-												placeholder='Seleccionar'
-												options={costCenters.map(costCenter => {
-													return {
-														value: costCenter.key,
-														label: costCenter.text
-													}
-												})}
-												disabled={edit}
-											></Select>
-										</Form.Item>
-									</Col>
-								</Row>
-								<Row gutter={16}>
-									<Col span={9}>
-										<Form.Item
-											name='catalogo'
-											label='Catálogo de artículos'
-											rules={[
-												{
-													required: false
-												}
-											]}
-										>
-											<Select
-												showSearch
-												allowClear
-												filterOption={handleFilterOption}
-												placeholder='Seleccionar'
-												options={catalogs?.map(x => {
-													return { value: x.key, label: x.text }
-												})}
-												disabled={values?.centroCostos === undefined}
-											></Select>
-										</Form.Item>
-									</Col>
-									<Col span={3} style={{ marginTop: '1.85rem' }}>
-										<Button
-											icon={<DownloadOutlined />}
-											onClick={handleCatalogLoad}
-											disabled={
-												values?.centroCostos === undefined ||
-												requestState === 'Aprobado'
-											}
-										>
-											{' '}
-											Cargar
-										</Button>
-									</Col>
-								</Row>
-								<Row gutter={8}>
-									<Col span={13}>
-										<Form.List
-											name='articulos'
-											rules={[
-												{
-													validator: async (_, articulos) => {
-														if (!articulos || articulos.length === 0) {
-															return Promise.reject(
-																new Error(
-																	'Debe agregar por lo menos un artículo'
-																)
-															)
-														}
-													}
-												}
-											]}
-										>
-											{(fields, { add, remove }, { errors }) => (
-												<>
-													{values !== undefined &&
-													values.articulos !== undefined ? (
-														<div
-															style={{
-																marginBottom: '0.5rem'
-															}}
-														>
-															<span>Artículos</span>
-														</div>
-													) : (
-														''
-													)}
-													{fields.map(({ key, name, ...restFields }, index) => (
-														<div
-															key={key}
-															style={{
-																display: 'flex',
-																width: '100%',
-																justifyContent: 'space-between',
-																alignItems: 'baseline'
-															}}
-														>
-															<Form.Item
-																name={[name, 'articulo']}
-																{...restFields}
-																rules={[
-																	{
-																		required: true,
-																		message:
-																			'Debe seleccionar un artículo o eliminar este elemento'
-																	}
-																]}
-																style={{
-																	// width: '50%',
-																	display: 'flex',
-																	flexDirection: 'row',
-																	justifyContent: 'space-between'
-																}}
-															>
-																<Select
-																	showSearch
-																	popupMatchSelectWidth={false}
-																	filterOption={handleFilterOption}
-																	placeholder='Seleccionar artículo'
-																	notFoundContent='No se encontró ningún artículo'
-																	onChange={value =>
-																		handleSelectChange(index, value)
-																	}
-																	options={availableItems?.map(item => {
-																		return {
-																			value: item.key,
-																			label: item.text
-																		}
-																	})}
-																	style={{
-																		minWidth: '23rem'
-																	}}
-																/>
-															</Form.Item>
-															<Form.Item
-																name={[name, 'existencia']}
-																style={{
-																	display: 'flex',
-																	flexDirection: 'row',
-																	justifyContent: 'center'
-																}}
-															>
-																<InputNumber
-																	value={form.getFieldValue([
-																		name,
-																		'existencia'
-																	])}
-																	disabled
-																/>
-															</Form.Item>
-															<Form.Item
-																name={[name, 'cantidad']}
-																{...restFields}
-															>
-																<InputNumber min={1} defaultValue={1} />
-															</Form.Item>
-															{fields.length > 1 &&
-															requestState !== 'Aprobado' ? (
-																<MinusCircleOutlined
-																	onClick={() => remove(name)}
-																/>
-															) : null}
-														</div>
-													))}
-
-													<div
-														style={{
-															display: 'flex',
-															justifyContent: 'center'
-														}}
-													>
-														<Button
-															type='dashed'
-															style={{
-																width: '80%'
-															}}
-															onClick={() => add()}
-															icon={<PlusOutlined />}
-															disabled={values?.centroCostos === undefined}
-														>
-															Agregar artículo
-														</Button>
-													</div>
-
-													<Row gutter={16}>
-														<Col span={12}>
-															<Form.ErrorList
-																className='custom-form-item'
-																errors={errors}
-															/>
-														</Col>
-													</Row>
-												</>
-											)}
-										</Form.List>
-									</Col>
-								</Row>
-								<Row
-									gutter={16}
-									style={{
-										marginTop: '1.5rem'
-									}}
-								>
-									<Col span={10}>
-										<Form.Item
-											// style={{
-											// 	width: '80%'
-											// }}
-											name='justificacion'
-											label='Justificación'
-											rules={[
-												{
-													required: true,
-													message:
-														'Debe dar una justificación para esta solicitud'
-												}
-											]}
-											hasFeedback
-										>
-											<Input.TextArea rows={3} showCount maxLength={200} />
-										</Form.Item>
-									</Col>
-									<Col span={10}>
-										<Form.Item
-											name='notas'
-											label='Notas'
-											rules={[
-												{
-													required: false
-												}
-											]}
-										>
-											<Input.TextArea rows={3} showCount maxLength={500} />
-										</Form.Item>
-									</Col>
-								</Row>
-							</Form>
-						</div>
+												Archivar
+											</Button>
+										</Popconfirm>
+									</>
+								) : null}
+							</>
+						) : (
+							''
+						)}
 					</div>
 				</div>
-			)}
+				<div
+					className='body-container'
+					style={{ display: 'flex', flex: '1', flexDirection: 'column' }}
+				>
+					<div>
+						<Form
+							form={form}
+							name='form_request'
+							layout='vertical'
+							onFinish={onFinish}
+							onFinishFailed={onFinishFailed}
+							requiredMark={false}
+						>
+							<Form.Item
+								name='idSolicitud'
+								style={{
+									display: 'none'
+								}}
+							>
+								<Input type='hidden' />
+							</Form.Item>
+
+							<Row gutter={16}>
+								<Col span={12}>
+									<Form.Item
+										name='centroCostos'
+										label='Centro de costos'
+										rules={[
+											{
+												required: true,
+												message: 'Debe seleccionar un Centro de Costos'
+											}
+										]}
+										hasFeedback={!editable}
+									>
+										<Select
+											showSearch
+											filterOption={handleFilterOption}
+											placeholder='Seleccionar'
+											options={costCenters.map(costCenter => {
+												return {
+													value: costCenter.key,
+													label: costCenter.text
+												}
+											})}
+											disabled={!(editable && requestState === '')}
+										></Select>
+									</Form.Item>
+								</Col>
+							</Row>
+							<Row gutter={16}>
+								<Col span={9}>
+									<Form.Item
+										name='catalogo'
+										label='Catálogo de artículos'
+										rules={[
+											{
+												required: false
+											}
+										]}
+									>
+										<Select
+											showSearch
+											allowClear
+											filterOption={handleFilterOption}
+											placeholder='Seleccionar'
+											options={catalogs?.map(x => {
+												return { value: x.key, label: x.text }
+											})}
+											disabled={values?.centroCostos === undefined}
+										></Select>
+									</Form.Item>
+								</Col>
+								<Col span={3} style={{ marginTop: '1.85rem' }}>
+									<Button
+										icon={<DownloadOutlined />}
+										onClick={handleCatalogLoad}
+										disabled={
+											values?.centroCostos === undefined ||
+											requestState === 'Aprobado'
+										}
+									>
+										{' '}
+										Cargar
+									</Button>
+								</Col>
+							</Row>
+							<Row gutter={8}>
+								<Col span={13}>
+									<Form.List
+										name='articulos'
+										rules={[
+											{
+												validator: async (_, articulos) => {
+													if (!articulos || articulos.length === 0) {
+														return Promise.reject(
+															new Error('Debe agregar por lo menos un artículo')
+														)
+													}
+												}
+											}
+										]}
+									>
+										{(fields, { add, remove }, { errors }) => (
+											<>
+												{values !== undefined &&
+												values.articulos !== undefined ? (
+													<div
+														style={{
+															marginBottom: '0.5rem'
+														}}
+													>
+														<span>Artículos</span>
+													</div>
+												) : (
+													''
+												)}
+												{fields.map(({ key, name, ...restFields }, index) => (
+													<div
+														key={key}
+														style={{
+															display: 'flex',
+															width: '100%',
+															justifyContent: 'space-between',
+															alignItems: 'baseline'
+														}}
+													>
+														<Form.Item
+															name={[name, 'articulo']}
+															{...restFields}
+															rules={[
+																{
+																	required: true,
+																	message:
+																		'Debe seleccionar un artículo o eliminar este elemento'
+																}
+															]}
+															style={{
+																// width: '50%',
+																display: 'flex',
+																flexDirection: 'row',
+																justifyContent: 'space-between'
+															}}
+														>
+															<Select
+																showSearch
+																popupMatchSelectWidth={false}
+																filterOption={handleFilterOption}
+																placeholder='Seleccionar artículo'
+																notFoundContent='No se encontró ningún artículo'
+																onChange={value =>
+																	handleSelectChange(index, value)
+																}
+																options={availableItems?.map(item => {
+																	return {
+																		value: item.key,
+																		label: item.text
+																	}
+																})}
+																style={{
+																	minWidth: '23rem'
+																}}
+															/>
+														</Form.Item>
+														<Form.Item
+															name={[name, 'existencia']}
+															style={{
+																display: 'flex',
+																flexDirection: 'row',
+																justifyContent: 'center'
+															}}
+														>
+															<InputNumber
+																value={form.getFieldValue([name, 'existencia'])}
+																disabled
+															/>
+														</Form.Item>
+														<Form.Item
+															name={[name, 'cantidad']}
+															{...restFields}
+														>
+															<InputNumber min={1} defaultValue={1} />
+														</Form.Item>
+														{fields.length > 1 &&
+														requestState !== 'Aprobado' ? (
+															<MinusCircleOutlined
+																onClick={() => remove(name)}
+															/>
+														) : null}
+													</div>
+												))}
+
+												<div
+													style={{
+														display: 'flex',
+														justifyContent: 'center'
+													}}
+												>
+													<Button
+														type='dashed'
+														style={{
+															width: '80%'
+														}}
+														onClick={() => add()}
+														icon={<PlusOutlined />}
+														disabled={values?.centroCostos === undefined}
+													>
+														Agregar artículo
+													</Button>
+												</div>
+
+												<Row gutter={16}>
+													<Col span={12}>
+														<Form.ErrorList
+															className='custom-form-item'
+															errors={errors}
+														/>
+													</Col>
+												</Row>
+											</>
+										)}
+									</Form.List>
+								</Col>
+							</Row>
+							<Row
+								gutter={16}
+								style={{
+									marginTop: '1.5rem'
+								}}
+							>
+								<Col span={10}>
+									<Form.Item
+										// style={{
+										// 	width: '80%'
+										// }}
+										name='justificacion'
+										label='Justificación'
+										rules={[
+											{
+												required: true,
+												message:
+													'Debe dar una justificación para esta solicitud'
+											}
+										]}
+										hasFeedback
+									>
+										<Input.TextArea rows={3} showCount maxLength={200} />
+									</Form.Item>
+								</Col>
+								<Col span={10}>
+									<Form.Item
+										name='notas'
+										label='Notas'
+										rules={[
+											{
+												required: false
+											}
+										]}
+									>
+										<Input.TextArea rows={3} showCount maxLength={500} />
+									</Form.Item>
+								</Col>
+							</Row>
+						</Form>
+					</div>
+				</div>
+			</div>
 			<div>
 				{viewModel?.Estado === 'Rechazado' ? (
 					<>

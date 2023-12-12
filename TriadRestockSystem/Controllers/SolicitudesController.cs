@@ -37,7 +37,8 @@ namespace TriadRestockSystem.Controllers
                     IdEstado = (int)x.IdEstado,
                     x.Estado,
                     x.IdCreadoPor,
-                    x.CreadoPor
+                    x.CreadoPor,
+                    NombreCompleto = $"{x.Nombres} {x.Apellidos}".Trim()
                 })
                 .ToList();
             return Ok(response);

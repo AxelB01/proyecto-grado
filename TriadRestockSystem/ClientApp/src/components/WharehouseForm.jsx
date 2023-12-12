@@ -4,6 +4,7 @@ import {
 	Drawer,
 	Form,
 	Input,
+	Radio,
 	Row,
 	Select,
 	Space,
@@ -23,11 +24,15 @@ const WharehouseForm = ({
 	initialValues,
 	loading,
 	handleLoading,
-	personal
+	personal,
+	centrosCostos
 }) => {
-	const [switchValue, setSwitchValue] = useState(true)
 	const { openMessage } = useContext(LayoutContext)
 	const axiosPrivate = useAxiosPrivate()
+
+	const [switchStateValue, setSwitchStateValue] = useState(true)
+	const [typeValue, setTypeValue] = useState(1)
+
 	const [form] = Form.useForm()
 
 	useEffect(() => {
@@ -35,21 +40,26 @@ const WharehouseForm = ({
 			IdAlmacen,
 			Nombre,
 			IdEstado,
+			EsGeneral,
 			Descripcion,
 			Ubicacion,
 			Espacio,
-			IdsPersonal
+			IdsPersonal,
+			IdsCentrosCostos
 		} = initialValues
 		form.setFieldsValue({
 			id: IdAlmacen,
-			idEstado: IdEstado === 1,
 			nombre: Nombre,
 			descripcion: Descripcion,
 			ubicacion: Ubicacion,
 			espacio: Espacio,
-			personal: IdsPersonal
+			personal: IdsPersonal,
+			idEstado: IdEstado === 1,
+			general: EsGeneral,
+			centrosCostos: IdsCentrosCostos
 		})
-		setSwitchValue(IdEstado === 1)
+		setSwitchStateValue(IdEstado === 1)
+		setTypeValue(EsGeneral)
 	}, [form, initialValues])
 
 	const saveWharehouses = async model => {
@@ -68,18 +78,29 @@ const WharehouseForm = ({
 		handleLoading(true)
 		form.submit()
 	}
+
 	const handleCloseForm = () => {
 		form.resetFields()
 		onClose()
 	}
+
 	const onFinishFailed = values => {
 		console.log(values)
 		handleLoading(false)
 	}
-	const handleSwitchChange = checked => {
-		setSwitchValue(checked)
+
+	const handleStateSwitchChange = checked => {
+		setSwitchStateValue(checked)
 		form.setFieldsValue({
 			estado: checked
+		})
+	}
+
+	const handleTypeRadioChange = e => {
+		const value = e.target.value
+		setTypeValue(value)
+		form.setFieldsValue({
+			general: value
 		})
 	}
 
@@ -88,10 +109,12 @@ const WharehouseForm = ({
 		model.IdAlmacen = values.id
 		model.Nombre = values.nombre
 		model.IdEstado = values.estado ? 1 : 2
+		model.EsGeneral = values.general
 		model.Descripcion = values.descripcion
 		model.Ubicacion = values.ubicacion
 		model.Espacio = values.espacio
 		model.IdsPersonal = values.personal
+		model.IdsCentrosCostos = values.centrosCostos
 
 		saveWharehouses(model)
 	}
@@ -148,18 +171,6 @@ const WharehouseForm = ({
 									style={{ width: '100%' }}
 									autoComplete='off'
 									placeholder='Ingresar el nombre del almacen'
-								/>
-							</Form.Item>
-						</Col>
-					</Row>
-					<Row gutter={16}>
-						<Col span={24}>
-							<Form.Item name='estado' label='Estado'>
-								<Switch
-									checkedChildren='Activo'
-									unCheckedChildren='Inactivo'
-									onChange={handleSwitchChange}
-									checked={switchValue}
 								/>
 							</Form.Item>
 						</Col>
@@ -247,6 +258,26 @@ const WharehouseForm = ({
 						</Col>
 					</Row> */}
 					<Row gutter={16}>
+						<Col span={6}>
+							<Form.Item name='estado' label='Estado'>
+								<Switch
+									checkedChildren='Activo'
+									unCheckedChildren='Inactivo'
+									onChange={handleStateSwitchChange}
+									checked={switchStateValue}
+								/>
+							</Form.Item>
+						</Col>
+						<Col span={18}>
+							<Form.Item name='general' label='Tipo'>
+								<Radio.Group onChange={handleTypeRadioChange} value={typeValue}>
+									<Radio value={1}>General</Radio>
+									<Radio value={0}>Específico</Radio>
+								</Radio.Group>
+							</Form.Item>
+						</Col>
+					</Row>
+					<Row gutter={16}>
 						<Col span={24}>
 							<Form.Item
 								name='personal'
@@ -260,7 +291,7 @@ const WharehouseForm = ({
 								<Select
 									mode='multiple'
 									allowClear
-									placeholder='Seleccionar el personal...'
+									placeholder='Seleccionar'
 									optionFilterProp='label'
 									maxTagCount='responsive'
 									options={personal?.map(p => {
@@ -269,6 +300,34 @@ const WharehouseForm = ({
 											label: `${p.nombre} - ${p.puesto}`
 										}
 									})}
+								/>
+							</Form.Item>
+						</Col>
+					</Row>
+					<Row gutter={16}>
+						<Col span={24}>
+							<Form.Item
+								name='centrosCostos'
+								label='Centros de costos'
+								rules={[
+									{
+										required: typeValue === 0
+									}
+								]}
+							>
+								<Select
+									mode='multiple'
+									allowClear
+									placeholder='Seleccionar'
+									optionFilterProp='label'
+									maxTagCount='responsive'
+									options={centrosCostos?.map(c => {
+										return {
+											value: c.key,
+											label: c.text
+										}
+									})}
+									disabled={typeValue === 1}
 								/>
 							</Form.Item>
 						</Col>

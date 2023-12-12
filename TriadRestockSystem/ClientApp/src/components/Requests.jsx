@@ -5,7 +5,7 @@ import {
 	HomeOutlined,
 	ReloadOutlined
 } from '@ant-design/icons'
-import { Button, Space, Tag } from 'antd'
+import { Button, Space, Tag, Tooltip } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
 import AuthContext from '../context/AuthContext'
@@ -132,18 +132,50 @@ const Requests = () => {
 
 	const columns = [
 		{
+			title: '',
+			width: 60,
+			key: 'action',
+			fixed: 'left',
+			render: (_, record) => (
+				<Space size='middle' align='center'>
+					<Tooltip
+						title={
+							userHasAccessToModule(MODULE, 'view', roles) ||
+							record.estado === 'Aprobado'
+								? 'Ver'
+								: 'Editar'
+						}
+					>
+						<Button
+							icon={
+								userHasAccessToModule(MODULE, 'view', roles) ||
+								record.estado === 'Aprobado' ? (
+									<EyeOutlined />
+								) : (
+									<EditOutlined />
+								)
+							}
+							type='text'
+							onClick={() => handleEditRequest(record.key)}
+							loading={loading[record.key]}
+						/>
+					</Tooltip>
+				</Space>
+			)
+		},
+		{
 			title: 'Número',
 			dataIndex: 'numero',
 			key: 'numero',
-			width: 150,
+			width: 100,
 			fixed: 'left',
 			filterType: 'text search'
 		},
 		{
 			title: 'Centro de costos',
+			width: 200,
 			dataIndex: 'centroCosto',
 			key: 'centroCosto',
-			fixed: 'left',
 			filterType: 'custom filter',
 			data: centrosCostos
 		},
@@ -156,14 +188,8 @@ const Requests = () => {
 			dateFormat: 'DD/MM/YYYY'
 		},
 		{
-			title: 'Justificación',
-			dataIndex: 'justificacion',
-			key: 'justificacion',
-			width: 500,
-			filterType: 'text search'
-		},
-		{
 			title: 'Estado',
+			width: 150,
 			dataIndex: 'estado',
 			key: 'estado',
 			filterType: 'custom filter',
@@ -190,39 +216,22 @@ const Requests = () => {
 			)
 		},
 		{
-			title: 'Creado por',
-			dataIndex: 'creadoPor',
-			key: 'creadoPor',
-			filterType: 'text search',
-			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
+			title: 'Justificación',
+			dataIndex: 'justificacion',
+			key: 'justificacion',
+			width: 300,
+			filterType: 'text search'
 		},
 		{
-			title: 'Acciones',
-			key: 'accion',
-			fixed: 'right',
+			title: 'Creado por',
+			// dataIndex: 'creadoPor',
+			width: 100,
+			key: 'creadoPor',
+			filterType: 'text search',
 			render: (_, record) => (
-				<Space size='middle' align='center'>
-					<Button
-						icon={
-							userHasAccessToModule(MODULE, 'view', roles) ? (
-								<EyeOutlined />
-							) : (
-								<EditOutlined />
-							)
-						}
-						onClick={() => handleEditRequest(record.key)}
-						loading={loading[record.key]}
-					>
-						{loading[record.key]
-							? 'Cargando'
-							: userHasAccessToModule(MODULE, 'view', roles)
-							? 'Ver'
-							: userHasAccessToModule(MODULE, 'creation', roles) ||
-							  userHasAccessToModule(MODULE, 'management', roles)
-							? 'Editar'
-							: ''}
-					</Button>
-				</Space>
+				<Tooltip title={record.nombreCompleto}>
+					<a style={{ color: '#2f54eb' }}>{record.creadoPor}</a>
+				</Tooltip>
 			)
 		}
 	]
