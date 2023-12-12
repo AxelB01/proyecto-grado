@@ -2,6 +2,7 @@ import { Button, Col, Form, Input, Modal, Row } from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import LayoutContext from '../context/LayoutContext'
 import { createRejectRequestModel } from '../functions/constructors'
+import { isStringEmpty } from '../functions/validation'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 
 const REJECT_REQUEST = 'api/solicitudes/rechazarSolicitud'
@@ -14,11 +15,12 @@ const RequestRejectModal = ({ id, status, toggle, reload }) => {
 	const [form] = Form.useForm()
 
 	const handleCancel = () => {
-		form.setFieldsValue({
-			causa: ''
-		})
-		setLoading(false)
 		toggle()
+		// form.setFieldsValue({
+		// 	causa: ''
+		// })
+		form.resetFields()
+		setLoading(false)
 	}
 
 	const rejectRequest = async model => {
@@ -26,7 +28,7 @@ const RequestRejectModal = ({ id, status, toggle, reload }) => {
 			const response = await axiosPrivate.post(REJECT_REQUEST, model)
 			const status = response?.status
 			if (status === 200) {
-				openMessage('success', 'Solicitud rechazada')
+				openMessage('warning', 'Solicitud rechazada')
 			}
 		} catch (error) {
 			console.log(error)
@@ -50,6 +52,7 @@ const RequestRejectModal = ({ id, status, toggle, reload }) => {
 	}
 
 	const onFinishFailed = values => {
+		setLoading(false)
 		console.log(values)
 	}
 
@@ -95,11 +98,25 @@ const RequestRejectModal = ({ id, status, toggle, reload }) => {
 								{
 									required: true,
 									message: 'Debe ingresar la causa del rechazo'
+								},
+								{
+									validator: (_, value) => {
+										if (!isStringEmpty(value) && value.length <= 250) {
+											return Promise.resolve()
+										}
+
+										if (value.length > 250) {
+											return Promise.reject(
+												new Error('El texto ingresado excede el límite')
+											)
+										}
+									}
 								}
 							]}
 						>
 							<Input.TextArea
 								rows={4}
+								showCount
 								maxLength={250}
 								placeholder='Causa del rechazo...'
 							/>

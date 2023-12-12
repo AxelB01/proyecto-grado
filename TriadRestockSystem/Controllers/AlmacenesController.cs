@@ -28,15 +28,17 @@ namespace TriadRestockSystem.Controllers
             var result = _db.Almacenes
                 .Include(a => a.IdEstadoNavigation)
                 .Include(a => a.CreadoPorNavigation)
+                .Include(a => a.IdCentroCostos)
                 .Select(a => new
                 {
                     Key = a.IdAlmacen,
                     a.Nombre,
-                    a.IdEstado,
                     a.IdEstadoNavigation.Estado,
                     a.Descripcion,
                     a.Ubicacion,
                     a.Espacio,
+                    a.IdEstado,
+                    EsGeneral = a.EsGeneral ? 1 : 0,
                     IdCreadoPor = a.CreadoPor,
                     CreadoPor = a.CreadoPorNavigation.Login,
                     Fecha = a.FechaCreacion.ToString("dd/MM/yyyy"),
@@ -46,7 +48,8 @@ namespace TriadRestockSystem.Controllers
                         u.IdUsuarioNavigation.Login,
                         Nombre = u.IdUsuarioNavigation.Nombres.Trim() + (u.IdUsuarioNavigation.Apellidos!.Length > 0 ? (" " + u.IdUsuarioNavigation.Apellidos.Trim()) : ""),
                         Puesto = u.IdRolNavigation.Descripcion
-                    }).ToList()
+                    }).ToList(),
+                    CentrosCostos = a.IdCentroCostos.Select(c => c.IdCentroCosto).ToList()
                 })
                 .ToList();
 
@@ -65,6 +68,7 @@ namespace TriadRestockSystem.Controllers
             {
                 Almacene? almacen = _db.Almacenes
                     .Include(v => v.UsuariosAlmacenes)
+                    .Include(v => v.IdCentroCostos)
                     .FirstOrDefault(v => v.IdAlmacen == model.IdAlmacen);
 
                 if (almacen == null)
@@ -83,6 +87,7 @@ namespace TriadRestockSystem.Controllers
                 }
 
                 almacen.IdEstado = model.IdEstado.GetValueOrDefault();
+                almacen.EsGeneral = model.EsGeneral == 1;
                 almacen.Nombre = model.Nombre;
                 almacen.Descripcion = model.Descripcion.Trim();
                 almacen.Ubicacion = model.Ubicacion;
@@ -111,6 +116,19 @@ namespace TriadRestockSystem.Controllers
                 }
 
                 almacen.UsuariosAlmacenes = usuariosAlmacen;
+
+                var centrosCostos = _db.CentrosCostos
+                    .Where(c => model.IdsCentrosCostos.Contains(c.IdCentroCosto))
+                    .ToList();
+
+                if (model.EsGeneral == 1)
+                {
+                    almacen.IdCentroCostos.Clear();
+                }
+                else
+                {
+                    almacen.IdCentroCostos = centrosCostos;
+                }
 
                 _db.SaveChanges();
 

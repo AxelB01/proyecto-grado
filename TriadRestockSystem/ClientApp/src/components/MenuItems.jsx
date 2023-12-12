@@ -1,6 +1,7 @@
 import {
 	ApartmentOutlined,
 	AppstoreAddOutlined,
+	GoldOutlined,
 	HomeOutlined,
 	LogoutOutlined,
 	MoneyCollectOutlined,
@@ -63,7 +64,7 @@ export const MenuItems = [
 	getItem('Configuración', 'config', <SettingOutlined style={iconStyle} />, [
 		getItem('Usuarios', 'users', <UserOutlined style={iconStyle} />),
 		getItem('Roles', 'roles', <ApartmentOutlined style={iconStyle} />),
-		// getItem('Unidades y Recursos', '12', <GoldOutlined style={iconStyle} />)
+		getItem('Unidades y Estados', 'units', <GoldOutlined style={iconStyle} />),
 		getItem('Conceptos', 'concepts', <ProfileOutlined style={iconStyle} />)
 	])
 ]
@@ -81,7 +82,8 @@ export const NavigatePaths = [
 	{ key: 'concepts', path: '/concepts' },
 	{ key: 'orders', path: '/orders' },
 	{ key: 'requisitions', path: '/requisitions' },
-	{ key: 'roles', path: '/roles' }
+	{ key: 'roles', path: '/roles' },
+	{ key: 'units', path: '/units' }
 ]
 
 export const UserMenuItems = [

@@ -266,11 +266,13 @@ export const createWharehouesesModel = () => {
 	return {
 		IdAlmacen: 0,
 		Nombre: '',
-		IdEstado: 0,
 		Descripcion: '',
 		Ubicacion: '',
 		Espacio: '',
-		IdsPersonal: []
+		IdEstado: 0,
+		EsGeneral: 0,
+		IdsPersonal: [],
+		IdsCentrosCostos: []
 	}
 }
 

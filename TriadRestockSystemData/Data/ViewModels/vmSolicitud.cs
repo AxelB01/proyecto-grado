@@ -13,6 +13,8 @@
         public string Estado { get; set; } = string.Empty;
         public int IdCreadoPor { get; set; }
         public string CreadoPor { get; set; } = string.Empty;
+        public string Nombres { get; set; } = string.Empty;
+        public string Apellidos { get; set; } = string.Empty;
         public DateTime FechaCreacion { get; set; }
         public int? IdModificadoPor { get; set; }
         public string? ModificadoPor { get; set; }

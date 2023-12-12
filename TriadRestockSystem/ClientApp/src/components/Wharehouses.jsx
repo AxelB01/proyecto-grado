@@ -22,6 +22,7 @@ const MODULE = 'Almacenes'
 
 const GET_WHAREHOUSES = 'api/almacenes/getAlmacenes'
 const GET_WHAREHOUSES_STAFF = 'api/almacenes/almacenPersonal'
+const GET_COSTS_CENTERS = 'api/data/getCentrosCostos'
 
 const Wharehouses = () => {
 	const { validLogin, roles } = useContext(AuthContext)
@@ -40,6 +41,7 @@ const Wharehouses = () => {
 	const wharehouseStates = useWharehouseStates().items
 	const estado = useWharehouseStates()
 	const personal = useDataList(GET_WHAREHOUSES_STAFF)
+	const centrosCostos = useDataList(GET_COSTS_CENTERS)
 
 	const [tableState, setTableState] = useState(true)
 	// const [tableLoading, setTableLoading] = useState({})
@@ -89,7 +91,8 @@ const Wharehouses = () => {
 			return p.idUsuario
 		})
 		model.IdEstado = wharehouseData.idEstado
-
+		model.EsGeneral = wharehouseData.esGeneral
+		model.IdsCentrosCostos = wharehouseData.centrosCostos
 		setWharehouseFormInitialValues(model)
 	}
 
@@ -288,8 +291,8 @@ const Wharehouses = () => {
 	}
 
 	useEffect(() => {
-		console.log(personal)
-	}, [personal])
+		console.log(data)
+	}, [data])
 
 	return (
 		<>
@@ -302,6 +305,7 @@ const Wharehouses = () => {
 				loading={loading}
 				handleLoading={setLoading}
 				personal={personal}
+				centrosCostos={centrosCostos}
 			/>
 			<div className='page-content-container'>
 				<div className='btn-container'>

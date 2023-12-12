@@ -1,21 +1,16 @@
-import {
-	EditOutlined,
-	PlusOutlined,
-	ReloadOutlined,
-} from '@ant-design/icons'
-import { Button, Col, Row, Space, Statistic } from 'antd'
-import {  useEffect, useRef, useState } from 'react'
-import {createItemsTypeModel} from '../../functions/constructors'
+import { EditOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
+import { Button, Space, Statistic } from 'antd'
+import { useEffect, useRef, useState } from 'react'
+import { createItemsTypeModel } from '../../functions/constructors'
 import useAxiosPrivate from '../../hooks/usePrivateAxios'
 import '../../styles/DefaultContentStyle.css'
-import ItemsTypeForm from './ItemsTypeForm'
 import CustomTable from './../CustomTable'
+import ItemsTypeForm from './ItemsTypeForm'
 
 const ITEM_TYPE_GET = '/api/configuraciones/getTipoArticulo'
 const ITEM_TYPE_URL = '/api/configuraciones/getTipoArticulos'
 
-const ItemsType1 = () => {
-
+const ItemsType = () => {
 	const axiosPrivate = useAxiosPrivate()
 	const [types, setTypes] = useState([])
 
@@ -43,7 +38,6 @@ const ItemsType1 = () => {
 	const handleLoading = value => {
 		setFormLoading(value)
 	}
-
 
 	const getType = async id => {
 		try {
@@ -143,18 +137,20 @@ const ItemsType1 = () => {
 					handleLoading={handleLoading}
 					initialValues={initialValues}
 				/>
-				<div className='info-container'>
-					<Row align='end'>
-						<Col span={3}>
-							<Statistic
-								style={{
-									textAlign: 'end'
-								}}
-								title='Tipos'
-								value={types.length}
-							/>
-						</Col>
-					</Row>
+				<div className='info-container to-right'>
+					<div
+						style={{
+							marginRight: '1.25rem'
+						}}
+					>
+						<Statistic
+							style={{
+								textAlign: 'end'
+							}}
+							title='Usuarios Activos'
+							value={types.length}
+						/>
+					</div>
 				</div>
 				<div className='btn-container'>
 					<div className='right'>
@@ -195,4 +191,4 @@ const ItemsType1 = () => {
 	)
 }
 
-export default ItemsType1
+export default ItemsType
