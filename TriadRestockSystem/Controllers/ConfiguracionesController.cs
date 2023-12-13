@@ -300,6 +300,11 @@ namespace TriadRestockSystem.Controllers
                         _db.TiposArticulos.Add(tipoArticulo);
 
                     }
+                    else
+                    {
+                        tipoArticulo.IdTipoArticulo = model.Id;
+                        tipoArticulo.Tipo = model.Nombre;
+                    }
 
                     _db.SaveChanges();
                     dbTran.Commit();
@@ -346,7 +351,9 @@ namespace TriadRestockSystem.Controllers
                     }
                     else
                     {
-
+                        unidadesMedida.IdUnidadMedida = model.Id;
+                        unidadesMedida.Codigo = model.Codigo;
+                        unidadesMedida.UnidadMedida = model.Nombre;
                     }
 
                     _db.SaveChanges();
