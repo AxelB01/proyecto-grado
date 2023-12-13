@@ -100,7 +100,7 @@ const ItemsTypeForm = ({
 						<Input type='hidden' />
 					</Form.Item>
 					<Row gutter={16}>
-					<Col span={24}>
+					{/* <Col span={24}>
 							<Form.Item
 								name='id'
 								label='Codigo'
@@ -114,7 +114,7 @@ const ItemsTypeForm = ({
 							>
 								<Input autoComplete='off' placeholder='Ingresar un nombre' />
 							</Form.Item>
-						</Col>
+						</Col> */}
 						<Col span={24}>
 							<Form.Item
 								name='nombre'
