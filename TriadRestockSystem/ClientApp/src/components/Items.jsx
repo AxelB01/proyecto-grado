@@ -4,25 +4,29 @@ import {
 	PlusOutlined,
 	ReloadOutlined
 } from '@ant-design/icons'
-import { Button, Space, Statistic } from 'antd'
+import { Button, Space, Statistic, Tag } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import { createItemsModel } from '../functions/constructors'
-import { userHasAccessToModule } from '../functions/validation'
+import {
+	addThousandsSeparators,
+	userHasAccessToModule
+} from '../functions/validation'
 import useFamilies from '../hooks/useFamilies'
 import useItemsTypes from '../hooks/useItemsTypes'
 import useMeasurementUnits from '../hooks/useMeasurementUnits'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
 import CustomTable from './CustomTable'
-import ItemsForm from './ItemsFrom'
+import ItemsForm from './ItemsForm'
 
 const MODULE = 'Artículos'
 
 const ITEMS_DATA_URL = '/api/articulos/getArticulos'
 const GET_ITEMS_DATA = '/api/articulos/getArticulo'
+const GET_BRANDS = '/api/data/getMarcasArticulos'
 
 const Items = () => {
 	const { validLogin, roles } = useContext(AuthContext)
@@ -42,6 +46,8 @@ const Items = () => {
 	const familiaItems = useFamilies()
 	const tipoArticuloItems = useItemsTypes()
 	const unidadMedidaItems = useMeasurementUnits()
+
+	const [marcas, setMarcas] = useState([])
 
 	const [tableState, setTableState] = useState(true)
 	const [tableLoading, setTableLoading] = useState({})
@@ -129,7 +135,8 @@ const Items = () => {
 			try {
 				const response = await axiosPrivate.get(ITEMS_DATA_URL)
 				const data = response?.data
-				setData(data)
+				setData(data.items)
+				setMarcas(data.brands)
 				setTableState(false)
 			} catch (error) {
 				console.log(error)
@@ -141,10 +148,30 @@ const Items = () => {
 
 	const columns = [
 		{
+			title: '',
+			key: 'accion',
+			fixed: 'left',
+			width: 60,
+			render: (_, record) => (
+				<Space size='middle' align='center'>
+					{userHasAccessToModule(MODULE, 'creation', roles) ||
+					userHasAccessToModule(MODULE, 'management', roles) ? (
+						<Button
+							type='text'
+							icon={<EditOutlined />}
+							onClick={() => handleEditRequest(record.id)}
+							loading={tableLoading[record.id]}
+						/>
+					) : null}
+				</Space>
+			)
+		},
+		{
 			title: 'Codigo',
 			dataIndex: 'codigo',
-			key: 'codigo',
+			width: 120,
 			fixed: 'left',
+			key: 'codigo',
 			filterType: 'text search'
 		},
 		{
@@ -152,12 +179,20 @@ const Items = () => {
 			dataIndex: 'nombre',
 			key: 'nombre',
 			width: 200,
-			fixed: 'left',
 			filterType: 'text search'
+		},
+		{
+			title: 'Marca',
+			dataIndex: 'marca',
+			width: 150,
+			key: 'marca',
+			filterType: 'custom filter',
+			data: marcas
 		},
 		{
 			title: 'Unidad',
 			dataIndex: 'unidadMedida',
+			width: 150,
 			key: 'unidadMedida',
 			filterType: 'custom filter',
 			data: unidadMedidaItems
@@ -178,6 +213,14 @@ const Items = () => {
 			data: familiaItems
 		},
 		{
+			title: 'Precio',
+			dataIndex: 'precio',
+			key: 'precio',
+			filterType: 'text search',
+			width: 150,
+			render: text => `RD$ ${addThousandsSeparators(text.toFixed(2))}`
+		},
+		{
 			title: 'Tipo',
 			dataIndex: 'tipo',
 			key: 'tipo',
@@ -186,7 +229,27 @@ const Items = () => {
 			data: tipoArticuloItems
 		},
 		{
-			title: 'Fecha de creación',
+			title: 'Consumo General',
+			dataIndex: 'consumoGeneralTexto',
+			key: 'consumoGeneralTexto',
+			width: 180,
+			render: text => (
+				<Tag color={text === 'Sí' ? 'geekblue' : 'volcano'}>{text}</Tag>
+			),
+			filterType: 'custom filter',
+			data: [
+				{
+					key: '1',
+					text: 'Sí'
+				},
+				{
+					key: '2',
+					text: 'No'
+				}
+			]
+		},
+		{
+			title: 'Fecha',
 			dataIndex: 'fecha',
 			key: 'fecha',
 			width: 120,
@@ -196,28 +259,10 @@ const Items = () => {
 		{
 			title: 'Creado por',
 			dataIndex: 'creadoPor',
+			width: 130,
 			key: 'creadoPor',
 			filterType: 'text search',
 			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
-		},
-		{
-			title: '',
-			key: 'accion',
-			fixed: 'right',
-			render: (_, record) => (
-				<Space size='middle' align='center'>
-					{userHasAccessToModule(MODULE, 'creation', roles) ||
-					userHasAccessToModule(MODULE, 'management', roles) ? (
-						<Button
-							icon={<EditOutlined />}
-							onClick={() => handleEditRequest(record.id)}
-							loading={tableLoading[record.id]}
-						>
-							Editar
-						</Button>
-					) : null}
-				</Space>
-			)
 		}
 	]
 
@@ -225,9 +270,13 @@ const Items = () => {
 		setOpen(true)
 	}
 
+	const handleItemFormLoading = value => {
+		setLoading(value)
+	}
+
 	const closeItemsForm = () => {
 		setOpen(false)
-		setLoading(false)
+		handleItemFormLoading(false)
 	}
 
 	const handleResetItemsForm = () => {
@@ -250,6 +299,9 @@ const Items = () => {
 			model.IdFamilia = data.idFamilia
 			model.IdUnidadMedida = data.idUnidadMedida
 			model.IdTipoArticulo = data.idTipoArticulo
+			model.ConsumoGeneral = data.consumoGeneral
+			model.IdMarca = data.idMarca
+			model.Precio = data.precio
 
 			setTableLoading(prevState => ({
 				...prevState,
@@ -273,9 +325,10 @@ const Items = () => {
 				unidadMedidaItems={unidadMedidaItems}
 				tipoArticuloItems={tipoArticuloItems}
 				familiaItems={familiaItems}
+				marcas={marcas}
 				initialValues={itemsFormInitialValues}
 				loading={loading}
-				handleLoading={setLoading}
+				handleLoading={handleItemFormLoading}
 			/>
 			<div className='info-continer'>
 				<Statistic

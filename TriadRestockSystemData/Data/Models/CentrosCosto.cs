@@ -48,5 +48,9 @@ public partial class CentrosCosto
 
     [ForeignKey("IdCentroCosto")]
     [InverseProperty("IdCentroCostos")]
+    public virtual ICollection<Catalogo> IdCatalogos { get; set; } = new List<Catalogo>();
+
+    [ForeignKey("IdCentroCosto")]
+    [InverseProperty("IdCentroCostos")]
     public virtual ICollection<Usuario> IdUsuarios { get; set; } = new List<Usuario>();
 }

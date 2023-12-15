@@ -231,6 +231,8 @@ public partial class InventarioDBContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Articulos_FamiliasArticulos");
 
+            entity.HasOne(d => d.IdMarcaNavigation).WithMany(p => p.Articulos).HasConstraintName("FK_Articulos_Marcas");
+
             entity.HasOne(d => d.IdTipoArticuloNavigation).WithMany(p => p.Articulos)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Articulos_TiposArticulos");
@@ -265,6 +267,23 @@ public partial class InventarioDBContext : DbContext
                     {
                         j.HasKey("IdCatalogo", "IdArticulo");
                         j.ToTable("CatalogosArticulos");
+                    });
+
+            entity.HasMany(d => d.IdCentroCostos).WithMany(p => p.IdCatalogos)
+                .UsingEntity<Dictionary<string, object>>(
+                    "CatalogosCentrosCosto",
+                    r => r.HasOne<CentrosCosto>().WithMany()
+                        .HasForeignKey("IdCentroCosto")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_CatalogosCentrosCostos_CentrosCostos"),
+                    l => l.HasOne<Catalogo>().WithMany()
+                        .HasForeignKey("IdCatalogo")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_CatalogosCentrosCostos_Catalogos"),
+                    j =>
+                    {
+                        j.HasKey("IdCatalogo", "IdCentroCosto");
+                        j.ToTable("CatalogosCentrosCostos");
                     });
         });
 

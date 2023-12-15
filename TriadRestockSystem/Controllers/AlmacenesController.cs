@@ -154,6 +154,13 @@ namespace TriadRestockSystem.Controllers
                 .Include(a => a.UsuariosAlmacenes)
                 .ThenInclude(a => a.IdRolNavigation)
                 .Include(a => a.IdFamilia)
+                .ThenInclude(a => a.Articulos)
+                .ThenInclude(a => a.IdUnidadMedidaNavigation)
+                .Include(a => a.IdFamilia)
+                .ThenInclude(a => a.Articulos)
+                .ThenInclude(a => a.IdMarcaNavigation)
+                .Include(a => a.IdCentroCostos)
+                .Include(a => a.AlmacenesArticulos)
                 .FirstOrDefault(a => a.IdAlmacen == id);
 
             if (almacen != null)
@@ -167,12 +174,18 @@ namespace TriadRestockSystem.Controllers
                     Descripcion = almacen.Descripcion,
                     IdEstado = almacen.IdEstado,
                     Estado = almacen.IdEstadoNavigation.Estado,
+                    EsGeneral = almacen.EsGeneral ? 1 : 0,
                     Personal = almacen.UsuariosAlmacenes.Select(u => new Employee
                     {
                         IdUsuario = u.IdUsuario,
                         Username = u.IdUsuarioNavigation.Login,
                         Name = u.IdUsuarioNavigation.Nombres.Trim() + (u.IdUsuarioNavigation.Apellidos!.Length > 0 ? u.IdUsuarioNavigation.Apellidos.Trim() : ""),
                         Role = u.IdRolNavigation.Descripcion ?? ""
+                    }).ToList(),
+                    CentrosCostos = almacen.IdCentroCostos.Select(c => new CostCenter
+                    {
+                        Id = c.IdCentroCosto,
+                        Name = c.Nombre,
                     }).ToList(),
                     IdCreadoPor = almacen.CreadoPor,
                     CreadoPor = almacen.CreadoPorNavigation.Login,
@@ -279,6 +292,36 @@ namespace TriadRestockSystem.Controllers
                     })
                     .ToList();
 
+                List<vmAllowedItem> articulosPermitidos = new();
+
+                foreach (var familia in almacen.IdFamilia)
+                {
+                    foreach (var articulo in familia.Articulos)
+                    {
+                        var nuevoArticulo = articulosPermitidos.FirstOrDefault(a => a.IdArticulo == articulo.IdArticulo);
+                        if (nuevoArticulo == null)
+                        {
+                            nuevoArticulo = new()
+                            {
+                                IdArticulo = articulo.IdArticulo,
+                                Codigo = articulo.Codigo,
+                                Nombre = $"{articulo.Nombre} ({articulo.IdUnidadMedidaNavigation.UnidadMedida})",
+                            };
+
+                            articulosPermitidos.Add(nuevoArticulo);
+                        }
+                    }
+                }
+
+                var alamacenArticulos = almacen.AlmacenesArticulos
+                    .Select(a => new ItemSorting
+                    {
+                        Articulo = a.IdArticulo,
+                        Minimo = (int)a.CantidadMinima,
+                        Maximo = (int)a.CantidadMaxima
+                    })
+                    .ToList();
+
                 var model = new Wharehouse
                 {
                     Almacen = almacenInfo,
@@ -288,6 +331,8 @@ namespace TriadRestockSystem.Controllers
                     Secciones = secciones,
                     Articulos = articulos,
                     Familias = familias,
+                    ArticulosPermitidos = articulosPermitidos,
+                    ArticulosOrdenamiento = alamacenArticulos
                 };
 
                 return Ok(model);
@@ -430,6 +475,62 @@ namespace TriadRestockSystem.Controllers
                         .ToList();
 
                     almacen.IdFamilia = familias;
+
+                    _db.SaveChanges();
+                    dbTran.Commit();
+
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    dbTran.Rollback();
+                    return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
+                }
+
+            }
+
+            return Forbid();
+        }
+
+        [HttpPost("saveAlmacenArticulosOrdenamiento")]
+        public IActionResult SaveAlmacenArticulosOrdenamiento(vmWharehouseItemsSorting model)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                using var dbTran = _db.Database.BeginTransaction();
+                try
+                {
+                    var almacen = _db.Almacenes
+                        .Include(a => a.AlmacenesArticulos)
+                        .First(a => a.IdAlmacen == model.Id);
+
+                    _db.AlmacenesArticulos.RemoveRange(almacen.AlmacenesArticulos);
+                    almacen.AlmacenesArticulos.Clear();
+
+                    // List<AlmacenesArticulo> articulos = new();
+
+                    var fecha = DateTime.Now;
+
+                    foreach (var item in model.Items)
+                    {
+                        AlmacenesArticulo articulo = new()
+                        {
+                            IdArticulo = item.Articulo,
+                            CantidadMinima = item.Minimo,
+                            CantidadMaxima = item.Maximo,
+                            CreadoPor = user.IdUsuario,
+                            FechaCreacion = fecha
+                        };
+
+                        almacen.AlmacenesArticulos.Add(articulo);
+                        // articulos.Add(articulo);
+                    }
+
 
                     _db.SaveChanges();
                     dbTran.Commit();

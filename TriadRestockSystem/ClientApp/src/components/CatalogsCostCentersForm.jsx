@@ -8,11 +8,11 @@ import useAxiosPrivate from '../hooks/usePrivateAxios'
 
 const MODULE = 'Catálogos de artículos'
 
-const SAVE_CATALOG_ITEMS = '/api/catalogos/guardarArticulosCatalogo'
+const SAVE_CATALOG_COST_CENTERS = '/api/catalogos/guardarCatalogoCentrosCostos'
 
 const customLocale = {
-	itemUnit: 'artículo',
-	itemsUnit: 'artículos',
+	itemUnit: 'centro de costo',
+	itemsUnit: 'centros de costo',
 	searchPlaceholder: 'Buscar',
 	titles: ['Fuente', 'Catálogo'],
 	notFoundContent: (
@@ -23,13 +23,11 @@ const customLocale = {
 	)
 }
 
-const CatalogsItemsForm = ({
+const CatalogsCostCentersForm = ({
 	initialValues,
 	source,
 	open,
-	handleOpen,
-	loading,
-	handleLoading
+	handleOpen
 }) => {
 	const axiosPrivate = useAxiosPrivate()
 	const { roles } = useContext(AuthContext)
@@ -38,8 +36,20 @@ const CatalogsItemsForm = ({
 	const [form] = Form.useForm()
 	// const values = Form.useWatch([], form)
 
+	const [loading, setLoading] = useState(false)
+
+	const handleLoading = value => {
+		setLoading(value)
+	}
+
 	const [targetKeys, setTargetKeys] = useState([])
 	const [selectedKeys, setSelectedKeys] = useState([])
+
+	const handleCancel = () => {
+		handleOpen(false)
+		form.resetFields()
+		handleLoading(false)
+	}
 
 	const filterOption = (inputValue, option) =>
 		option.shortText.indexOf(inputValue) > -1
@@ -49,26 +59,26 @@ const CatalogsItemsForm = ({
 	}
 
 	useEffect(() => {
-		const { Id, Nombre, Detalle } = initialValues
+		const { Id, Nombre, IdsCentrosCostos } = initialValues
 		form.setFieldsValue({
 			id: Id,
-			detalle: Detalle
+			centrosCostos: IdsCentrosCostos
 		})
-		setTargetKeys(Detalle)
-		setTitle(`Listado de artículos - ${Nombre}`)
+		setTargetKeys(IdsCentrosCostos)
+		setTitle(`Listado de centros de costo - ${Nombre}`)
 	}, [form, initialValues, open])
 
-	const saveCatalogItems = async model => {
+	const saveCatalogCostsCenters = async model => {
 		try {
-			const response = await axiosPrivate.post(SAVE_CATALOG_ITEMS, model)
+			const response = await axiosPrivate.post(SAVE_CATALOG_COST_CENTERS, model)
 			if (response?.status === 200) {
-				openMessage('success', 'Artículos guardados')
-				handleLoading(false)
-				handleOpen(false)
+				openMessage('success', 'Centros de costo guardados')
 				form.resetFields()
 			}
 		} catch (error) {
 			console.log(error)
+		} finally {
+			handleCancel()
 		}
 	}
 
@@ -80,9 +90,9 @@ const CatalogsItemsForm = ({
 	const onFinish = values => {
 		const model = createCatalogDetailsModel()
 		model.Id = values.id
-		model.Detalle = values.detalle
+		model.IdsCentrosCostos = values.centrosCostos
 		console.log(model)
-		saveCatalogItems(model)
+		saveCatalogCostsCenters(model)
 	}
 
 	const onFinishFailed = values => {
@@ -90,15 +100,10 @@ const CatalogsItemsForm = ({
 		handleLoading(false)
 	}
 
-	const handleCancel = () => {
-		handleOpen(false)
-		form.resetFields()
-	}
-
 	const validateTargetKeys = (rule, value, callback) => {
 		if (!value || value.length === 0) {
 			// eslint-disable-next-line n/no-callback-literal
-			callback('Debe seleccionar por lo menos un artículo')
+			callback('Debe seleccionar por lo menos un centro de costo')
 		} else {
 			callback()
 		}
@@ -131,7 +136,7 @@ const CatalogsItemsForm = ({
 					form={form}
 					onFinish={onFinish}
 					onFinishFailed={onFinishFailed}
-					name='form_catalog_items'
+					name='catalog_form_costCenters'
 					layout='vertical'
 					requiredMark
 				>
@@ -141,8 +146,8 @@ const CatalogsItemsForm = ({
 					<Row gutter={16}>
 						<Col span={24}>
 							<Form.Item
-								name='detalle'
-								label='Selecciona los artículos para el catálogo'
+								name='centrosCostos'
+								label='Selecciona los centros de costo para el catálogo'
 								rules={[
 									{
 										validator: validateTargetKeys
@@ -176,4 +181,4 @@ const CatalogsItemsForm = ({
 	)
 }
 
-export default CatalogsItemsForm
+export default CatalogsCostCentersForm

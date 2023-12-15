@@ -27,7 +27,7 @@ namespace TriadRestockSystem.Controllers
         [HttpGet("getArticulos")]
         public ActionResult GetArticulos()
         {
-            var result = _dbContext.ArticulosGetAll()
+            var items = _dbContext.ArticulosGetAll()
                  .Select(a => new
                  {
                      Id = a.IdArticulo,
@@ -41,12 +41,24 @@ namespace TriadRestockSystem.Controllers
                      a.Familia,
                      a.IdTipoArticulo,
                      a.Tipo,
+                     a.IdMarca,
+                     a.Marca,
+                     a.Precio,
+                     a.ConsumoGeneral,
+                     ConsumoGeneralTexto = a.ConsumoGeneral ? "Sí" : "No",
                      a.IdCreadoPor,
                      a.CreadoPor,
                      Fecha = a.FechaCreacion.ToString("dd/MM/yyyy")
                  })
                  .ToList();
-            return Ok(result);
+
+            var brands = _dbContext.Marcas.Select(m => new
+            {
+                Key = m.IdMarca,
+                Text = m.Nombre,
+            }).ToList();
+
+            return Ok(new { items, brands });
         }
 
 
@@ -99,16 +111,31 @@ namespace TriadRestockSystem.Controllers
 
             Usuario? user = _dbContext.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
 
-
             if (user != null)
             {
                 using var dbTran = _dbContext.Database.BeginTransaction();
                 try
                 {
+
+                    Marca? marca = _dbContext.Marcas.FirstOrDefault(m => m.IdMarca == model.IdMarca);
+
+                    if (marca == null)
+                    {
+                        marca = new()
+                        {
+                            CreadoPor = user.IdUsuario,
+                            FechaCreacion = DateTime.Now
+                        };
+
+                        marca.Nombre = model.Marca;
+                        _dbContext.Marcas.Add(marca);
+                    }
+
                     Articulo? articulo = _dbContext.Articulos
                     .Include(v => v.IdUnidadMedidaNavigation)
                     .Include(v => v.IdFamiliaNavigation)
                     .Include(v => v.IdTipoArticuloNavigation)
+                    .Include(v => v.IdMarcaNavigation)
                     .FirstOrDefault(v => v.IdArticulo == model.IdArticulo);
 
                     if (articulo == null)
@@ -133,6 +160,10 @@ namespace TriadRestockSystem.Controllers
                     articulo.IdUnidadMedida = model.IdUnidadMedida;
                     articulo.IdFamilia = model.IdFamilia;
                     articulo.IdTipoArticulo = model.IdTipoArticulo;
+                    articulo.ConsumoGeneral = model.ConsumoGeneral;
+                    articulo.PrecioPorUnidad = Math.Round(model.Precio, 2);
+
+                    articulo.IdMarcaNavigation = marca;
 
                     _dbContext.SaveChanges();
                     dbTran.Commit();
@@ -162,11 +193,13 @@ namespace TriadRestockSystem.Controllers
                     IdArticulo = articulo.IdArticulo,
                     IdUnidadMedida = articulo.IdUnidadMedida,
                     Nombre = articulo.Nombre,
+                    IdMarca = articulo.IdMarca ?? 1,
                     Codigo = articulo.Codigo,
                     Descripcion = articulo.Descripcion,
                     IdFamilia = articulo.IdFamilia,
                     IdTipoArticulo = articulo.IdTipoArticulo,
-
+                    ConsumoGeneral = articulo.ConsumoGeneral ?? false,
+                    Precio = articulo.PrecioPorUnidad ?? 0.0m
                 };
                 return Ok(vm);
             }

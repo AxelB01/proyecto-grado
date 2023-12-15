@@ -1,23 +1,25 @@
 import {
 	EditOutlined,
 	HomeOutlined,
+	MoneyCollectOutlined,
 	PlusOutlined,
 	ReloadOutlined,
 	TagsOutlined
 } from '@ant-design/icons'
-import { Button, Space, Statistic } from 'antd'
+import { Button, Space, Statistic, Tooltip } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import {
-	createCatalogItemsModel,
+	createCatalogDetailsModel,
 	createCatalogModel
 } from '../functions/constructors'
 import { userHasAccessToModule } from '../functions/validation'
 import useItems from '../hooks/useItems'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
+import CatalogsCostCentersForm from './CatalogsCostCentersForm'
 import CatalogsForm from './CatalogsForm'
 import CatalogsItemsForm from './CatalogsItemsForm'
 import CustomTable from './CustomTable'
@@ -52,8 +54,29 @@ const Catalogs = () => {
 	const [initialValues, setInitialValues] = useState(createCatalogModel())
 
 	const [catalogItemsInitialValues, setCatalogItemsInitialValues] = useState(
-		createCatalogItemsModel()
+		createCatalogDetailsModel()
 	)
+
+	const [costCentersLoadings, setCostCentersLoadings] = useState({})
+	const [costCenters, setCostCenters] = useState([])
+	const [costCentersFormInitialValues, setCostCentersFormInitialValues] =
+		useState({})
+	const [costCentersFormStatus, setCostCentersFormStatus] = useState(false)
+
+	const handleCostCentersFormStatus = value => {
+		setCostCentersFormStatus(value)
+		if (!value) {
+			setCostCentersFormInitialValues({})
+		}
+	}
+
+	const handleEditCatalogCostCenters = rowId => {
+		setCostCentersLoadings(prevState => ({
+			...prevState,
+			[rowId]: true
+		}))
+		getCatalogCostCenters(rowId)
+	}
 
 	const handleEditCatalogs = rowId => {
 		setLoading(prevState => ({
@@ -85,7 +108,7 @@ const Catalogs = () => {
 	const handleOpenItemsForm = value => {
 		setOpenItemsForm(value)
 		if (!value) {
-			setInitialValues(createCatalogItemsModel())
+			setInitialValues(createCatalogDetailsModel())
 		}
 	}
 
@@ -111,18 +134,37 @@ const Catalogs = () => {
 	}
 
 	const getCatalogItems = record => {
-		const model = createCatalogItemsModel()
+		const model = createCatalogDetailsModel()
 		model.Id = record.id
 		model.Nombre = record.nombre
 		model.Detalle = record.articulos
 		setCatalogItemsInitialValues(model)
 	}
 
+	const getCatalogCostCenters = record => {
+		const model = createCatalogDetailsModel()
+		model.Id = record.id
+		model.Nombre = record.nombre
+		model.IdsCentrosCostos = record.centrosCostos
+
+		setCostCentersFormInitialValues(model)
+	}
+
 	useEffect(() => {
 		const getCatalogs = async () => {
 			try {
 				const response = await axiosPrivate.get(CATALOGOS_URL)
-				setCatalogs(response?.data)
+				const data = response?.data
+				setCatalogs(data.catalogs)
+				setCostCenters(
+					data.costCenters.map(c => {
+						return {
+							key: c.key,
+							text: c.text,
+							shortText: c.text
+						}
+					})
+				)
 				setTableState(false)
 			} catch (error) {
 				console.log(error)
@@ -130,7 +172,7 @@ const Catalogs = () => {
 		}
 
 		getCatalogs()
-	}, [axiosPrivate, open, openItemsForm])
+	}, [axiosPrivate, open, openItemsForm, costCentersFormStatus])
 
 	useEffect(() => {
 		const { Id } = initialValues
@@ -155,8 +197,18 @@ const Catalogs = () => {
 	}, [catalogItemsInitialValues])
 
 	useEffect(() => {
+		if (Object.keys(costCentersFormInitialValues).length !== 0) {
+			handleCostCentersFormStatus(true)
+			setCostCentersLoadings(prevState => ({
+				...prevState,
+				[costCentersFormInitialValues.Id]: false
+			}))
+		}
+	}, [costCentersFormInitialValues])
+
+	useEffect(() => {
 		if (!openItemsForm) {
-			setCatalogItemsInitialValues(createCatalogItemsModel())
+			setCatalogItemsInitialValues(createCatalogDetailsModel())
 		}
 	}, [openItemsForm])
 
@@ -178,6 +230,42 @@ const Catalogs = () => {
 
 	const columns = [
 		{
+			title: '',
+			key: 'action',
+			width: 60,
+			render: (_, record) => (
+				<Space size='middle' align='center'>
+					{userHasAccessToModule(MODULE, 'creation', roles) ||
+					userHasAccessToModule(MODULE, 'management', roles) ? (
+						<Tooltip title='Editar'>
+							<Button
+								type='text'
+								icon={<EditOutlined />}
+								loading={loading[record.id]}
+								onClick={() => handleEditCatalogs(record.id)}
+							/>
+						</Tooltip>
+					) : null}
+					<Tooltip title='Artículos'>
+						<Button
+							type='text'
+							icon={<TagsOutlined />}
+							loading={loading2[record.id]}
+							onClick={() => handleEditCatalogsItems(record)}
+						/>
+					</Tooltip>
+					<Tooltip title='Centros de costo'>
+						<Button
+							type='text'
+							icon={<MoneyCollectOutlined />}
+							loading={costCentersLoadings[record.id]}
+							onClick={() => handleEditCatalogCostCenters(record)}
+						/>
+					</Tooltip>
+				</Space>
+			)
+		},
+		{
 			title: 'Código',
 			dataIndex: 'id',
 			key: 'id',
@@ -197,6 +285,13 @@ const Catalogs = () => {
 			sortKey: 'totalArticulos'
 		},
 		{
+			title: 'Centros de costos',
+			dataIndex: 'totalCentrosCosto',
+			key: 'totalCentrosCosto',
+			filterType: 'sorter',
+			sortKey: 'totalCentrosCosto'
+		},
+		{
 			title: 'Creador',
 			dataIndex: 'creadoPor',
 			key: 'creadoPor',
@@ -209,32 +304,6 @@ const Catalogs = () => {
 			key: 'fecha',
 			filterType: 'date sorter',
 			dateFormat: 'DD/MM/YYYY'
-		},
-		{
-			title: '',
-			key: 'action',
-			render: (_, record) => (
-				<Space size='middle' align='center'>
-					{userHasAccessToModule(MODULE, 'creation', roles) ||
-					userHasAccessToModule(MODULE, 'management', roles) ? (
-						<Button
-							icon={<EditOutlined />}
-							loading={loading[record.id]}
-							onClick={() => handleEditCatalogs(record.id)}
-						>
-							Editar
-						</Button>
-					) : null}
-
-					<Button
-						icon={<TagsOutlined />}
-						loading={loading2[record.id]}
-						onClick={() => handleEditCatalogsItems(record)}
-					>
-						Artículos
-					</Button>
-				</Space>
-			)
 		}
 	]
 
@@ -291,8 +360,8 @@ const Catalogs = () => {
 	}, [validLogin, roles, navigateToPath])
 
 	useEffect(() => {
-		console.log(itemsList)
-	}, [itemsList])
+		console.log(catalogs)
+	}, [catalogs])
 
 	return (
 		<>
@@ -311,6 +380,12 @@ const Catalogs = () => {
 					handleLoading={handleLoadingCatalogsItems}
 					source={itemsList.items}
 					initialValues={catalogItemsInitialValues}
+				/>
+				<CatalogsCostCentersForm
+					open={costCentersFormStatus}
+					handleOpen={handleCostCentersFormStatus}
+					source={costCenters}
+					initialValues={costCentersFormInitialValues}
 				/>
 				<div className='info-container to-right'>
 					<Statistic

@@ -23,22 +23,35 @@ namespace TriadRestockSystem.Controllers
             _configuration = configuration;
 
         }
+
         [HttpGet("getCatalogos")]
         public IActionResult GetCatalogos()
         {
-            var result = _db.Catalogos
-                .Select(x => new
+            var catalogs = _db.Catalogos
+                .Include(a => a.IdArticulos)
+                .Include(a => a.IdCentroCostos)
+                .Select(a => new
                 {
-                    Key = x.IdCatalogo,
-                    Id = x.IdCatalogo,
-                    x.Nombre,
-                    CreadoPor = x.CreadoPorNavigation.Login,
-                    Fecha = x.FechaCreacion.ToString("dd/MM/yyyy"),
-                    TotalArticulos = x.IdArticulos.Count,
-                    Articulos = _db.Catalogos.First(c => c.IdCatalogo == x.IdCatalogo).IdArticulos.Select(a => a.IdArticulo).ToList()
+                    Key = a.IdCatalogo,
+                    Id = a.IdCatalogo,
+                    a.Nombre,
+                    CreadoPor = a.CreadoPorNavigation.Login,
+                    Fecha = a.FechaCreacion.ToString("dd/MM/yyyy"),
+                    TotalArticulos = a.IdArticulos.Count,
+                    TotalCentrosCosto = a.IdCentroCostos.Count,
+                    Articulos = a.IdArticulos.Select(b => b.IdArticulo).ToList(),
+                    CentrosCostos = a.IdCentroCostos.Select(c => c.IdCentroCosto).ToList()
                 })
                 .ToList();
-            return Ok(result);
+
+            var costCenters = _db.CentrosCostos
+                .Select(c => new
+                {
+                    Key = c.IdCentroCosto,
+                    Text = c.Nombre
+                }).ToList();
+
+            return Ok(new { catalogs, costCenters });
         }
 
         [HttpPost("guardarCatalogo")]
@@ -94,6 +107,34 @@ namespace TriadRestockSystem.Controllers
                         .Where(a => model.Detalle.Contains(a.IdArticulo))
                         .ToList();
                     catalogo.IdArticulos = nuevosArticulos;
+                    _db.SaveChanges();
+                    return Ok();
+                }
+                return BadRequest();
+            }
+
+            return Unauthorized();
+        }
+
+        [HttpPost("guardarCatalogoCentrosCostos")]
+        public IActionResult GuardarCatalogoCentrosCostos(vmCatalog model)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                Catalogo? catalogo = _db.Catalogos
+                    .Include(c => c.IdCentroCostos)
+                    .FirstOrDefault(c => c.IdCatalogo == model.Id);
+                if (catalogo != null)
+                {
+                    var centrosCostos = _db.CentrosCostos
+                        .Where(c => model.IdsCentrosCostos.Contains(c.IdCentroCosto))
+                        .ToList();
+                    catalogo.IdCentroCostos = centrosCostos;
                     _db.SaveChanges();
                     return Ok();
                 }

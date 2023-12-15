@@ -18,6 +18,7 @@
         public int EsGeneral { get; set; }
         public string? Estado { get; set; }
         public List<Employee> Personal { get; set; } = new();
+        public List<CostCenter> CentrosCostos { get; set; } = new();
         public List<int> IdsPersonal { get; set; } = new();
         public List<int> IdsCentrosCostos { get; set; } = new();
         public int IdCreadoPor { get; set; }
@@ -39,5 +40,18 @@
         public string Username { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
+    }
+
+    public class CostCenter
+    {
+        public int Id { get; set; }
+        public int Key
+        {
+            get
+            {
+                return Id;
+            }
+        }
+        public string Name { get; set; } = string.Empty;
     }
 }

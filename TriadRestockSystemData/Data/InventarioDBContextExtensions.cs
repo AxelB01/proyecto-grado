@@ -23,10 +23,10 @@ namespace TriadRestockSystemData.Data
                 .ToList();
         }
 
-        public static IList<vmArticuloListItem> ArticulosGetList(this InventarioDBContext context)
+        public static IList<vmArticuloListItem> ArticulosGetList(this InventarioDBContext context, int id)
         {
             return context.Database.GetDbConnection()
-                .Query<vmArticuloListItem>("ArticulosGetList", commandType: CommandType.StoredProcedure)
+                .Query<vmArticuloListItem>("ArticulosGetList", new { id }, commandType: CommandType.StoredProcedure)
                 .ToList();
         }
 

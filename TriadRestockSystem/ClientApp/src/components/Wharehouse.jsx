@@ -27,6 +27,7 @@ import LayoutContext from '../context/LayoutContext'
 import {
 	createInventoryEntryModel,
 	createWharehouseFamiliesModel,
+	createWharehouseItemsSortingModel,
 	createWharehouseSectionModel,
 	createWharehouseSectionStockModel
 } from '../functions/constructors'
@@ -223,10 +224,13 @@ const Wharehouse = () => {
 	// Stock Form
 
 	const items = useItems().items
+	const [allowedItems, setAllowedItems] = useState([])
 
 	useEffect(() => {
-		console.log(items)
-	}, [items])
+		if (allowedItems.length > 0) {
+			console.log(allowedItems)
+		}
+	}, [allowedItems])
 
 	const [idSectionStock, setIdSectionStock] = useState(0)
 	const [stockFormValues, setStockFormValues] = useState(
@@ -308,7 +312,7 @@ const Wharehouse = () => {
 
 	// Sorting of articles
 	const [sortingFormStatus, setSortingFormStatus] = useState(false)
-	const [sortingFormInitialValues, setSortingFormInitialValues] = useState([])
+	const [sortingFormInitialValues, setSortingFormInitialValues] = useState({})
 
 	const toggleSortingFormModal = () => {
 		setSortingFormStatus(!sortingFormStatus)
@@ -628,6 +632,7 @@ const Wharehouse = () => {
 				setWharehouseData(data.almacen)
 				setRequisitions(data.requisiciones)
 				setSections(data.secciones)
+				setAllowedItems(data.articulosPermitidos)
 
 				const familiesFormModel = createWharehouseFamiliesModel()
 				familiesFormModel.Id = data.almacen.key
@@ -658,6 +663,19 @@ const Wharehouse = () => {
 
 				setTableState(false)
 				setDataTableLoading(false)
+
+				const itemsSortingModel = createWharehouseItemsSortingModel()
+				itemsSortingModel.Id = data.almacen.key
+				console.log(data.articulosOrdenamiento)
+				itemsSortingModel.Items = data.articulosOrdenamiento.map(i => {
+					return {
+						Articulo: i.articulo,
+						Minimo: i.minimo,
+						Maximo: i.maximo
+					}
+				})
+
+				setSortingFormInitialValues(itemsSortingModel)
 			}
 		} catch (error) {
 			console.log(error)
@@ -730,7 +748,7 @@ const Wharehouse = () => {
 		loadWharehouseData()
 		setDataTableLoading(true)
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [customState, automaticRequisitionStatus])
+	}, [customState, automaticRequisitionStatus, sortingFormStatus])
 
 	useEffect(() => {
 		setPendingOrders(procurementOrders)
@@ -848,7 +866,7 @@ const Wharehouse = () => {
 				<WharehouseItemsSorting
 					open={sortingFormStatus}
 					toggle={toggleSortingFormModal}
-					items={items}
+					items={allowedItems}
 					initialValues={sortingFormInitialValues}
 				/>
 				<div className='outter-info-container'>
