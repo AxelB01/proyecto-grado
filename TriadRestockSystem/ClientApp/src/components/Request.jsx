@@ -1,9 +1,9 @@
 import {
 	CheckOutlined,
 	ContainerOutlined,
+	DeleteOutlined,
 	DownloadOutlined,
 	HomeOutlined,
-	MinusCircleOutlined,
 	PlusOutlined,
 	QuestionCircleOutlined,
 	SaveOutlined,
@@ -31,15 +31,16 @@ import {
 	isStringEmpty,
 	userHasAccessToModule
 } from '../functions/validation'
-import useCatalogs from '../hooks/useCatalogs'
 import useCostCenters from '../hooks/useCostCenters'
-import useItems from '../hooks/useItems'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import '../styles/DefaultContentStyle.css'
 import '../styles/Request.css'
 import RequestRejectModal from './RequestRejectModal'
 
 const MODULE = 'Solicitudes de materiales'
+
+const GET_CATALOGS = 'api/solicitudes/getCatalogosList'
+const GET_ITEMS = 'api/solicitudes/getArticulosList'
 
 const GET_SINGLE_REQUEST = 'api/solicitudes/getSolicitud'
 const SAVE_REQUEST = 'api/solicitudes/guardarSolicitud'
@@ -68,8 +69,8 @@ const Request = () => {
 
 	const axiosPrivate = useAxiosPrivate()
 	const costCenters = useCostCenters()
-	const items = useItems()
-	const catalogs = useCatalogs().items
+	const [items, setItems] = useState([])
+	const [catalogs, setCatalogs] = useState([])
 
 	const [form] = Form.useForm()
 	const values = Form.useWatch([], form)
@@ -86,6 +87,33 @@ const Request = () => {
 
 	const handleRejectModalStatus = () => {
 		setRejectModalStatus(!rejectModalStatus)
+	}
+
+	const getCatalogs = async id => {
+		try {
+			const response = await axiosPrivate.get(GET_CATALOGS + `?id=${id}`)
+
+			if (response?.status === 200) {
+				const data = response.data
+				setCatalogs(data)
+			}
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	const getItems = async id => {
+		try {
+			const response = await axiosPrivate.get(GET_ITEMS + `?id=${id}`)
+
+			if (response?.status === 200) {
+				const data = response.data
+				setItems(data)
+				setAvailableItems(data)
+			}
+		} catch (error) {
+			console.log(error)
+		}
 	}
 
 	const loadRequest = async () => {
@@ -110,8 +138,8 @@ const Request = () => {
 
 		let breadcrumbLastItemText = 'Nueva solicitud'
 
-		if (customState !== undefined && customState !== null) {
-			try {
+		try {
+			if (customState !== undefined && customState !== null) {
 				const response = await axiosPrivate.get(
 					GET_SINGLE_REQUEST + `?id=${customState}`
 				)
@@ -139,19 +167,19 @@ const Request = () => {
 					setRequestCode(`Solicitud de materiales (${data.numero})`)
 					setRequestState(data.estado)
 				}
-			} catch (error) {
-				console.log(error)
-			} finally {
-				breadcrumbItems.push({
-					title: (
-						<a>
-							<span className='breadcrumb-item'>{breadcrumbLastItemText}</span>
-						</a>
-					)
-				})
-
-				handleBreadcrumb(breadcrumbItems)
 			}
+		} catch (error) {
+			console.log(error)
+		} finally {
+			breadcrumbItems.push({
+				title: (
+					<a>
+						<span className='breadcrumb-item'>{breadcrumbLastItemText}</span>
+					</a>
+				)
+			})
+
+			handleBreadcrumb(breadcrumbItems)
 		}
 
 		setTimeout(() => {
@@ -273,9 +301,7 @@ const Request = () => {
 		const idItemsToLoad = idCatalogItems.filter(
 			i => !idFormSelectedItems.includes(i)
 		)
-		const itemsToLoad = items.items.filter(item =>
-			idItemsToLoad.includes(item.key)
-		)
+		const itemsToLoad = items.filter(item => idItemsToLoad.includes(item.key))
 
 		itemsToLoad.forEach(item => {
 			const element = {
@@ -311,7 +337,7 @@ const Request = () => {
 	}
 
 	const handleSelectChange = (index, value) => {
-		const existencia = items.items.filter(e => e.key === value)[0].stock
+		const existencia = items.filter(e => e.key === value)[0].stock
 		const formData = form.getFieldsValue()
 		formData.articulos[index].existencia = existencia
 	}
@@ -395,6 +421,16 @@ const Request = () => {
 	// }, [location])
 
 	useEffect(() => {
+		const id = values?.centroCostos
+		if (id !== 0) {
+			getCatalogs(id)
+			getItems(id)
+		}
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [values])
+
+	useEffect(() => {
 		if (customState !== undefined && customState !== null) {
 			loadRequest()
 		}
@@ -450,9 +486,7 @@ const Request = () => {
 
 	useEffect(() => {
 		if (items !== undefined && selectedItems !== undefined) {
-			setAvailableItems(
-				items?.items?.filter(e => !selectedItems.includes(e.key))
-			)
+			setAvailableItems(items.filter(e => !selectedItems.includes(e.key)))
 		}
 	}, [items, selectedItems])
 
@@ -711,7 +745,7 @@ const Request = () => {
 								</Col>
 							</Row>
 							<Row gutter={8}>
-								<Col span={13}>
+								<Col span={14}>
 									<Form.List
 										name='articulos'
 										rules={[
@@ -730,13 +764,15 @@ const Request = () => {
 											<>
 												{values !== undefined &&
 												values.articulos !== undefined ? (
-													<div
-														style={{
-															marginBottom: '0.5rem'
-														}}
-													>
-														<span>Artículos</span>
-													</div>
+													<>
+														<div
+															style={{
+																marginBottom: '0.5rem'
+															}}
+														>
+															<span>Artículos</span>
+														</div>
+													</>
 												) : (
 													''
 												)}
@@ -808,9 +844,7 @@ const Request = () => {
 														</Form.Item>
 														{fields.length > 1 &&
 														requestState !== 'Aprobado' ? (
-															<MinusCircleOutlined
-																onClick={() => remove(name)}
-															/>
+															<DeleteOutlined onClick={() => remove(name)} />
 														) : null}
 													</div>
 												))}
@@ -824,7 +858,7 @@ const Request = () => {
 													<Button
 														type='dashed'
 														style={{
-															width: '80%'
+															width: '70%'
 														}}
 														onClick={() => add()}
 														icon={<PlusOutlined />}

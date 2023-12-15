@@ -39,9 +39,13 @@ export const createItemsModel = () => {
 		IdUnidadMedida: 0,
 		Codigo: 0,
 		Nombre: '',
+		IdMarca: 0,
+		Marca: '',
 		Descripcion: '',
 		IdFamilia: 0,
-		IdTipoArticulo: 0
+		IdTipoArticulo: 0,
+		ConsumoGeneral: false,
+		Precio: 0.0
 	}
 }
 
@@ -78,10 +82,11 @@ export const createCatalogModel = () => {
 	}
 }
 
-export const createCatalogItemsModel = () => {
+export const createCatalogDetailsModel = () => {
 	return {
 		Id: 0,
 		Nombre: '',
+		IdsCentrosCostos: [],
 		Detalle: []
 	}
 }
@@ -302,5 +307,12 @@ export const createWharehouseFamiliesModel = () => {
 	return {
 		Id: 0,
 		Families: []
+	}
+}
+
+export const createWharehouseItemsSortingModel = () => {
+	return {
+		Id: 0,
+		Items: []
 	}
 }

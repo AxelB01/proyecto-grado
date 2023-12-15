@@ -1,5 +1,4 @@
 import { Avatar, Badge, Descriptions, Modal, Tooltip } from 'antd'
-import { useEffect } from 'react'
 
 const WharehouseInfo = ({ status, toggle, data }) => {
 	const items = [
@@ -13,7 +12,13 @@ const WharehouseInfo = ({ status, toggle, data }) => {
 			key: '2',
 			label: 'Estado',
 			children: <Badge status='processing' text={data.estado} />,
-			span: 3
+			span: 2
+		},
+		{
+			key: '9',
+			label: 'Tipo',
+			children: <>{data.esGeneral === 1 ? 'General' : 'Específico'}</>,
+			span: 1
 		},
 		{
 			key: '8',
@@ -37,10 +42,29 @@ const WharehouseInfo = ({ status, toggle, data }) => {
 			span: 3
 		},
 		{
+			key: '10',
+			label: 'Centros de costos',
+			children: (
+				<>
+					{data.centrosCostos?.length > 0
+						? data.centrosCostos.map(c => {
+								return (
+									<div key={c.key}>
+										<span>{c.name}</span>
+										<br />
+									</div>
+								)
+						  })
+						: 'No disponible'}
+				</>
+			),
+			span: 1
+		},
+		{
 			key: '3',
 			label: 'Descripción',
 			children: data.descripcion,
-			span: 3
+			span: 2
 		},
 		{
 			key: '4',
@@ -71,12 +95,14 @@ const WharehouseInfo = ({ status, toggle, data }) => {
 		toggle()
 	}
 
-	useEffect(() => {
-		console.log(data)
-	}, [status, data])
-
 	return (
-		<Modal open={status} onCancel={handleCancel} footer={[]} width={1000}>
+		<Modal
+			style={{ top: 20 }}
+			open={status}
+			onCancel={handleCancel}
+			footer={[]}
+			width={1000}
+		>
 			<Descriptions title='Información General' items={items} bordered />
 		</Modal>
 	)

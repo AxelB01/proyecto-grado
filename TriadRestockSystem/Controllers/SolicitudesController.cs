@@ -67,6 +67,8 @@ namespace TriadRestockSystem.Controllers
                         .ThenInclude(x => x.IdUnidadMedidaNavigation)
                         .First(x => x.IdSolicitudMateriales == id);
 
+                    var listaArticulos = _db.ArticulosGetList(solicitud.IdCentroCostos);
+
                     vmRequest model = new()
                     {
                         IdSolicitud = solicitud.IdSolicitudMateriales,
@@ -86,7 +88,7 @@ namespace TriadRestockSystem.Controllers
                             IdArticulo = x.IdArticulo,
                             Articulo = $"{x.IdArticuloNavigation.Nombre} ({x.IdArticuloNavigation.IdUnidadMedidaNavigation.UnidadMedida})",
                             Cantidad = Convert.ToInt32(x.Cantidad),
-                            Existencia = 0
+                            Existencia = listaArticulos.FirstOrDefault(a => a.IdArticulo == x.IdArticulo)?.Existencias ?? 0
                         })
                         .ToArray(),
                         CausaRechazo = solicitud.CausaRechazo
@@ -104,14 +106,50 @@ namespace TriadRestockSystem.Controllers
             return Unauthorized();
         }
 
-        [HttpGet("getArticulosList")]
-        public IActionResult GetArticulosList()
+        //[HttpGet("getCentroCostoCatalogos")]
+        //public IActionResult GetCentroCostoCatalogos(int id)
+        //{
+        //    var response = _db.CentrosCostos
+        //        .Include(a => a.IdCatalogos)
+        //        .First(a => a.IdCentroCosto == id)
+        //        .IdCatalogos.Select(b => new
+        //        {
+        //            Key = b.IdCatalogo,
+        //            Text = b.Nombre
+        //        }).ToList();
+
+        //    return Ok(response);
+        //}
+
+        [HttpGet("getCatalogosList")]
+        public IActionResult GetCatalogosList(int id)
         {
-            var response = _db.ArticulosGetList()
+            var response = _db.CentrosCostos
+                .Include(c => c.IdCatalogos)
+                .ThenInclude(c => c.IdArticulos)
+                .First(c => c.IdCentroCosto == id)
+                .IdCatalogos
+                .Select(c => new
+                {
+                    Key = c.IdCatalogo,
+                    Value = c.IdCatalogo,
+                    Text = c.Nombre,
+                    Items = c.IdArticulos.Select(a => a.IdArticulo).ToList()
+                }).ToList();
+
+            return Ok(response);
+        }
+
+        [HttpGet("getArticulosList")]
+        public IActionResult GetArticulosList(int id)
+        {
+            var response = _db.ArticulosGetList(id)
                 .Select(x => new
                 {
+                    Key = x.IdArticulo,
                     Value = x.IdArticulo,
                     Text = $"{x.Nombre} ({x.UnidadMedida})",
+                    Stock = x.Existencias
                 })
                 .ToList();
             return Ok(response);

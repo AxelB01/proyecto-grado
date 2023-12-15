@@ -87,6 +87,22 @@ const pendingColumnsRequests = [
 
 const pendingColumnsRequisitions = [
 	{
+		title: '',
+		dataIndex: 'accion',
+		key: 'accion',
+		render: (_, record) => (
+			<Space>
+				<Button icon={<EditOutlined />}>Editar</Button>
+				<Button icon={<AuditOutlined />} type='primary' ghost>
+					Aprobar
+				</Button>
+				<Button icon={<FolderOutlined />} danger>
+					Archivar
+				</Button>
+			</Space>
+		)
+	},
+	{
 		title: 'Codigo',
 		dataIndex: 'numero',
 		key: 'numero',
@@ -105,22 +121,6 @@ const pendingColumnsRequisitions = [
 		dataIndex: 'fechaFormateada',
 		key: 'fechaFormateada',
 		width: 240
-	},
-	{
-		title: 'Acciones',
-		dataIndex: 'accion',
-		key: 'accion',
-		render: (_, record) => (
-			<Space>
-				<Button icon={<EditOutlined />}>Editar</Button>
-				<Button icon={<AuditOutlined />} type='primary' ghost>
-					Aprobar
-				</Button>
-				<Button icon={<FolderOutlined />} danger>
-					Archivar
-				</Button>
-			</Space>
-		)
 	}
 ]
 

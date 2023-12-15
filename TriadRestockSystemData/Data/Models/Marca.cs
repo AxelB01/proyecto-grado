@@ -25,6 +25,9 @@ public partial class Marca
     [Column(TypeName = "datetime")]
     public DateTime? FechaModificacion { get; set; }
 
+    [InverseProperty("IdMarcaNavigation")]
+    public virtual ICollection<Articulo> Articulos { get; set; } = new List<Articulo>();
+
     [ForeignKey("CreadoPor")]
     [InverseProperty("MarcaCreadoPorNavigations")]
     public virtual Usuario CreadoPorNavigation { get; set; } = null!;

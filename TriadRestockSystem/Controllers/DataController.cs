@@ -119,13 +119,13 @@ namespace TriadRestockSystem.Controllers
         [HttpGet("getArticulosList")]
         public IActionResult GetArticulosList()
         {
-            var response = _db.ArticulosGetList()
-                .Select(x => new
+            var response = _db.Articulos
+                .Include(a => a.IdUnidadMedidaNavigation)
+                .Select(a => new
                 {
-                    Key = x.IdArticulo,
-                    Text = $"{x.Nombre} ({x.UnidadMedida})",
-                    ShortText = x.Nombre,
-                    Stock = x.Existencias
+                    Key = a.IdArticulo,
+                    Text = $"{a.Nombre} ({a.IdUnidadMedidaNavigation.UnidadMedida})",
+                    ShortText = a.Nombre
                 })
                 .ToList();
 

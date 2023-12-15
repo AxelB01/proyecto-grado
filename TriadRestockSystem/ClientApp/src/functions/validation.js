@@ -144,3 +144,12 @@ export function filterMenuItemsByRolePermissions(items, roles) {
 
 	return filteredMenuItems
 }
+
+export function stringContainsNoLetters(str) {
+	const REGEX_CONTAINS_NO_LETTERS = /^[^A-Za-z]+$/
+	return REGEX_CONTAINS_NO_LETTERS.test(str)
+}
+
+export function isNotConvertibleToNumber(str) {
+	return isNaN(parseFloat(str))
+}
