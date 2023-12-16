@@ -3,9 +3,6 @@ import { useContext, useEffect } from 'react'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
 import '../styles/Home.css'
-import BarGraphics from './Graphics/BarGraphics'
-import DoughnutGraphics from './Graphics/DonughtGraphics'
-import LineGraphics from './Graphics/LineGraphics'
 
 const Home = () => {
 	const { validLogin } = useContext(AuthContext)
@@ -67,20 +64,14 @@ const Home = () => {
 		<>
 			<div className='main-content'>
 				<div className='card-contain'>
+					<div className='card-container'> {/* <LineGraphics />{' '} */}</div>
 					<div className='card-container'>
 						{' '}
-						<LineGraphics />{' '}
-					</div>
-					<div className='card-container'>
-						{' '}
-						<DoughnutGraphics />{' '}
+						{/* <DoughnutGraphics />{' '} */}
 					</div>
 				</div>
 
-				<div className='card-container'>
-					{' '}
-					<BarGraphics />{' '}
-				</div>
+				<div className='card-container'> {/* <BarGraphics />{' '} */}</div>
 			</div>
 		</>
 	)

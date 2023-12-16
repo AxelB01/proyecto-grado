@@ -4,7 +4,7 @@ import {
 	ReloadOutlined,
 	UserAddOutlined
 } from '@ant-design/icons'
-import { Button, Space, Statistic } from 'antd'
+import { Button, Space, Statistic, Tooltip } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
 import AuthContext from '../context/AuthContext'
@@ -115,6 +115,25 @@ const Families = () => {
 
 	const columns = [
 		{
+			title: '',
+			key: 'accion',
+			width: 60,
+			render: (_, record) => (
+				<Space size='middle' align='center'>
+					{userHasAccessToModule(MODULE, 'creation', roles) ||
+					userHasAccessToModule(MODULE, 'management', roles) ? (
+						<Tooltip title='Editar'>
+							<Button
+								type='text'
+								icon={<EditOutlined />}
+								onClick={() => handleEditFamily(record)}
+							/>
+						</Tooltip>
+					) : null}
+				</Space>
+			)
+		},
+		{
 			title: 'Código',
 			dataIndex: 'id',
 			key: 'id',
@@ -151,23 +170,6 @@ const Families = () => {
 			key: 'creadoPor',
 			filterType: 'text search',
 			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
-		},
-		{
-			title: '',
-			key: 'accion',
-			render: (_, record) => (
-				<Space size='middle' align='center'>
-					{userHasAccessToModule(MODULE, 'creation', roles) ||
-					userHasAccessToModule(MODULE, 'management', roles) ? (
-						<Button
-							icon={<EditOutlined />}
-							onClick={() => handleEditFamily(record)}
-						>
-							Editar
-						</Button>
-					) : null}
-				</Space>
-			)
 		}
 	]
 

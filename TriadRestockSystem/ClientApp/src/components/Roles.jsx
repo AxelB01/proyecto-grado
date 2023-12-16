@@ -26,7 +26,8 @@ const MANAGEMENT_DISABLED_MODULES = [
 	'Familias de artículos',
 	'Artículos',
 	'Catálogos de artículos',
-	'Proveedores'
+	'Proveedores',
+	'Centros de costos'
 ]
 
 const Roles = () => {
