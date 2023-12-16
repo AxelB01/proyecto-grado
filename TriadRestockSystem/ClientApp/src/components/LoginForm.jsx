@@ -102,7 +102,8 @@ const LoginForm = () => {
 				rules={[
 					{
 						required: true,
-						message: 'Debe ingresar su nombre de usuario'
+						message: 'Debe ingresar su nombre de usuario',
+						
 					},
 					{
 						validator: (_, value) => {
