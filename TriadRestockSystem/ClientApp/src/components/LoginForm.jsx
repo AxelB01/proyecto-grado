@@ -136,7 +136,7 @@ const LoginForm = () => {
 					placeholder='Contraseña'
 				/>
 			</Form.Item>
-			<Form.Item>
+			<Form.Item style={{ display: 'none' }}>
 				<Form.Item
 					className='check-remember'
 					name='remember'

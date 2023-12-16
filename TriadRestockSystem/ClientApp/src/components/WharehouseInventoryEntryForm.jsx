@@ -251,7 +251,7 @@ const WharehouseInvetoryEntryForm = ({
 								></Select>
 							</Form.Item>
 						</Col>
-						<Col span={6}>
+						{/* <Col span={6}>
 							<Form.Item name='minimo' label='Mínimo Requerido'>
 								<InputNumber style={{ width: '85%' }} disabled />
 							</Form.Item>
@@ -260,7 +260,7 @@ const WharehouseInvetoryEntryForm = ({
 							<Form.Item name='maximo' label='Capacidad Máxima'>
 								<InputNumber style={{ width: '85%' }} disabled />
 							</Form.Item>
-						</Col>
+						</Col> */}
 					</Row>
 					<Row gutter={16}>
 						<Col span={8}>
@@ -284,7 +284,7 @@ const WharehouseInvetoryEntryForm = ({
 						<Col span={4}>
 							<Form.Item
 								name='tipoNumeroSerie'
-								style={{ marginTop: '1.80rem' }}
+								style={{ marginTop: '1.80rem', display: 'none' }}
 							>
 								<Switch
 									checkedChildren='Manual'

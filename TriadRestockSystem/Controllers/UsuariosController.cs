@@ -159,6 +159,7 @@ namespace TriadRestockSystem.Controllers
                     usuario.IdEstado = model.State;
 
                     var newRoles = _db.Roles
+                        .Include(r => r.RolesModulos)
                         .Where(r => model.Roles.Contains(r.IdRol))
                         .ToList();
                     usuario.IdRols = newRoles;
@@ -167,10 +168,10 @@ namespace TriadRestockSystem.Controllers
                         .Where(c => model.CostCenters.Contains(c.IdCentroCosto))
                         .ToList();
 
-                    if (!model.Roles.Contains(6) || !model.Roles.Contains(7))
-                    {
-                        newCentrosCostos.Clear();
-                    }
+                    //if (!model.Roles.Contains(6) || !model.Roles.Contains(7))
+                    //{
+                    //    newCentrosCostos.Clear();
+                    //}
 
                     usuario.IdCentroCostos = newCentrosCostos;
 

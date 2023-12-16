@@ -4,7 +4,6 @@ import { useContext, useEffect } from 'react'
 import UnitType from '../components/TypesForms/UnitType'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
-import ItemsType from './TypesForms/ItemsType'
 
 const Units = () => {
 	const { validLogin } = useContext(AuthContext)
@@ -21,11 +20,11 @@ const Units = () => {
 	}
 
 	const items = [
-		{
-			key: '1',
-			label: `Tipo de articulos`,
-			children: <ItemsType />
-		},
+		// {
+		// 	key: '1',
+		// 	label: `Tipo de articulos`,
+		// 	children: <ItemsType />
+		// },
 		{
 			key: '2',
 			label: `Unidad de medida`,
