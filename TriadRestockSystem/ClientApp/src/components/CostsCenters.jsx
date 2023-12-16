@@ -5,7 +5,7 @@ import {
 	PlusOutlined,
 	ReloadOutlined
 } from '@ant-design/icons'
-import { Button, Space, Statistic } from 'antd'
+import { Button, Space, Statistic, Tooltip } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 // import Highlighter from 'react-highlight-words'
 import { useNavigate } from 'react-router-dom'
@@ -122,6 +122,28 @@ const CostsCenters = () => {
 
 	const columns = [
 		{
+			title: '',
+			key: 'action',
+			width: 80,
+			render: (_, record) => (
+				<Space size='middle' align='center'>
+					{!userHasAccessToModule(MODULE, 'view', roles) ? (
+						<Tooltip title='Editar'>
+							<Button
+								type='text'
+								icon={<EditOutlined />}
+								loading={loading[record.id]}
+								onClick={() => handleEditCostCenter(record.id)}
+							/>
+						</Tooltip>
+					) : null}
+					<Tooltip title='Historial'>
+						<Button type='text' icon={<AuditOutlined />} disabled />
+					</Tooltip>
+				</Space>
+			)
+		},
+		{
 			title: 'Código',
 			dataIndex: 'id',
 			key: 'id',
@@ -164,28 +186,6 @@ const CostsCenters = () => {
 			key: 'fecha',
 			filterType: 'date sorter',
 			dateFormat: 'DD/MM/YYYY'
-		},
-		{
-			title: 'Acciones',
-			key: 'action',
-			width: 240,
-			render: (_, record) => (
-				<Space size='middle' align='center'>
-					{!userHasAccessToModule(MODULE, 'view', roles) ? (
-						<Button
-							icon={<EditOutlined />}
-							loading={loading[record.id]}
-							onClick={() => handleEditCostCenter(record.id)}
-						>
-							Editar
-						</Button>
-					) : null}
-
-					<Button icon={<AuditOutlined />} onClick={() => {}}>
-						Historial
-					</Button>
-				</Space>
-			)
 		}
 	]
 

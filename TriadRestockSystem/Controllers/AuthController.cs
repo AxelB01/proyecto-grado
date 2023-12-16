@@ -42,7 +42,7 @@ namespace TriadRestockSystem.Controllers
                     .Include(u => u.IdRols)
                     .ThenInclude(u => u.RolesModulos)
                     .ThenInclude(r => r.IdModuloNavigation)
-                    .FirstOrDefault(u => u.Login.Equals(login.Username.ToLower().Trim()) && u.Password!.Equals(encryptedPass));
+                    .FirstOrDefault(u => u.Login.Equals(login.Username.ToLower().Trim()) && u.Password!.Equals(encryptedPass) && u.IdEstado == 1);
 
                 if (user != null)
                 {

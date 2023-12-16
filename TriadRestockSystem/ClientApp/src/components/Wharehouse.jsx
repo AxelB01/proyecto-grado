@@ -323,31 +323,33 @@ const Wharehouse = () => {
 	// Inventory Entry Form
 
 	const itemStates = useItemStates().items
-	const [wharehouseSections, setWharehouseSections] = useState(null)
+	const [wharehouseSections, setWharehouseSections] = useState([])
 
-	const getWharehouseSections = async () => {
-		try {
-			const response = await axiosPrivate.get(ALMACENES_SECCIONES_URL)
-			const items = response?.data.items
-			setWharehouseSections(items)
-		} catch (error) {
-			console.log(error)
-		}
-	}
+	// const getWharehouseSections = async () => {
+	// 	try {
+	// 		const response = await axiosPrivate.get(ALMACENES_SECCIONES_URL)
+	// 		const items = response?.data.items
+	// 		setWharehouseSections(items)
+	// 	} catch (error) {
+	// 		console.log(error)
+	// 	}
+	// }
 
-	const [sectionShelves, setSectionShelves] = useState(null)
+	const [sectionShelves, setSectionShelves] = useState([])
 
-	const getWharehouseSectionShelves = async () => {
-		try {
-			const response = await axiosPrivate.get(
-				ALMACENES_SECCIONES_ESTANTERIAS_URL
-			)
-			const items = response?.data.items
-			setSectionShelves(items)
-		} catch (error) {
-			console.log(error)
-		}
-	}
+	// const getWharehouseSectionShelves = async () => {
+	// 	try {
+	// 		const response = await axiosPrivate.get(
+	// 			ALMACENES_SECCIONES_ESTANTERIAS_URL
+	// 		)
+	// 		const items = response?.data.items.filter(
+	// 			i => i.iAlmacen === wharehouseData.idAlmacen
+	// 		)
+	// 		setSectionShelves(items)
+	// 	} catch (error) {
+	// 		console.log(error)
+	// 	}
+	// }
 
 	const [brands, setBrands] = useState(null)
 
@@ -384,13 +386,9 @@ const Wharehouse = () => {
 		// setOpenInventoryEntryForm(value)
 		if (value) {
 			setButtonInventoryEntryLoading(value)
-			getWharehouseSections()
-			getWharehouseSectionShelves()
 			getBrands()
 			getTaxes()
 		} else {
-			setWharehouseSections(null)
-			setSectionShelves(null)
 			setBrands(null)
 			setTaxes(null)
 			setOpenInventoryEntryForm(value)
@@ -633,6 +631,8 @@ const Wharehouse = () => {
 				setRequisitions(data.requisiciones)
 				setSections(data.secciones)
 				setAllowedItems(data.articulosPermitidos)
+				setWharehouseSections(data.listaSecciones)
+				setSectionShelves(data.listaEstanterias)
 
 				const familiesFormModel = createWharehouseFamiliesModel()
 				familiesFormModel.Id = data.almacen.key
@@ -987,6 +987,7 @@ const Wharehouse = () => {
 						<WharehouseDatatables
 							id={wharehouseData?.idAlmacen}
 							loading={dataTablesLoading}
+							items={allowedItems}
 							requisitions={requisitions}
 						/>
 					</div>

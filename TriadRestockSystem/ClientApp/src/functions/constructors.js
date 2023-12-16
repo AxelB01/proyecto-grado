@@ -316,3 +316,14 @@ export const createWharehouseItemsSortingModel = () => {
 		Items: []
 	}
 }
+
+export const createWharehouseRequisitionModel = () => {
+	return {
+		Id: 0,
+		Numero: '',
+		IdEstado: 0,
+		Estado: '',
+		Fecha: null,
+		Detalles: []
+	}
+}

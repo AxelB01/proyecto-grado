@@ -322,6 +322,36 @@ namespace TriadRestockSystem.Controllers
                     })
                     .ToList();
 
+                var listaSecciones = _db.AlmacenesSecciones
+                .Include(s => s.IdTipoZonaNavigation)
+                .Include(s => s.IdEstadoNavigation)
+                .Where(s => s.IdAlmacen == id)
+                .Select(s => new vmSectionListItem
+                {
+                    IdAlmacen = s.IdAlmacen,
+                    IdEstado = s.IdEstado,
+                    Estado = s.IdEstadoNavigation.Estado,
+                    Key = s.IdAlmacenSeccion,
+                    Text = $"{s.Seccion} | {s.IdTipoZonaNavigation.TipoZonaAlmacenamiento}"
+                })
+                .ToList();
+
+                var listaSeccionesKeys = listaSecciones.Select(s => s.Key).ToList();
+
+                var listaEstanterias = _db.AlmacenesSeccionesEstanterias
+                .Include(es => es.IdEstadoNavigation)
+                .Where(es => listaSeccionesKeys.Contains(es.IdAlmacenSeccion))
+                .Select(es => new vmSectionShelveListItem
+                {
+                    IdAlmacenSeccion = es.IdAlmacenSeccion,
+                    IdEstado = es.IdEstado,
+                    Estado = es.IdEstadoNavigation.Estado,
+                    Key = es.IdAlmacenSeccionEstanteria,
+                    Text = $"{es.Codigo}"
+
+                })
+                .ToList();
+
                 var model = new Wharehouse
                 {
                     Almacen = almacenInfo,
@@ -332,7 +362,9 @@ namespace TriadRestockSystem.Controllers
                     Articulos = articulos,
                     Familias = familias,
                     ArticulosPermitidos = articulosPermitidos,
-                    ArticulosOrdenamiento = alamacenArticulos
+                    ArticulosOrdenamiento = alamacenArticulos,
+                    ListaSecciones = listaSecciones,
+                    ListaEstanterias = listaEstanterias
                 };
 
                 return Ok(model);

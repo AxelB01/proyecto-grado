@@ -4,7 +4,7 @@ import {
 	ReloadOutlined,
 	UserAddOutlined
 } from '@ant-design/icons'
-import { Button, Space, Statistic, Tag } from 'antd'
+import { Button, Space, Statistic, Tag, Tooltip } from 'antd'
 import { useContext, useEffect, useRef, useState } from 'react'
 import AuthContext from '../context/AuthContext'
 import LayoutContext from '../context/LayoutContext'
@@ -62,8 +62,28 @@ const Suppliers = () => {
 
 	const columns = [
 		{
+			title: '',
+			key: 'accion',
+			width: 60,
+			fixed: 'left',
+			render: (_, record) => (
+				<Space size='middle' align='center'>
+					{!userHasAccessToModule(MODULE, 'view', roles) ? (
+						<Tooltip title='Editar'>
+							<Button
+								type='text'
+								icon={<EditOutlined />}
+								onClick={() => handleEditSupplier(record.id)}
+							/>
+						</Tooltip>
+					) : null}
+				</Space>
+			)
+		},
+		{
 			title: 'Código',
 			dataIndex: 'id',
+			width: 100,
 			key: 'id',
 			fixed: 'left',
 			filterType: 'text search'
@@ -71,20 +91,21 @@ const Suppliers = () => {
 		{
 			title: 'Nombre',
 			dataIndex: 'nombre',
+			width: 250,
 			key: 'nombre',
-			fixed: 'left',
 			filterType: 'text search'
 		},
 		{
 			title: 'RNC',
 			dataIndex: 'rnc',
+			width: 100,
 			key: 'rnc',
-			fixed: 'left',
 			filterType: 'text search'
 		},
 		{
 			title: 'Tipo',
 			dataIndex: 'tipoProveedor',
+			width: 250,
 			key: 'tipoProveedor',
 			filterType: 'text search',
 			data: tipoProveedores
@@ -92,6 +113,7 @@ const Suppliers = () => {
 		{
 			title: 'Estado',
 			dataIndex: 'idEstado',
+			width: 100,
 			key: 'idEstado',
 			filterType: 'custom filter',
 			data: estadosProveedores,
@@ -117,7 +139,7 @@ const Suppliers = () => {
 			title: 'Direccion',
 			dataIndex: 'direccion',
 			key: 'direccion',
-			width: 100,
+			width: 250,
 			filterType: 'text search'
 		},
 		{
@@ -130,6 +152,7 @@ const Suppliers = () => {
 		{
 			title: 'Telefono',
 			dataIndex: 'telefono',
+			width: 100,
 			key: 'telefono',
 			filterType: 'text search'
 		},
@@ -137,12 +160,13 @@ const Suppliers = () => {
 			title: 'Correo electronico',
 			dataIndex: 'correoElectronico',
 			key: 'correoElectronico',
-			width: 100,
+			width: 200,
 			filterType: 'text search'
 		},
 		{
 			title: 'Fecha de creación',
 			dataIndex: 'fecha',
+			width: 150,
 			key: 'fecha',
 			filterType: 'date sorter',
 			dateFormat: 'DD/MM/YYYY'
@@ -150,26 +174,10 @@ const Suppliers = () => {
 		{
 			title: 'Creado por',
 			dataIndex: 'creadoPor',
+			width: 100,
 			key: 'creadoPor',
 			ilterType: 'text search',
 			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
-		},
-		{
-			title: '',
-			key: 'accion',
-			fixed: 'right',
-			render: (_, record) => (
-				<Space size='middle' align='center'>
-					{!userHasAccessToModule(MODULE, 'view', roles) ? (
-						<Button
-							icon={<EditOutlined />}
-							onClick={() => handleEditSupplier(record.id)}
-						>
-							Editar
-						</Button>
-					) : null}
-				</Space>
-			)
 		}
 	]
 

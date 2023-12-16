@@ -14,6 +14,26 @@ namespace TriadRestockSystem.ViewModels
         public List<vmAlmacenFamilia> Familias { get; set; } = new();
         public List<vmAllowedItem> ArticulosPermitidos { get; set; } = new();
         public List<ItemSorting> ArticulosOrdenamiento { get; set; } = new();
+        public List<vmSectionListItem> ListaSecciones { get; set; } = new();
+        public List<vmSectionShelveListItem> ListaEstanterias { get; set; } = new();
+    }
+
+    public class vmSectionListItem
+    {
+        public int Key { get; set; }
+        public string Text { get; set; } = string.Empty;
+        public int IdAlmacen { get; set; }
+        public int IdEstado { get; set; }
+        public string Estado { get; set; } = string.Empty;
+    }
+
+    public class vmSectionShelveListItem
+    {
+        public int Key { get; set; }
+        public string Text { get; set; } = string.Empty;
+        public int IdAlmacenSeccion { get; set; }
+        public int IdEstado { get; set; }
+        public string Estado { get; set; } = string.Empty;
     }
 
     public class vmAllowedItem
