@@ -1,9 +1,20 @@
-import { Button, Checkbox, Col, Form, Input, Modal, Row, Select } from 'antd'
+import {
+	Button,
+	Checkbox,
+	Col,
+	Form,
+	Input,
+	InputNumber,
+	Modal,
+	Row,
+	Select
+} from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import LayoutContext from '../context/LayoutContext'
 import { createItemsModel } from '../functions/constructors'
 import {
-	isNotConvertibleToNumber,
+	addThousandsSeparators,
+	canBeConvertedToNumber,
 	stringContainsNoLetters
 } from '../functions/validation'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
@@ -16,9 +27,11 @@ const ItemsForm = ({
 	title,
 	open,
 	onClose,
+	existingItems,
 	unidadMedidaItems,
 	tipoArticuloItems,
 	familiaItems,
+	impuestos,
 	marcas,
 	initialValues,
 	loading,
@@ -27,8 +40,10 @@ const ItemsForm = ({
 	const axiosPrivate = useAxiosPrivate()
 	const { openMessage } = useContext(LayoutContext)
 	const [form] = Form.useForm()
+	const values = Form.useWatch([], form)
 
 	const [checkboxValue, setCheckboxValue] = useState(false)
+	const [total, setTotal] = useState(0.0)
 
 	const handleCheckboxChange = e => {
 		setCheckboxValue(e.target.checked)
@@ -53,7 +68,9 @@ const ItemsForm = ({
 				IdTipoArticulo,
 				IdMarca,
 				ConsumoGeneral,
-				Precio
+				NumeroReorden,
+				PrecioBase,
+				Impuesto
 			} = initialValues
 			form.setFieldsValue({
 				id: IdArticulo,
@@ -64,15 +81,31 @@ const ItemsForm = ({
 				familia: IdFamilia,
 				tipoArticulo: IdTipoArticulo,
 				marca: IdMarca,
-				precio: Precio,
-				consumoGeneral: ConsumoGeneral
+				precio: PrecioBase,
+				tipoImpuesto: Impuesto,
+				consumoGeneral: ConsumoGeneral,
+				numeroReorden: NumeroReorden
 			})
 
 			setCheckboxValue(ConsumoGeneral)
 		}
 	}, [form, initialValues])
 
+	useEffect(() => {
+		if (
+			canBeConvertedToNumber(values?.precio) &&
+			values?.tipoImpuesto !== undefined
+		) {
+			const impuesto = impuestos.filter(i => i.key === values.tipoImpuesto)[0]
+				.value
+			form.setFieldsValue({
+				total: addThousandsSeparators(values.precio * (1 + impuesto))
+			})
+		}
+	}, [impuestos, form, values])
+
 	const saveItem = async model => {
+		console.log(model)
 		try {
 			const response = await axiosPrivate.post(SAVE_ITEMS_URL, model)
 			if (response?.status === 200) {
@@ -91,10 +124,44 @@ const ItemsForm = ({
 	}
 
 	const onFinish = values => {
+		const codeExists = existingItems.some(
+			i => i.codigo === values.codigo && i.id !== values.id
+		)
+
+		if (codeExists) {
+			openMessage('warning', 'El código ingresado ya está registrado')
+			return
+		}
+
+		const marcaValue = marcas.filter(m => m.key === (values.marca ?? 1))[0].text
+
+		const itemExists = existingItems.some(
+			i =>
+				i.nombre === values.nombre &&
+				i.marca === marcaValue &&
+				i.id !== values.id
+		)
+
+		if (itemExists) {
+			openMessage(
+				'warning',
+				'El artículo y marca ingresados ya están registrados'
+			)
+			console.log(
+				existingItems.filter(
+					i =>
+						i.nombre === values.nombre &&
+						i.marca === marcaValue &&
+						i.id !== values.id
+				)
+			)
+			return
+		}
+
 		handleLoading(true)
 
 		const model = createItemsModel()
-		model.IdArticulo = values.id
+		model.IdArticulo = values.id ?? 0
 		model.IdUnidadMedida = values.unidadMedida
 		model.Codigo = values.codigo
 		model.Nombre = values.nombre
@@ -102,13 +169,11 @@ const ItemsForm = ({
 		model.IdFamilia = values.familia
 		model.IdTipoArticulo = values.tipoArticulo
 		model.ConsumoGeneral = checkboxValue
-		model.Precio = Number(values.precio)
-
-		if (isNotConvertibleToNumber(values.marca)) {
-			model.Marca = values.marca[0]
-		} else {
-			model.IdMarca = values.marca
-		}
+		model.NumeroReorden = values.numeroReorden
+		model.PrecioBase = Number(values.precio)
+		model.Impuesto = values.tipoImpuesto
+		model.Marca = marcaValue
+		model.IdMarca = values.marca[0] ?? 0
 
 		saveItem(model)
 	}
@@ -206,6 +271,8 @@ const ItemsForm = ({
 							>
 								<Select
 									mode='tags'
+									showSearch
+									optionFilterProp='label'
 									placeholder='Seleccionar'
 									options={marcas?.map(m => {
 										return { value: m.key, label: m.text }
@@ -239,7 +306,7 @@ const ItemsForm = ({
 							>
 								<Input.TextArea
 									placeholder='Ingresar una descripción'
-									rows={3}
+									rows={2}
 									showCount
 									maxLength={500}
 								/>
@@ -289,6 +356,8 @@ const ItemsForm = ({
 							>
 								<Select
 									placeholder='Seleccionar'
+									showSearch
+									optionFilterProp='label'
 									options={unidadMedidaItems.map(x => {
 										return { value: x.key, label: x.text }
 									})}
@@ -309,6 +378,8 @@ const ItemsForm = ({
 							>
 								<Select
 									placeholder='Seleccionar'
+									showSearch
+									optionFilterProp='label'
 									options={familiaItems.map(x => {
 										return { value: x.key, label: x.text }
 									})}
@@ -331,6 +402,8 @@ const ItemsForm = ({
 							>
 								<Select
 									placeholder='Seleccionar'
+									showSearch
+									optionFilterProp='label'
 									options={tipoArticuloItems.map(x => {
 										return { value: x.key, label: x.text }
 									})}
@@ -340,7 +413,10 @@ const ItemsForm = ({
 						<Col span={8}>
 							<Form.Item
 								name='consumoGeneral'
-								style={{ marginTop: '1.75rem', marginLeft: '3rem' }}
+								style={{
+									marginTop: '1.75rem'
+									// , marginLeft: '3rem'
+								}}
 							>
 								<Checkbox
 									checked={checkboxValue}
@@ -352,8 +428,24 @@ const ItemsForm = ({
 						</Col>
 						<Col span={8}>
 							<Form.Item
+								label='Número de reorden'
+								name='numeroReorden'
+								rules={[
+									{
+										required: true,
+										message: 'Debe ingresar un número de reorden'
+									}
+								]}
+							>
+								<InputNumber min={0} />
+							</Form.Item>
+						</Col>
+					</Row>
+					<Row gutter={16}>
+						<Col span={8}>
+							<Form.Item
 								name='precio'
-								label='Precio'
+								label='Precio base'
 								rules={[
 									{
 										required: true,
@@ -378,6 +470,45 @@ const ItemsForm = ({
 									style={{ textAlign: 'end' }}
 									autoComplete='off'
 									placeholder='0.00'
+								/>
+							</Form.Item>
+						</Col>
+						<Col span={8}>
+							<Form.Item
+								name='tipoImpuesto'
+								label='Tipo de impuesto'
+								rules={[
+									{
+										required: true,
+										message: 'Debe seleccionar un tipo de impuesto'
+									}
+								]}
+								hasFeedback
+							>
+								<Select
+									placeholder='Seleccionar'
+									showSearch
+									optionFilterProp='label'
+									options={impuestos.map(x => {
+										return { value: x.key, label: x.text }
+									})}
+								/>
+							</Form.Item>
+						</Col>
+						<Col span={8}>
+							<Form.Item
+								name='total'
+								label='Precio final'
+								rules={[
+									{
+										required: false
+									}
+								]}
+							>
+								<Input
+									style={{ textAlign: 'end' }}
+									addonBefore='RD $'
+									readOnly
 								/>
 							</Form.Item>
 						</Col>

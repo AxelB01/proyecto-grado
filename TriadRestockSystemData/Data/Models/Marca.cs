@@ -32,9 +32,6 @@ public partial class Marca
     [InverseProperty("MarcaCreadoPorNavigations")]
     public virtual Usuario CreadoPorNavigation { get; set; } = null!;
 
-    [InverseProperty("IdMarcaNavigation")]
-    public virtual ICollection<Inventario> Inventarios { get; set; } = new List<Inventario>();
-
     [ForeignKey("ModificadoPor")]
     [InverseProperty("MarcaModificadoPorNavigations")]
     public virtual Usuario? ModificadoPorNavigation { get; set; }

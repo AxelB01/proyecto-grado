@@ -30,6 +30,16 @@ public partial class Documento
     [Unicode(false)]
     public string? Notas { get; set; }
 
+    [Column(TypeName = "datetime")]
+    public DateTime? FechaAprobacion { get; set; }
+
+    public int? AprobadoPor { get; set; }
+
+    [Column(TypeName = "datetime")]
+    public DateTime? FechaArchivado { get; set; }
+
+    public int? ArchivadoPor { get; set; }
+
     public int CreadoPor { get; set; }
 
     [Column(TypeName = "datetime")]
@@ -39,6 +49,14 @@ public partial class Documento
 
     [Column(TypeName = "datetime")]
     public DateTime? FechaModificacion { get; set; }
+
+    [ForeignKey("AprobadoPor")]
+    [InverseProperty("DocumentoAprobadoPorNavigations")]
+    public virtual Usuario? AprobadoPorNavigation { get; set; }
+
+    [ForeignKey("ArchivadoPor")]
+    [InverseProperty("DocumentoArchivadoPorNavigations")]
+    public virtual Usuario? ArchivadoPorNavigation { get; set; }
 
     [ForeignKey("CreadoPor")]
     [InverseProperty("DocumentoCreadoPorNavigations")]

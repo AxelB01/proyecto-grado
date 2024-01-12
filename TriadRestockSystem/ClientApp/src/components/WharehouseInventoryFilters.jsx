@@ -1,13 +1,27 @@
 import { DeleteOutlined } from '@ant-design/icons'
 import { Button, Form, Tabs } from 'antd'
+import { useEffect } from 'react'
 import WharehouseInventoryFiltersGeneral from './WharehouseInventoryFiltersGeneral'
 import WharehouseInventoryFiltersOthers from './WharehouseInventoryFiltersOthers'
 import WharehouseInventoryFiltersSpecifications from './WharehouseInventoryFiltersSpecifications'
 
-const WharehouseInventoryFilters = () => {
+const WharehouseInventoryFilters = ({ filteredData, brands, families }) => {
 	const [formGeneral] = Form.useForm()
 	const [formSpecifications] = Form.useForm()
 	const [formOthers] = Form.useForm()
+
+	const valuesGeneral = Form.useWatch([], formGeneral)
+	const valuesSpecifications = Form.useWatch([], formSpecifications)
+
+	useEffect(() => {
+		filteredData(
+			valuesGeneral?.texto,
+			valuesGeneral?.tipo,
+			valuesSpecifications?.marca,
+			valuesSpecifications?.familia
+		)
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [valuesGeneral, valuesSpecifications])
 
 	const resetFields = () => {
 		formGeneral.resetFields()
@@ -31,7 +45,11 @@ const WharehouseInventoryFilters = () => {
 			key: '2',
 			label: 'Especificación',
 			children: (
-				<WharehouseInventoryFiltersSpecifications form={formSpecifications} />
+				<WharehouseInventoryFiltersSpecifications
+					form={formSpecifications}
+					brands={brands}
+					families={families}
+				/>
 			)
 		},
 		{

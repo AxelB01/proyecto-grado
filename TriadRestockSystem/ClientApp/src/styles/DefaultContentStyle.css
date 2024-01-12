@@ -50,6 +50,11 @@ content-container {
 	font-size: 1.2rem;
 }
 
+.subtitle {
+	font-weight: bold;
+	font-size: 1.1rem;
+}
+
 .breadcrumb-item {
 	color: #1890ff;
 }

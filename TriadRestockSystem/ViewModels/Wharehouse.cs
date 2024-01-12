@@ -1,14 +1,13 @@
-﻿using TriadRestockSystemData.Data.Models;
-using TriadRestockSystemData.Data.ViewModels;
+﻿using TriadRestockSystemData.Data.ViewModels;
 
 namespace TriadRestockSystem.ViewModels
 {
     public class Wharehouse
     {
         public vmWharehouse Almacen { get; set; } = new vmWharehouse();
-        public List<vmSolicitudMaterialAlmacen> SolicitudesMateriales { get; set; } = new();
+        public List<vmSolicitudMaterialesAlmacen> SolicitudesMateriales { get; set; } = new();
         public List<vmRequisition> Requisiciones { get; set; } = new();
-        public List<OrdenesCompra> OrdenesCompras { get; set; } = new();
+        public List<vmOrdenCompraAlmacen> OrdenesCompras { get; set; } = new();
         public List<vmAlmacenSeccion> Secciones { get; set; } = new();
         public List<vmAlmacenArticulo> Articulos { get; set; } = new();
         public List<vmAlmacenFamilia> Familias { get; set; } = new();
@@ -48,5 +47,7 @@ namespace TriadRestockSystem.ViewModels
         }
         public string Codigo { get; set; } = string.Empty;
         public string Nombre { get; set; } = string.Empty;
+        public int Existencias { get; set; } = 0;
     }
+
 }

@@ -22,18 +22,7 @@ public partial class Inventario
     [Unicode(false)]
     public string NumeroSerie { get; set; } = null!;
 
-    [StringLength(100)]
-    [Unicode(false)]
-    public string? Modelo { get; set; }
-
-    public int? IdMarca { get; set; }
-
     public int IdEstado { get; set; }
-
-    public int? IdImpuesto { get; set; }
-
-    [Column(TypeName = "decimal(18, 2)")]
-    public decimal PrecioCompra { get; set; }
 
     [Column(TypeName = "datetime")]
     public DateTime? FechaVencimiento { get; set; }
@@ -67,14 +56,6 @@ public partial class Inventario
     [ForeignKey("IdEstado")]
     [InverseProperty("Inventarios")]
     public virtual EstadosArticulo IdEstadoNavigation { get; set; } = null!;
-
-    [ForeignKey("IdImpuesto")]
-    [InverseProperty("Inventarios")]
-    public virtual Impuesto? IdImpuestoNavigation { get; set; }
-
-    [ForeignKey("IdMarca")]
-    [InverseProperty("Inventarios")]
-    public virtual Marca? IdMarcaNavigation { get; set; }
 
     [ForeignKey("IdOrdenCompra")]
     [InverseProperty("Inventarios")]

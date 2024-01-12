@@ -7,6 +7,7 @@ import useAxiosPrivate from '../hooks/usePrivateAxios'
 const SAVE_CONCEPT = 'api/configuraciones/saveConcept'
 
 const REGEX_INPUT_LENGTH_VALIDATION = /^.{1,30}$/
+const REGEX_CODE_INPUT_VALIDATION = /^\d{1,50}$/
 
 const conceptsTypes = [
 	{
@@ -208,6 +209,10 @@ const ConceptForm = ({
 									{
 										required: isParent,
 										message: 'Debe ingresar un código agrupador'
+									},
+									{
+										pattern: REGEX_CODE_INPUT_VALIDATION,
+										message: 'El código ingresado no es válido'
 									}
 								]}
 							>

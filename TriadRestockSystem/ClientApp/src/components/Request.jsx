@@ -343,11 +343,11 @@ const Request = () => {
 	}
 
 	const handleSubmit = () => {
-		setSaving(true)
 		form.submit()
 	}
 
 	const onFinish = values => {
+		setSaving(true)
 		const model = createRequestModel()
 		model.IdSolicitud =
 			values.idSolicitud === undefined ? 0 : values.idSolicitud
@@ -899,6 +899,10 @@ const Request = () => {
 												required: true,
 												message:
 													'Debe dar una justificación para esta solicitud'
+											},
+											{
+												max: 200,
+												message: 'El texto ingresado excede el límite permitido'
 											}
 										]}
 										hasFeedback
@@ -913,6 +917,10 @@ const Request = () => {
 										rules={[
 											{
 												required: false
+											},
+											{
+												max: 500,
+												message: 'El texto ingresado excede el límite permitido'
 											}
 										]}
 									>

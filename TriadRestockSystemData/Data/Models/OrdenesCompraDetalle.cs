@@ -21,11 +21,18 @@ public partial class OrdenesCompraDetalle
     public int? IdImpuesto { get; set; }
 
     [Column(TypeName = "decimal(18, 2)")]
+    public decimal? Impuesto { get; set; }
+
+    [Column(TypeName = "decimal(18, 2)")]
     public decimal Cantidad { get; set; }
 
     [ForeignKey("IdArticulo")]
     [InverseProperty("OrdenesCompraDetalles")]
     public virtual Articulo IdArticuloNavigation { get; set; } = null!;
+
+    [ForeignKey("IdImpuesto")]
+    [InverseProperty("OrdenesCompraDetalles")]
+    public virtual Impuesto? IdImpuestoNavigation { get; set; }
 
     [ForeignKey("IdOrdenCompra")]
     [InverseProperty("OrdenesCompraDetalles")]

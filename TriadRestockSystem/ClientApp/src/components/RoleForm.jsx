@@ -2,6 +2,7 @@ import { Button, Col, Form, Input, Modal, Row } from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import LayoutContext from '../context/LayoutContext'
 import { createModelRole } from '../functions/constructors'
+import { hasOnlyLettersNumbersAccentMark } from '../functions/validation'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 
 const textAreaLimit = 250
@@ -118,7 +119,10 @@ const RoleForm = ({ open, toggle, initialValues }) => {
 									},
 									{
 										validator: (_, value) => {
-											if (value.length <= 50) {
+											if (
+												hasOnlyLettersNumbersAccentMark(value) &&
+												value.length <= 50
+											) {
 												return Promise.resolve()
 											}
 											return Promise.reject(
@@ -146,7 +150,10 @@ const RoleForm = ({ open, toggle, initialValues }) => {
 									},
 									{
 										validator: (_, value) => {
-											if (value.length <= textAreaLimit) {
+											if (
+												hasOnlyLettersNumbersAccentMark(value) &&
+												value.length <= textAreaLimit
+											) {
 												return Promise.resolve()
 											}
 											return Promise.reject(

@@ -19,5 +19,8 @@ public partial class Impuesto
     public decimal Impuesto1 { get; set; }
 
     [InverseProperty("IdImpuestoNavigation")]
-    public virtual ICollection<Inventario> Inventarios { get; set; } = new List<Inventario>();
+    public virtual ICollection<Articulo> Articulos { get; set; } = new List<Articulo>();
+
+    [InverseProperty("IdImpuestoNavigation")]
+    public virtual ICollection<OrdenesCompraDetalle> OrdenesCompraDetalles { get; set; } = new List<OrdenesCompraDetalle>();
 }

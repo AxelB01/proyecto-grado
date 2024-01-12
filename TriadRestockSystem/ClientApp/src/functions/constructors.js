@@ -45,7 +45,9 @@ export const createItemsModel = () => {
 		IdFamilia: 0,
 		IdTipoArticulo: 0,
 		ConsumoGeneral: false,
-		Precio: 0.0
+		NumeroReorden: 0,
+		PrecioBase: 0.0,
+		Impuesto: 1
 	}
 }
 
@@ -325,5 +327,62 @@ export const createWharehouseRequisitionModel = () => {
 		Estado: '',
 		Fecha: null,
 		Detalles: []
+	}
+}
+
+export const createPurchaseOrderAutomaticFormTransferModel = () => {
+	return {
+		OrdenCompraId: 0,
+		IdEstado: 0,
+		RequisicionId: 0,
+		AlmacenId: 0,
+		Detalles: []
+	}
+}
+
+export const createPurchaseOrderFormModel = () => {
+	return {
+		IdOrden: 0,
+		IdEstado: 0,
+		Estado: '',
+		Numero: '',
+		IdRequisicion: null,
+		IdAlmacen: 0,
+		IdProveedor: 0,
+		TipoPago: 0,
+		FechaEstimada: null,
+		FechaEntrega: null,
+		Notas: '',
+		ArticulosDetalles: [],
+		PagoDetalles: [],
+		SubTotal: 0,
+		TotalImpuestos: 0,
+		Total: 0,
+		TotalAPagar: 0
+	}
+}
+
+export const createWharehousePurchaseOrderRegistrationModel = () => {
+	return {
+		IdOrden: 0,
+		Articulos: []
+	}
+}
+
+export const createWharehouseRequestDispatchModel = () => {
+	return {
+		IdSolicitud: 0,
+		IdAlmacen: 0,
+		Total: 0.0,
+		Detalles: []
+	}
+}
+
+export const createWharehouseInventoryPositionForm = () => {
+	return {
+		IdInventario: 0,
+		Articulo: '',
+		Codigo: '',
+		Posicion: []
 	}
 }

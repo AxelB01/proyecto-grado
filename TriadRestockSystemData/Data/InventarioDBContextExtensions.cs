@@ -37,18 +37,6 @@ namespace TriadRestockSystemData.Data
         //       .ToList();
         //}
 
-        public static string DocumentoGetNumero(this InventarioDBContext context, int tipoDocumento)
-        {
-            return context.Database.GetDbConnection()
-                .QueryFirst<string>($"SELECT dbo.DocumentoGetNumero({tipoDocumento})", transaction: context.Database.CurrentTransaction!.GetDbTransaction(), commandType: CommandType.Text);
-        }
-
-        public static string ConceptoGetCodigoAgrupador(this InventarioDBContext context, int id)
-        {
-            return context.Database.GetDbConnection()
-                .QueryFirst<string>($"SELECT dbo.ConceptoGetCodigoAgrupador({id})", transaction: context.Database.CurrentTransaction!.GetDbTransaction(), commandType: CommandType.Text);
-        }
-
         public static IList<vmCentroCosto> CentrosCostosGetAll(this InventarioDBContext context)
         {
             return context.Database.GetDbConnection()
@@ -126,9 +114,85 @@ namespace TriadRestockSystemData.Data
                 .ToList();
         }
 
+        public static IList<vmAlmacenArticuloExistencias> InventarioAlmacenArticulosExistencias(this InventarioDBContext context, int id)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmAlmacenArticuloExistencias>("InventarioAlmacenArticulosExistencias", new { id }, commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
+
+        public static IList<vmRequisicion> RequisicionesGetAll(this InventarioDBContext context)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmRequisicion>("RequisicionesGetAll", commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
+
+        public static IList<vmRequisicionDetalle> RequisicionDetallesGetById(this InventarioDBContext context, int id)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmRequisicionDetalle>("RequisicionDetallesGetById", new { id }, commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
+
+        public static IList<vmArticuloListItemPO> ListaArticulosOrdenCompra(this InventarioDBContext context)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmArticuloListItemPO>("ListaArticulosOrdenCompra", commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
+
+        public static IList<vmOrdenCompraAlmacen> OrdenesCompraByIdAlmacen(this InventarioDBContext context, int id)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmOrdenCompraAlmacen>("OrdenesCompraByIdAlmacen", new { id }, commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
+
+        public static IList<vmOrdenCompraAlmacenDetallesRegistro> OrdenCompraAlmacenArticulosGetByIdOrden(this InventarioDBContext context, int id)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmOrdenCompraAlmacenDetallesRegistro>("OrdenCompraAlmacenArticulosGetByIdOrden", new { id }, commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
+
+        public static IList<vmSolicitudMaterialesAlmacen> SolicitudesMaterialesByIdAlmacen(this InventarioDBContext context, int id)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmSolicitudMaterialesAlmacen>("SolicitudesMaterialesByIdAlmacen", new { id }, commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
+
+        public static IList<vmSolicitudMaterialesDespachoDetalle> SolicitudMaterialesDespachoAlmacenDetalles(this InventarioDBContext context, int idSolicitud, int idAlmacen)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmSolicitudMaterialesDespachoDetalle>("SolicitudMaterialesDespachoAlmacenDetalles", new { idSolicitud, idAlmacen }, commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
+
+        public static IList<vmInventarioAlmacenArticuloDespacho> InventarioAlmacenDespachoSolicitud(this InventarioDBContext context, int id)
+        {
+            return context.Database.GetDbConnection()
+                .Query<vmInventarioAlmacenArticuloDespacho>("InventarioAlmacenDespachoSolicitud", new { id }, commandType: CommandType.StoredProcedure)
+                .ToList();
+        }
+
+        public static string DocumentoGetNumero(this InventarioDBContext context, int tipoDocumento)
+        {
+            return context.Database.GetDbConnection()
+                .QueryFirst<string>($"SELECT dbo.DocumentoGetNumero({tipoDocumento})", transaction: context.Database.CurrentTransaction!.GetDbTransaction(), commandType: CommandType.Text);
+        }
+
+        public static string ConceptoGetCodigoAgrupador(this InventarioDBContext context, int id)
+        {
+            return context.Database.GetDbConnection()
+                .QueryFirst<string>($"SELECT dbo.ConceptoGetCodigoAgrupador({id})", transaction: context.Database.CurrentTransaction!.GetDbTransaction(), commandType: CommandType.Text);
+        }
+
         public static void RolesModulosSetUp(this InventarioDBContext context, int idRol)
         {
             context.Database.GetDbConnection().Execute("RolesModulosSetUp", new { idRol }, context.Database.CurrentTransaction?.GetDbTransaction(), commandType: CommandType.StoredProcedure);
         }
+
     }
 }

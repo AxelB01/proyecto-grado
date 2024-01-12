@@ -1,21 +1,17 @@
 import {
 	AppstoreOutlined,
 	CaretDownOutlined,
-	DownloadOutlined,
-	FormOutlined,
 	HomeOutlined,
 	PlusOutlined,
 	ReloadOutlined
 } from '@ant-design/icons'
 import {
 	Button,
-	Card,
 	Dropdown,
 	Progress,
 	Space,
 	Statistic,
 	Tag,
-	Timeline,
 	Tooltip,
 	Typography
 } from 'antd'
@@ -63,10 +59,6 @@ const GET_FAMILIAS = '/api/data/getFamilias'
 
 const wharehouseMenuOptions = [
 	{
-		key: '0',
-		label: 'Inventario'
-	},
-	{
 		key: '1',
 		label: 'Requisición automática'
 	},
@@ -92,11 +84,11 @@ const sectionMenuOptions = [
 ]
 
 const sectionStockMenuOptions = [
-	{
-		key: '0',
-		label: 'Nueva entrada',
-		icon: <DownloadOutlined />
-	},
+	// {
+	// 	key: '0',
+	// 	label: 'Nueva entrada',
+	// 	icon: <DownloadOutlined />
+	// },
 	{
 		key: '1',
 		label: 'Existencias',
@@ -130,6 +122,7 @@ const Wharehouse = () => {
 	const [stock, setStock] = useState(0)
 	const [requests, setRequests] = useState([])
 	const [procurementOrders, setProcurementOrders] = useState([])
+	const [wharehouseRequests, setWharehouseRequests] = useState([])
 	const [pendingOrders, setPendingOrders] = useState([])
 	const families = useDataList(GET_FAMILIAS)
 	const [timelineItems, setTimelineItems] = useState([])
@@ -226,12 +219,6 @@ const Wharehouse = () => {
 	const items = useItems().items
 	const [allowedItems, setAllowedItems] = useState([])
 
-	useEffect(() => {
-		if (allowedItems.length > 0) {
-			console.log(allowedItems)
-		}
-	}, [allowedItems])
-
 	const [idSectionStock, setIdSectionStock] = useState(0)
 	const [stockFormValues, setStockFormValues] = useState(
 		createWharehouseSectionStockModel()
@@ -261,16 +248,12 @@ const Wharehouse = () => {
 		const stock = sections
 			.filter(s => s.key === idSec)[0]
 			.estanterias.filter(e => e.key === idStock)[0]
-		console.log(stock, items)
 		const model = createWharehouseSectionStockModel()
 		model.IdSeccion = idSec
 		model.IdEstanteria = idStock
 		model.Codigo = stock.codigo
 		model.IdEstado = stock.idEstado
 		setStockFormValues(model)
-
-		// setSectionFormValues(model)
-		console.log(model)
 
 		setOpenStockForm(true)
 		setStockLoading(prevState => ({
@@ -287,7 +270,6 @@ const Wharehouse = () => {
 		if (idSectionStock !== 0) {
 			setOpenStockForm(true)
 		}
-		// console.log(idSeccion)
 	}, [idSectionStock])
 
 	useEffect(() => {
@@ -443,7 +425,6 @@ const Wharehouse = () => {
 	}
 
 	const handleLoadStockModalData = childRecord => {
-		console.log(childRecord)
 		setWharehouseSectionStockModalData(childRecord)
 	}
 
@@ -469,7 +450,6 @@ const Wharehouse = () => {
 	const handleFiltersReset = () => {
 		if (tableRef.current) {
 			columns.forEach(column => {
-				console.log(column)
 				column.filteredValue = null
 			})
 		}
@@ -530,7 +510,6 @@ const Wharehouse = () => {
 										default:
 											break
 									}
-									console.log(key)
 								}
 							}}
 							onClick={() => {
@@ -624,11 +603,12 @@ const Wharehouse = () => {
 
 			if (response?.status === 200) {
 				const data = response?.data
-				console.log(data)
 				setViewModel(data)
 
 				setWharehouseData(data.almacen)
 				setRequisitions(data.requisiciones)
+				setWharehouseRequests(data.solicitudesMateriales)
+				setPendingOrders(data.ordenesCompras)
 				setSections(data.secciones)
 				setAllowedItems(data.articulosPermitidos)
 				setWharehouseSections(data.listaSecciones)
@@ -666,7 +646,6 @@ const Wharehouse = () => {
 
 				const itemsSortingModel = createWharehouseItemsSortingModel()
 				itemsSortingModel.Id = data.almacen.key
-				console.log(data.articulosOrdenamiento)
 				itemsSortingModel.Items = data.articulosOrdenamiento.map(i => {
 					return {
 						Articulo: i.articulo,
@@ -792,10 +771,6 @@ const Wharehouse = () => {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [familiesFormStatus])
-
-	useEffect(() => {
-		console.log(familiesFormInitialValues)
-	}, [familiesFormInitialValues])
 
 	return (
 		<>
@@ -958,9 +933,6 @@ const Wharehouse = () => {
 								items: wharehouseMenuOptions,
 								onClick: ({ key }) => {
 									switch (key) {
-										case '0':
-											handleWharehouseInventoryStatus()
-											break
 										case '1':
 											handleAutomaticRequisitionStatus()
 											break
@@ -988,10 +960,14 @@ const Wharehouse = () => {
 							id={wharehouseData?.idAlmacen}
 							loading={dataTablesLoading}
 							items={allowedItems}
+							itemsSorting={sortingFormInitialValues?.Items}
 							requisitions={requisitions}
+							purchaseOrders={pendingOrders}
+							requests={wharehouseRequests}
+							reloadWharehouse={loadWharehouseData}
 						/>
 					</div>
-					<div style={{ width: '30%' }}>
+					{/* <div style={{ width: '30%' }}>
 						<div style={{ marginBottom: '1.5rem' }}>
 							<span
 								style={{
@@ -1006,7 +982,7 @@ const Wharehouse = () => {
 						<Card className='always-lifted-card'>
 							<Timeline items={timelineItems} size='large' />
 						</Card>
-					</div>
+					</div> */}
 				</div>
 				<div className='main-two-container'>
 					<div className='actions'>
@@ -1023,7 +999,7 @@ const Wharehouse = () => {
 						>
 							Agregar sección
 						</Button>
-						<Button
+						{/* <Button
 							type='primary'
 							style={{
 								display: 'flex',
@@ -1036,7 +1012,7 @@ const Wharehouse = () => {
 							loading={buttonInventoryEntryLoading}
 						>
 							Nueva entrada de inventario
-						</Button>
+						</Button> */}
 						<Button
 							style={{
 								display: 'flex',
@@ -1046,6 +1022,9 @@ const Wharehouse = () => {
 							onClick={handleFiltersReset}
 						>
 							Limpiar Filtros
+						</Button>
+						<Button type='primary' onClick={handleWharehouseInventoryStatus}>
+							Gestión de inventario
 						</Button>
 					</div>
 					<div className='container-content'>

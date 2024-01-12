@@ -15,6 +15,7 @@
         EnProceso = 5,
         Aplicado = 6,
         Archivado = 7,
+        Descartado = 8
     }
 
     public enum IdEstadoAlmacen
@@ -35,5 +36,12 @@
     {
         Banco = 1,
         Proveedor = 2,
+    }
+
+    public enum IdEstadoArticulo
+    {
+        Activo = 1,
+        Despachado = 2,
+        Descartado = 3
     }
 }

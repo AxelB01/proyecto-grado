@@ -98,7 +98,7 @@ const Suppliers = () => {
 		{
 			title: 'RNC',
 			dataIndex: 'rnc',
-			width: 100,
+			width: 150,
 			key: 'rnc',
 			filterType: 'text search'
 		},
@@ -131,7 +131,7 @@ const Suppliers = () => {
 			title: 'Pais',
 			dataIndex: 'pais',
 			key: 'pais',
-			width: 100,
+			width: 200,
 			filterType: 'text search',
 			data: paisesItems
 		},
