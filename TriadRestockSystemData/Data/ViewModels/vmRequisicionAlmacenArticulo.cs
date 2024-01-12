@@ -11,6 +11,7 @@
             }
         }
         public string Articulo { get; set; } = string.Empty;
+        public int IdMarca { get; set; }
         public string Codigo { get; set; } = string.Empty;
         public int IdUnidadMedida { get; set; }
         public string UnidadMedida { get; set; } = string.Empty;

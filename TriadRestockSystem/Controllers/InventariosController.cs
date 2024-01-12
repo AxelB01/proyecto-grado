@@ -47,11 +47,11 @@ namespace TriadRestockSystem.Controllers
                         inventoryEntry.IdArticulo = model.IdArticulo;
                         inventoryEntry.IdAlmacenSeccionEstanteria = model.IdAlmacenSeccionEstanteria;
                         inventoryEntry.NumeroSerie = model.NumeroSerie;
-                        inventoryEntry.Modelo = model.Modelo;
-                        inventoryEntry.IdMarca = model.IdMarca;
+                        // inventoryEntry.Modelo = model.Modelo;
+                        // inventoryEntry.IdMarca = model.IdMarca;
                         inventoryEntry.IdEstado = model.IdEstado;
-                        inventoryEntry.IdImpuesto = model.IdImpuesto;
-                        inventoryEntry.PrecioCompra = model.PrecioCompra;
+                        // inventoryEntry.IdImpuesto = model.IdImpuesto;
+                        // inventoryEntry.PrecioCompra = model.PrecioCompra;
                         inventoryEntry.Notas = model.Notas;
                         inventoryEntry.CreadoPor = user.IdUsuario;
                         inventoryEntry.FechaRegistro = DateTime.Now;
@@ -72,6 +72,43 @@ namespace TriadRestockSystem.Controllers
                 else
                 {
                     return Ok(new { status = "El artículo ya existe" });
+                }
+            }
+
+            return Forbid();
+        }
+
+        [HttpPost("moverArticuloInventario")]
+        public IActionResult MoverArticuloInventario(vmItemInventoryPosition model)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                using var dbTran = _db.Database.BeginTransaction();
+                try
+                {
+                    var articuloInventario = _db.Inventarios.FirstOrDefault(i => i.IdInventario == model.IdInventario);
+
+                    if (articuloInventario != null)
+                    {
+                        articuloInventario.IdAlmacenSeccionEstanteria = model.IdEstanteria;
+                        articuloInventario.ModificadoPor = user.IdUsuario;
+                        articuloInventario.FechaModificacion = DateTime.Now;
+                    }
+
+                    _db.SaveChanges();
+                    dbTran.Commit();
+
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    dbTran.Rollback();
+                    return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
                 }
             }
 

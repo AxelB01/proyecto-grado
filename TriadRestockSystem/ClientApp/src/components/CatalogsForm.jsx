@@ -2,6 +2,7 @@ import { Button, Col, Form, Input, Modal, Row } from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import LayoutContext from '../context/LayoutContext'
 import { createCatalogModel } from '../functions/constructors'
+import { hasOnlyLettersAccentMark } from '../functions/validation'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 
 const CATALOGS_SAVE = '/api/catalogos/guardarCatalogo'
@@ -108,6 +109,21 @@ const CatalogsForm = ({
 									{
 										required: true,
 										message: 'Debe ingresar el nombre del catalogo'
+									},
+									{
+										validator: (_, value) => {
+											if (
+												hasOnlyLettersAccentMark(value) &&
+												value.length <= 100
+											) {
+												return Promise.resolve()
+											}
+											return Promise.reject(
+												new Error(
+													'El texto ingreado no es válido o excede los 100 caracteres'
+												)
+											)
+										}
 									}
 								]}
 								hasFeedback

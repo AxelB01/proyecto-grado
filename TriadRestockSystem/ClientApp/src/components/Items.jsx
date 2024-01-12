@@ -41,6 +41,8 @@ const Items = () => {
 	const [title, setTitle] = useState('')
 	const axiosPrivate = useAxiosPrivate()
 	const [data, setData] = useState([])
+	const [existingItems, setExistingItems] = useState([])
+
 	const [open, setOpen] = useState(false)
 	const [loading, setLoading] = useState(false)
 	const familiaItems = useFamilies()
@@ -48,6 +50,7 @@ const Items = () => {
 	const unidadMedidaItems = useMeasurementUnits()
 
 	const [marcas, setMarcas] = useState([])
+	const [impuestos, setImpuestos] = useState([])
 
 	const [tableState, setTableState] = useState(true)
 	const [tableLoading, setTableLoading] = useState({})
@@ -137,6 +140,7 @@ const Items = () => {
 				const data = response?.data
 				setData(data.items)
 				setMarcas(data.brands)
+				setImpuestos(data.taxes)
 				setTableState(false)
 			} catch (error) {
 				console.log(error)
@@ -213,12 +217,31 @@ const Items = () => {
 			data: familiaItems
 		},
 		{
-			title: 'Precio',
-			dataIndex: 'precio',
-			key: 'precio',
+			title: 'Precio Base',
+			dataIndex: 'precioBase',
+			key: 'precioBase',
 			filterType: 'text search',
 			width: 150,
 			render: text => `RD$ ${addThousandsSeparators(text.toFixed(2))}`
+		},
+		{
+			title: 'Impuesto',
+			dataIndex: 'impuesto',
+			key: 'impuesto',
+			filterType: 'custom filter',
+			width: 110,
+			data: impuestos,
+			render: text => <Tag>{text}</Tag>
+		},
+		{
+			title: 'Precio Final',
+			key: 'precioFinal',
+			filterType: 'text search',
+			width: 150,
+			render: (_, record) =>
+				`RD$ ${addThousandsSeparators(
+					record.precioBase * (1 + record.impuestoDecimal)
+				)}`
 		},
 		{
 			title: 'Tipo',
@@ -247,6 +270,13 @@ const Items = () => {
 					text: 'No'
 				}
 			]
+		},
+		{
+			title: 'Número Reorden',
+			dataIndex: 'numeroReorden',
+			key: 'numeroReorden',
+			filterType: 'text search',
+			width: 160
 		},
 		{
 			title: 'Fecha',
@@ -300,8 +330,10 @@ const Items = () => {
 			model.IdUnidadMedida = data.idUnidadMedida
 			model.IdTipoArticulo = data.idTipoArticulo
 			model.ConsumoGeneral = data.consumoGeneral
+			model.NumeroReorden = data.numeroReorden
 			model.IdMarca = data.idMarca
-			model.Precio = data.precio
+			model.PrecioBase = data.precioBase
+			model.Impuesto = data.impuesto
 
 			setTableLoading(prevState => ({
 				...prevState,
@@ -316,16 +348,31 @@ const Items = () => {
 		}
 	}
 
+	useEffect(() => {
+		setExistingItems(
+			data.map(i => {
+				return {
+					id: i.id,
+					codigo: i.codigo,
+					nombre: i.nombre,
+					marca: i.marca
+				}
+			})
+		)
+	}, [data])
+
 	return (
 		<>
 			<ItemsForm
 				title={title}
 				open={open}
 				onClose={closeItemsForm}
+				existingItems={existingItems}
 				unidadMedidaItems={unidadMedidaItems}
 				tipoArticuloItems={tipoArticuloItems}
 				familiaItems={familiaItems}
 				marcas={marcas}
+				impuestos={impuestos}
 				initialValues={itemsFormInitialValues}
 				loading={loading}
 				handleLoading={handleItemFormLoading}

@@ -1,8 +1,21 @@
-import { Button, Col, Drawer, Form, Input, Row, Select, Space, Switch } from 'antd'
-import { useContext, useEffect,useState } from 'react'
+import {
+	Button,
+	Col,
+	Drawer,
+	Form,
+	Input,
+	Row,
+	Select,
+	Space,
+	Switch
+} from 'antd'
+import { useContext, useEffect, useState } from 'react'
 import LayoutContext from '../context/LayoutContext'
 import { createSuppliersModel } from '../functions/constructors'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
+
+const REGEX_RNC_INPUT = /^\d{9,20}$/
+const REGEX_MAIL_FORMAT_INPUT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const SAVE_SUPPLIERS_URL = '/api/proveedores/guardarProveedores'
 
@@ -11,37 +24,44 @@ const SuppliersForm = ({
 	open,
 	onClose,
 	tipoProveedorItem,
-    paisesItems,
+	paisesItems,
 	initialValues,
 	loading,
 	handleLoading
 }) => {
-    const [switchValue, setSwitchValue] = useState(true)
-    const { openMessage } = useContext(LayoutContext)
+	const [switchValue, setSwitchValue] = useState(true)
+	const { openMessage } = useContext(LayoutContext)
 	const axiosPrivate = useAxiosPrivate()
 	const [form] = Form.useForm()
 
-    useEffect(() => {
+	useEffect(() => {
 		console.log(initialValues)
-		const { Id, IdEstado,Nombre,
-            RNC,IdPais,Direccion,CodigoPostal,
-            Telefono,Correo, IdTipoProveedor } = initialValues
+		const {
+			Id,
+			IdEstado,
+			Nombre,
+			RNC,
+			IdPais,
+			Direccion,
+			CodigoPostal,
+			Telefono,
+			Correo,
+			IdTipoProveedor
+		} = initialValues
 		form.setFieldsValue({
-			id: Id, 
+			id: Id,
 			idEstado: IdEstado === 1,
 			nombre: Nombre,
-            rnc: RNC,
+			rnc: RNC,
 			pais: IdPais,
 			direccion: Direccion,
 			codigoPostal: CodigoPostal,
-            telefono: Telefono,
+			telefono: Telefono,
 			correo: Correo,
 			tipoProveedor: IdTipoProveedor
 		})
 		setSwitchValue(IdEstado === 1)
-
 	}, [form, initialValues])
-
 
 	const saveSuppliers = async model => {
 		try {
@@ -49,7 +69,6 @@ const SuppliersForm = ({
 			if (response?.status === 200) {
 				openMessage('success', 'Provedor guardado')
 				onClose()
-				
 			}
 		} catch (error) {
 			console.log(error)
@@ -60,7 +79,7 @@ const SuppliersForm = ({
 		handleLoading(true)
 		form.submit()
 	}
-    const handleCloseForm = () => {
+	const handleCloseForm = () => {
 		form.resetFields()
 		onClose()
 	}
@@ -68,7 +87,7 @@ const SuppliersForm = ({
 		console.log(values)
 		handleLoading(false)
 	}
-    const handleSwitchChange = checked => {
+	const handleSwitchChange = checked => {
 		setSwitchValue(checked)
 		form.setFieldsValue({
 			estado: checked
@@ -81,20 +100,20 @@ const SuppliersForm = ({
 		model.Nombre = values.nombre
 		model.IdEstado = values.estado ? 1 : 2
 		model.IdTipoProveedor = values.tipoProveedor
-        model.RNC = values.rnc
-        model.IdPais = values.pais
-        model.Direccion = values.direccion
-        model.CodigoPostal = values.codigoPostal
-        model.Telefono = values.telefono
-        model.Correo = values.correo
-        // model.FechaUltimaCompra = values.FechaUltimaCompra
+		model.RNC = values.rnc
+		model.IdPais = values.pais
+		model.Direccion = values.direccion
+		model.CodigoPostal = values.codigoPostal
+		model.Telefono = values.telefono
+		model.Correo = values.correo
+		// model.FechaUltimaCompra = values.FechaUltimaCompra
 
 		saveSuppliers(model)
 	}
-    
-    return(
-        <>
-            <Drawer
+
+	return (
+		<>
+			<Drawer
 				title={title}
 				width={500}
 				onClose={handleCloseForm}
@@ -191,6 +210,10 @@ const SuppliersForm = ({
 									{
 										required: true,
 										message: 'Debe ingresar un RNC'
+									},
+									{
+										pattern: REGEX_RNC_INPUT,
+										message: 'El RNC ingresado no es válido'
 									}
 								]}
 							>
@@ -202,7 +225,7 @@ const SuppliersForm = ({
 							</Form.Item>
 						</Col>
 					</Row>
-                    <Row gutter={16}>
+					<Row gutter={16}>
 						<Col span={24}>
 							<Form.Item
 								name='pais'
@@ -216,6 +239,8 @@ const SuppliersForm = ({
 								hasFeedback
 							>
 								<Select
+									showSearch
+									optionFilterProp='label'
 									placeholder='Seleccionar'
 									options={paisesItems.map(x => {
 										return { value: x.key, label: x.text }
@@ -233,6 +258,18 @@ const SuppliersForm = ({
 									{
 										required: true,
 										message: 'Debe ingresar una direccion'
+									},
+									{
+										validator: (_, value) => {
+											if (value.length > 300) {
+												return Promise.reject(
+													new Error(
+														'El texto ingresado excede el límite permitido'
+													)
+												)
+											}
+											return Promise.resolve()
+										}
 									}
 								]}
 							>
@@ -240,7 +277,7 @@ const SuppliersForm = ({
 									placeholder='Ingresar una direccion'
 									rows={3}
 									showCount
-									maxLength={500}
+									maxLength={300}
 								/>
 							</Form.Item>
 						</Col>
@@ -265,7 +302,7 @@ const SuppliersForm = ({
 							</Form.Item>
 						</Col>
 					</Row>
-                    <Row gutter={16}>
+					<Row gutter={16}>
 						<Col span={24}>
 							<Form.Item
 								name='telefono'
@@ -285,7 +322,7 @@ const SuppliersForm = ({
 							</Form.Item>
 						</Col>
 					</Row>
-                    <Row gutter={16}>
+					<Row gutter={16}>
 						<Col span={24}>
 							<Form.Item
 								name='correo'
@@ -294,6 +331,10 @@ const SuppliersForm = ({
 									{
 										required: true,
 										message: 'Debe ingresar un correo'
+									},
+									{
+										pattern: REGEX_MAIL_FORMAT_INPUT,
+										message: 'El correo ingresado es inválido'
 									}
 								]}
 							>
@@ -307,7 +348,7 @@ const SuppliersForm = ({
 					</Row>
 				</Form>
 			</Drawer>
-        </>
-    )
+		</>
+	)
 }
 export default SuppliersForm

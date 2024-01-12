@@ -40,6 +40,7 @@ const LoginForm = () => {
 				headers: { 'Content-Type': 'application/json' }
 			})
 			if (response?.status === 200) {
+				console.log(response.data)
 				handleLayoutLoading(true)
 				const data = response?.data
 				const {
@@ -107,7 +108,7 @@ const LoginForm = () => {
 					},
 					{
 						validator: (_, value) => {
-							if (USER_REGEX.test(value)) {
+							if (USER_REGEX.test(value) && value.length <= 50) {
 								return Promise.resolve()
 							}
 							return Promise.reject(
@@ -127,7 +128,19 @@ const LoginForm = () => {
 			</Form.Item>
 			<Form.Item
 				name='password'
-				rules={[{ required: true, message: 'Debe ingresar una contraseña' }]}
+				rules={[
+					{ required: true, message: 'Debe ingresar una contraseña' },
+					{
+						validator: (_, value) => {
+							if (value.length <= 100) {
+								return Promise.resolve()
+							}
+							return Promise.reject(
+								new Error('El texto ingresadp excede el límite permitido')
+							)
+						}
+					}
+				]}
 				hasFeedback
 			>
 				<Input.Password

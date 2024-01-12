@@ -153,3 +153,55 @@ export function stringContainsNoLetters(str) {
 export function isNotConvertibleToNumber(str) {
 	return isNaN(parseFloat(str))
 }
+
+export function hasOnlyLettersAccentMark(str) {
+	const REGEX_CONTAINS_LETTERS_ACCENT_MARK = /^[a-zA-Z\u00C0-\u017F ]+$/
+	return REGEX_CONTAINS_LETTERS_ACCENT_MARK.test(str)
+}
+
+export function hasOnlyLettersNumbersAccentMark(str) {
+	const REGEX_CONTAINS_LETTERS_NUMBERS_ACCENT_MARK =
+		/^[a-zA-Z0-9\u00C0-\u017F ]+$/
+	return REGEX_CONTAINS_LETTERS_NUMBERS_ACCENT_MARK.test(str)
+}
+
+export function hasOnlyNumbers(str) {
+	const REGEX_CONTAINS_NUMBERS = /^[0-9.,]*$/
+	return REGEX_CONTAINS_NUMBERS.test(str)
+}
+
+export function canBeConvertedToNumber(str) {
+	return !Number.isNaN(Number(str))
+}
+
+export function hasDuplicates(arr, prop) {
+	const values = []
+	// eslint-disable-next-line prefer-const
+	for (let item of arr) {
+		if (values.includes(item[prop])) {
+			return true
+		}
+		values.push(item[prop])
+	}
+	return false
+}
+
+export function findDuplicates(arr, prop) {
+	const groupedItems = arr.reduce((acc, item) => {
+		const key = item[prop]
+		acc[key] = acc[key] || []
+		acc[key].push(item)
+		return acc
+	}, {})
+
+	return Object.values(groupedItems)
+		.filter(items => items.length > 1)
+		.flat()
+}
+
+export function containsIgnoreCase(mainString, searchString) {
+	const lowerMainString = mainString.toLowerCase()
+	const lowerSearchString = searchString.toLowerCase()
+
+	return lowerMainString.includes(lowerSearchString)
+}

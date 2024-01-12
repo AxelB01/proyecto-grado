@@ -120,12 +120,13 @@ namespace TriadRestockSystem.Controllers
         public IActionResult GetArticulosList()
         {
             var response = _db.Articulos
+                .Include(a => a.IdMarcaNavigation)
                 .Include(a => a.IdUnidadMedidaNavigation)
                 .Select(a => new
                 {
                     Key = a.IdArticulo,
                     Text = $"{a.Nombre} ({a.IdUnidadMedidaNavigation.UnidadMedida})",
-                    ShortText = a.Nombre
+                    ShortText = $"{a.Nombre} ({a.IdMarcaNavigation.Nombre})"
                 })
                 .ToList();
 

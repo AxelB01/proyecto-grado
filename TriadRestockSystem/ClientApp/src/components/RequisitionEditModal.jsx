@@ -1,10 +1,35 @@
 import { DeleteOutlined } from '@ant-design/icons'
-import { Button, InputNumber, Modal, Popconfirm, Select, Table } from 'antd'
+import {
+	Button,
+	Empty,
+	InputNumber,
+	Modal,
+	Popconfirm,
+	Select,
+	Table
+} from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import LayoutContext from '../context/LayoutContext'
+import { createRequisitionsModel } from '../functions/constructors'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 
-const RequisitionEditModal = ({ open, toggle, items, initialValues }) => {
+const SAVE_REQUISICION = '/api/requisiciones/saveRequisicion'
+
+const customNoDataText = (
+	<Empty
+		image={Empty.PRESENTED_IMAGE_SIMPLE}
+		description='No existen registros'
+	/>
+)
+
+const RequisitionEditModal = ({
+	open,
+	toggle,
+	approveRequisition,
+	items,
+	itemsSorting,
+	initialValues
+}) => {
 	const { openMessage } = useContext(LayoutContext)
 	const axiosPrivate = useAxiosPrivate()
 
@@ -13,10 +38,17 @@ const RequisitionEditModal = ({ open, toggle, items, initialValues }) => {
 		setLoading(false)
 	}
 
+	const handleApproveRequisition = () => {
+		approveRequisition(initialValues.IdRequisicion)
+		cancel()
+	}
+
 	const [title, setTitle] = useState('')
+	const [edit, setEdit] = useState(true)
 	const [data, setData] = useState([])
 	const [currentPage, setCurrentPage] = useState(1)
 	const [count, setCount] = useState(0)
+	const [approve, setApprove] = useState(false)
 
 	const [loading, setLoading] = useState(false)
 
@@ -25,6 +57,9 @@ const RequisitionEditModal = ({ open, toggle, items, initialValues }) => {
 		const target = newData.find(item => item.key === key)
 		if (target) {
 			target[dataIndex] = value
+			if (dataIndex === 'articulo') {
+				console.log()
+			}
 			setData(newData)
 		}
 	}
@@ -35,34 +70,43 @@ const RequisitionEditModal = ({ open, toggle, items, initialValues }) => {
 	}
 
 	const saveData = async () => {
-		// const emptyRows = data.some(o => o.articulo === null)
-		// const availableOptions = [
-		// 	...items.filter(i => !data.some(o => o.articulo === i.key))
-		// ]
-		// if (availableOptions.length > 0 && !emptyRows) {
-		// 	setLoading(true)
-		// 	const model = createWharehouseItemsSortingModel()
-		// 	model.Id = initialValues.Id
-		// 	model.Items = data.map(i => {
-		// 		return {
-		// 			Articulo: i.articulo,
-		// 			Minimo: i.minimo,
-		// 			Maximo: i.maximo
-		// 		}
-		// 	})
-		// 	try {
-		// 		const response = await axiosPrivate.post(SAVE_ITEMS_SORTING, model)
-		// 		if (response?.status === 200) {
-		// 			openMessage('success', 'Ordenamiento de artículos guardado')
-		// 		}
-		// 	} catch (error) {
-		// 		console.log(error)
-		// 	} finally {
-		// 		cancel()
-		// 	}
-		// } else {
-		// 	openMessage('warning', 'Existen registros incompletos')
-		// }
+		const emptyRows = data.some(o => o.articulo === null)
+		const availableOptions = [
+			...items.filter(i => !data.some(o => o.articulo === i.key))
+		]
+		if (availableOptions.length > 0 && !emptyRows) {
+			setLoading(true)
+			const model = createRequisitionsModel()
+			model.IdAlmacen = initialValues.IdAlmacen
+			model.IdRequisicion = initialValues.IdRequisicion
+			model.Articulos = data.map(x => {
+				return {
+					IdArticulo: x.articulo,
+					Key: '',
+					Articulo: '',
+					Codigo: '',
+					IdFamilia: 0,
+					Familia: '',
+					IdUnidadMedida: 0,
+					UnidadMedida: '',
+					Cantidad: x.cantidad
+				}
+			})
+
+			try {
+				const response = await axiosPrivate.post(SAVE_REQUISICION, model)
+				if (response?.status === 200) {
+					openMessage('success', 'Requisició guardada correctamente')
+				}
+			} catch (error) {
+				openMessage('error', 'Ha ocurrido un error inesperado')
+				console.log(error)
+			} finally {
+				cancel()
+			}
+		} else {
+			openMessage('warning', 'Existen registros incompletos')
+		}
 	}
 
 	const columns = [
@@ -94,7 +138,20 @@ const RequisitionEditModal = ({ open, toggle, items, initialValues }) => {
 				<InputNumber
 					value={text}
 					min={1}
-					onChange={value => handleChange(value, record.key, 'minimo')}
+					status={
+						itemsSorting.filter(x => x.Articulo === record.articulo)?.[0] !==
+						undefined
+							? itemsSorting.filter(x => x.Articulo === record.articulo)[0]
+									.Maximo <
+							  items.filter(x => x.idArticulo === record.articulo)[0]
+									.existencias +
+									text
+								? 'warning'
+								: ''
+							: ''
+					}
+					onChange={value => handleChange(value, record.key, 'cantidad')}
+					readOnly={!edit}
 				/>
 			)
 		},
@@ -109,7 +166,7 @@ const RequisitionEditModal = ({ open, toggle, items, initialValues }) => {
 						okText='Ok'
 						onConfirm={() => handleDelete(record.key)}
 					>
-						<Button type='text' icon={<DeleteOutlined />} />
+						<Button type='text' icon={<DeleteOutlined />} disabled={!edit} />
 					</Popconfirm>
 				</div>
 			)
@@ -140,12 +197,21 @@ const RequisitionEditModal = ({ open, toggle, items, initialValues }) => {
 
 	useEffect(() => {
 		if (Object.keys(initialValues).length !== 0) {
-			setTitle(`Requisición de materiales ${initialValues.Numero}`)
+			console.log(initialValues)
+			if (initialValues.IdRequisicion !== 0) {
+				setTitle(
+					`Requisición de materiales ${initialValues.Numero} (${initialValues.Estado})`
+				)
+			} else {
+				setTitle('Nueva requisición de materiales')
+			}
+
+			setApprove(initialValues.IdEstado === 1)
 
 			const newData = []
 			let count = 0
 
-			initialValues.Detalles.forEach(i => {
+			initialValues.Articulos.forEach(i => {
 				if (items.some(item => item.key === i.Articulo)) {
 					const item = {
 						key: count.toString(),
@@ -158,6 +224,7 @@ const RequisitionEditModal = ({ open, toggle, items, initialValues }) => {
 			})
 			setCount(count)
 			setData(newData)
+			setEdit(initialValues.IdEstado === 1 || initialValues.IdEstado === 0)
 		}
 	}, [initialValues, items])
 
@@ -179,17 +246,42 @@ const RequisitionEditModal = ({ open, toggle, items, initialValues }) => {
 						key='btn-save'
 						type='primary'
 						loading={loading}
+						disabled={
+							data.length === 0 || data.some(o => o.articulo === null) || !edit
+						}
 						onClick={saveData}
-						disabled={true}
 					>
 						Guardar
-					</Button>
+					</Button>,
+					<Popconfirm
+						key='btn-approve'
+						title='Aprobar requisición'
+						description='¿Desea aprobar esta requisición?'
+						okText='Sí'
+						cancelText='Cancelar'
+						onConfirm={handleApproveRequisition}
+					>
+						<Button
+							loading={loading}
+							disabled={
+								data.length === 0 ||
+								data.some(o => o.articulo === null) ||
+								!approve ||
+								!edit
+							}
+						>
+							Aprobar
+						</Button>
+					</Popconfirm>
 				]}
 			>
 				<div>
-					<Button onClick={handleAdd} style={{ marginBottom: 16 }}>
-						Agregar
-					</Button>
+					{edit ? (
+						<Button onClick={handleAdd} style={{ marginBottom: 16 }}>
+							Agregar
+						</Button>
+					) : null}
+
 					<Table
 						dataSource={data}
 						columns={columns}
@@ -199,6 +291,9 @@ const RequisitionEditModal = ({ open, toggle, items, initialValues }) => {
 							onChange: page => setCurrentPage(page)
 						}}
 						rowKey='key'
+						locale={{
+							emptyText: customNoDataText
+						}}
 					/>
 				</div>
 			</Modal>

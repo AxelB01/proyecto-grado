@@ -148,7 +148,6 @@ namespace TriadRestockSystem.Controllers
                 .ThenInclude(a => a.IdEstadoNavigation)
                 .Include(a => a.AlmacenesSecciones)
                 .ThenInclude(a => a.IdTipoZonaNavigation)
-                .Include(a => a.OrdenesCompras)
                 .Include(a => a.UsuariosAlmacenes)
                 .ThenInclude(a => a.IdUsuarioNavigation)
                 .Include(a => a.UsuariosAlmacenes)
@@ -193,8 +192,6 @@ namespace TriadRestockSystem.Controllers
                     Fecha = almacen.FechaCreacion.ToString("dd/MM/yyyy"),
                 };
 
-                var solicitudesMateriales = _db.SolicitudesMaterialesByIdAlm(almacen.IdAlmacen).ToList();
-                var ordenesCompra = almacen.OrdenesCompras.ToList();
                 var secciones = almacen.AlmacenesSecciones
                     .Where(s => s.IdAlmacen == id)
                     .Select(s => new vmAlmacenSeccion
@@ -240,7 +237,9 @@ namespace TriadRestockSystem.Controllers
                     .ThenInclude(r => r.IdEstadoNavigation)
                     .Include(r => r.RequisicionesDetalles)
                     .ThenInclude(r => r.IdArticuloNavigation)
-                    .Where(r => r.IdAlmacen == id)
+                    .Where(r => r.IdAlmacen == id && new int[] { 1, 4 }.Contains(r.IdDocumentoNavigation.IdEstado))
+                    .OrderBy(r => r.IdDocumentoNavigation.IdEstado)
+                    .ThenByDescending(r => r.IdDocumentoNavigation.FechaCreacion)
                     .ToList();
 
                 List<vmRequisition> listaRequisiciones = new();
@@ -294,6 +293,8 @@ namespace TriadRestockSystem.Controllers
 
                 List<vmAllowedItem> articulosPermitidos = new();
 
+                var articulosExistencias = _db.InventarioAlmacenArticulosExistencias(id);
+
                 foreach (var familia in almacen.IdFamilia)
                 {
                     foreach (var articulo in familia.Articulos)
@@ -307,6 +308,11 @@ namespace TriadRestockSystem.Controllers
                                 Codigo = articulo.Codigo,
                                 Nombre = $"{articulo.Nombre} ({articulo.IdUnidadMedidaNavigation.UnidadMedida})",
                             };
+
+                            if (articulosExistencias.Any(x => x.IdArticulo == articulo.IdArticulo))
+                            {
+                                nuevoArticulo.Existencias = articulosExistencias.First(x => x.IdArticulo == articulo.IdArticulo).Existencias;
+                            }
 
                             articulosPermitidos.Add(nuevoArticulo);
                         }
@@ -352,6 +358,10 @@ namespace TriadRestockSystem.Controllers
                 })
                 .ToList();
 
+                var ordenesCompra = _db.OrdenesCompraByIdAlmacen(id).ToList();
+
+                var solicitudesMateriales = _db.SolicitudesMaterialesByIdAlmacen(id).ToList();
+
                 var model = new Wharehouse
                 {
                     Almacen = almacenInfo,
@@ -366,6 +376,14 @@ namespace TriadRestockSystem.Controllers
                     ListaSecciones = listaSecciones,
                     ListaEstanterias = listaEstanterias
                 };
+
+                //var serializerOptions = new JsonSerializerOptions
+                //{
+                //    ReferenceHandler = null,
+                //    Converters = { new CustomConverter<Wharehouse>() }
+                //};
+
+                //var serializedData = JsonSerializer.Serialize(model, serializerOptions);
 
                 return Ok(model);
             }
@@ -461,8 +479,50 @@ namespace TriadRestockSystem.Controllers
 
             if (user != null)
             {
-                var inventario = _db.InventarioAlmacen(id);
-                return Ok(inventario);
+                var inventario = _db.InventarioAlmacen(id)
+                    .ToList();
+
+                var marcas = _db.Marcas
+                    .Select(m => new
+                    {
+                        Key = m.IdMarca,
+                        Text = m.Nombre
+                    })
+                    .ToList();
+
+                var familias = _db.FamiliasArticulos
+                    .Select(m => new
+                    {
+                        Key = m.IdFamilia,
+                        Text = m.Familia
+                    })
+                    .ToList();
+
+                var posiciones = _db.Almacenes
+                    .Include(a => a.AlmacenesSecciones)
+                    .ThenInclude(a => a.AlmacenesSeccionesEstanteria)
+                    .Select(a => new
+                    {
+                        Value = a.IdAlmacen,
+                        Label = a.Nombre,
+                        Children = a.AlmacenesSecciones
+                        .Select(s => new
+                        {
+                            Value = s.IdAlmacenSeccion,
+                            Label = s.Seccion,
+                            Children = s.AlmacenesSeccionesEstanteria
+                            .Select(e => new
+                            {
+                                Value = e.IdAlmacenSeccionEstanteria,
+                                Label = e.Codigo
+                            })
+                            .ToList()
+                        })
+                        .ToList()
+                    })
+                    .ToList();
+
+                return Ok(new { inventario, marcas, familias, posiciones });
             }
 
             return Unauthorized();
@@ -579,5 +639,314 @@ namespace TriadRestockSystem.Controllers
 
             return Forbid();
         }
+
+        [HttpGet("ordenCompraDetallesRegistro")]
+        public IActionResult OrdenCompraDetallesRegistro(int id)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                var ordenCompra = _db.OrdenesCompras
+                    .Include(o => o.IdDocumentoNavigation)
+                    .ThenInclude(o => o.IdEstadoNavigation)
+                    .Include(o => o.IdProveedorNavigation)
+                    .First(o => o.IdOrdenCompra == id);
+
+                var almacen = _db.Almacenes
+                    .Include(a => a.AlmacenesSecciones)
+                    .ThenInclude(a => a.AlmacenesSeccionesEstanteria)
+                    .First(a => a.IdAlmacen == ordenCompra.IdAlmacen);
+
+                var secciones = almacen.AlmacenesSecciones
+                    .Select(s => new
+                    {
+                        Key = s.IdAlmacenSeccion,
+                        Value = s.IdAlmacenSeccion,
+                        Label = s.Seccion,
+                        Children = s.AlmacenesSeccionesEstanteria.Select(e => new
+                        {
+                            Key = e.IdAlmacenSeccionEstanteria,
+                            Value = e.IdAlmacenSeccionEstanteria,
+                            Label = e.Codigo
+                        }).ToList()
+                    }).ToList();
+
+                var detalles = _db.OrdenCompraAlmacenArticulosGetByIdOrden(ordenCompra.IdOrdenCompra).ToList();
+
+                var response = new
+                {
+                    almacen.IdAlmacen,
+                    Almacen = almacen.Nombre,
+                    Posicion = secciones,
+                    ordenCompra.IdOrdenCompra,
+                    ordenCompra.IdDocumentoNavigation.Numero,
+                    ordenCompra.IdDocumentoNavigation.IdEstado,
+                    ordenCompra.IdDocumentoNavigation.IdEstadoNavigation.Estado,
+                    ordenCompra.IdProveedor,
+                    ordenCompra.IdProveedorNavigation.Nombre,
+                    ProveedorRNC = ordenCompra.IdProveedorNavigation.Rnc,
+                    Factura = "",
+                    FechaFactura = DateTime.Now,
+                    FechaEntrega = ordenCompra.FechaEntregaEstimada,
+                    Detalles = detalles
+                };
+
+                return Ok(response);
+            }
+
+            return Forbid();
+        }
+
+        [HttpPost("saveOrdenCompraDetallesRegistro")]
+        public IActionResult SaveOrdenCompraDetallesRegistro(vmWharehousePurchaseOrderRegistration model)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+
+                using var dbTran = _db.Database.BeginTransaction();
+                try
+                {
+                    var ordenCompra = _db.OrdenesCompras
+                        .Include(o => o.IdDocumentoNavigation)
+                        .Include(o => o.OrdenesCompraDetalles)
+                        .First(o => o.IdOrdenCompra == model.IdOrden);
+
+                    var articulos = _db.Articulos
+                        .AsEnumerable()
+                        .Where(a => model.Articulos.Any(ma => ma.IdArticulo == a.IdArticulo))
+                        .ToList();
+
+                    var date = DateTime.Now;
+
+                    var articulosGuardados = 0;
+                    List<vmWharehousePurchaseOrderRegistrationItem> articulosDescartados = new();
+
+                    foreach (var item in model.Articulos)
+                    {
+                        var articulo = articulos.First(a => a.IdArticulo == item.IdArticulo);
+                        if (!_db.Inventarios.Any(i => i.NumeroSerie == item.Codigo))
+                        {
+                            Inventario inventario = new()
+                            {
+                                IdArticulo = item.IdArticulo,
+                                IdAlmacenSeccionEstanteria = item.Posicion,
+                                IdOrdenCompra = ordenCompra.IdOrdenCompra,
+                                NumeroSerie = item.Codigo,
+                                IdEstado = (int)IdEstadoArticulo.Activo,
+                                Notas = item.Notas,
+                                CreadoPor = user.IdUsuario,
+                                FechaRegistro = date
+                            };
+
+                            _db.Inventarios.Add(inventario);
+                            articulosGuardados++;
+                        }
+                        else
+                        {
+                            articulosDescartados.Add(item);
+                        }
+                    }
+
+                    _db.SaveChanges();
+                    dbTran.Commit();
+
+                    var detalles = _db.OrdenCompraAlmacenArticulosGetByIdOrden(ordenCompra.IdOrdenCompra).ToList();
+                    var completa = true;
+
+                    foreach (var item in detalles)
+                    {
+                        completa = item.Cantidad == 0m;
+                    }
+
+                    if (completa)
+                    {
+                        ordenCompra.IdDocumentoNavigation.IdEstado = (int)IdEstadoDocumento.Archivado;
+                        _db.SaveChanges();
+                    }
+
+                    var status = "Ok";
+                    var message = "";
+
+                    if (articulosDescartados.Count > 0)
+                    {
+                        status = "Error";
+                        message = "Aún existen hay por registrar\nEstos códigos de barra ya están registrados: ";
+                        var numerosSeriesUsados = "";
+                        for (int i = 0; i < articulosDescartados.Count; i++)
+                        {
+                            var numero = $"{articulosDescartados[i].Codigo}, ";
+                            if (i + 1 == articulosDescartados.Count)
+                            {
+                                numero = $"{articulosDescartados[i].Codigo}";
+                            }
+                            numerosSeriesUsados += numero;
+                        }
+                        message += numerosSeriesUsados;
+                    }
+
+                    return Ok(new { status, message, count = articulosGuardados, closed = completa });
+                }
+                catch (Exception e)
+                {
+                    dbTran.Rollback();
+                    return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
+                }
+            }
+
+            return Forbid();
+        }
+
+        [HttpGet("cargarSolicitudMaterialesDespacho")]
+        public IActionResult CargarSolicitudMaterialesDespacho(int idSolicitud, int idAlmacen)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                var almacen = _db.Almacenes
+                    .First(a => a.IdAlmacen == idAlmacen);
+
+                var vmAlmacen = new
+                {
+                    almacen.IdAlmacen,
+                    Almacen = almacen.Nombre
+                };
+
+                var solicitud = _db.SolicitudesMateriales
+                    .Include(s => s.IdCentroCostosNavigation)
+                    .Include(s => s.IdDocumentoNavigation)
+                    .ThenInclude(s => s.IdEstadoNavigation)
+                    .First(s => s.IdSolicitudMateriales == idSolicitud);
+
+                var vmSolicitud = new
+                {
+                    IdSolicitud = solicitud.IdSolicitudMateriales,
+                    solicitud.IdDocumento,
+                    solicitud.IdDocumentoNavigation.Numero,
+                    IdCentroCosto = solicitud.IdCentroCostos,
+                    CentroCosto = solicitud.IdCentroCostosNavigation.Nombre,
+                    solicitud.IdDocumentoNavigation.IdEstado,
+                    solicitud.IdDocumentoNavigation.IdEstadoNavigation.Estado,
+                    solicitud.IdDocumentoNavigation.FechaAprobacion
+                };
+
+                var detalles = _db.SolicitudMaterialesDespachoAlmacenDetalles(idSolicitud, idAlmacen)
+                    .ToList();
+
+                var articulos = _db.InventarioAlmacenDespachoSolicitud(idAlmacen)
+                    .ToList();
+
+                return Ok(new { almacen = vmAlmacen, solicitud = vmSolicitud, detalles, articulos });
+            }
+
+            return Forbid();
+        }
+
+        [HttpPost("despacharSolicitudMateriales")]
+        public IActionResult DespacharSolicitudMateriales(vmWharehouseRequestDispatch model)
+        {
+            var login = HttpContext.Items["Username"] as string;
+            var pass = HttpContext.Items["Password"] as string;
+
+            Usuario? user = _db.Usuarios.FirstOrDefault(u => u.Login.Equals(login) && u.Password!.Equals(pass));
+
+            if (user != null)
+            {
+                using var dbTran = _db.Database.BeginTransaction();
+                try
+                {
+
+                    int tipoDocumento = (int)IdTipoDocumento.SolicitudDespacho;
+                    string numero = _db.DocumentoGetNumero(tipoDocumento);
+                    DateTime fecha = DateTime.Now;
+
+                    Documento doc = new()
+                    {
+                        IdTipoDocumento = tipoDocumento,
+                        Numero = numero,
+                        Fecha = fecha,
+                        IdEstado = (int)IdEstadoDocumento.Aplicado,
+                        CreadoPor = user.IdUsuario,
+                        FechaCreacion = fecha
+                    };
+
+                    SolicitudesDespacho sd = new()
+                    {
+                        IdSolicitudMateriales = model.IdSolicitud,
+                        IdAlmacen = model.IdAlmacen,
+                        Total = model.Total
+                    };
+
+                    doc.SolicitudesDespachos.Add(sd);
+
+                    List<SolicitudesDespachosDetalle> detalles = new();
+
+                    foreach (var item in model.Detalles)
+                    {
+                        var articuloInventario = _db.Inventarios
+                            .Include(i => i.IdArticuloNavigation)
+                            .First(i => i.IdInventario == item);
+
+                        articuloInventario.IdEstado = 2;
+
+                        SolicitudesDespachosDetalle detalle = new()
+                        {
+                            IdInventario = item,
+                            Precio = articuloInventario.IdArticuloNavigation.PrecioPorUnidad ?? 0m
+                        };
+
+                        detalles.Add(detalle);
+                    }
+
+                    sd.SolicitudesDespachosDetalles = detalles;
+
+                    _db.Documentos.Add(doc);
+
+                    _db.SaveChanges();
+                    dbTran.Commit();
+
+                    var solicitudDetalles = _db.SolicitudMaterialesDespachoAlmacenDetalles(model.IdSolicitud, model.IdAlmacen)
+                    .ToList();
+
+                    if (solicitudDetalles.Count == 0)
+                    {
+                        var solicitud = _db.SolicitudesMateriales
+                            .Include(s => s.IdDocumentoNavigation)
+                            .First(s => s.IdSolicitudMateriales == model.IdSolicitud);
+
+                        var fechaModificacion = DateTime.Now;
+
+                        solicitud.IdDocumentoNavigation.IdEstado = (int)IdEstadoDocumento.Archivado;
+                        solicitud.IdDocumentoNavigation.CreadoPor = user.IdUsuario;
+                        solicitud.IdDocumentoNavigation.FechaModificacion = fechaModificacion;
+                        solicitud.IdDocumentoNavigation.FechaArchivado = fechaModificacion;
+
+                        _db.SaveChanges();
+                    }
+
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    dbTran.Rollback();
+                    return StatusCode(StatusCodes.Status500InternalServerError, e.ToString());
+                }
+            }
+
+            return Forbid();
+        }
     }
+
 }

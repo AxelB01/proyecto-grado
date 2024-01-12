@@ -43,8 +43,12 @@ namespace TriadRestockSystem.Controllers
                      a.Tipo,
                      a.IdMarca,
                      a.Marca,
-                     a.Precio,
+                     a.PrecioBase,
+                     a.IdImpuesto,
+                     a.Impuesto,
+                     a.ImpuestoDecimal,
                      a.ConsumoGeneral,
+                     a.NumeroReorden,
                      ConsumoGeneralTexto = a.ConsumoGeneral ? "Sí" : "No",
                      a.IdCreadoPor,
                      a.CreadoPor,
@@ -58,7 +62,14 @@ namespace TriadRestockSystem.Controllers
                 Text = m.Nombre,
             }).ToList();
 
-            return Ok(new { items, brands });
+            var taxes = _dbContext.Impuestos.Select(i => new
+            {
+                Key = i.IdImpuesto,
+                Text = i.Nombre,
+                Value = i.Impuesto1
+            }).ToList();
+
+            return Ok(new { items, brands, taxes });
         }
 
 
@@ -124,10 +135,9 @@ namespace TriadRestockSystem.Controllers
                         marca = new()
                         {
                             CreadoPor = user.IdUsuario,
-                            FechaCreacion = DateTime.Now
+                            FechaCreacion = DateTime.Now,
+                            Nombre = model.Marca
                         };
-
-                        marca.Nombre = model.Marca;
                         _dbContext.Marcas.Add(marca);
                     }
 
@@ -136,6 +146,7 @@ namespace TriadRestockSystem.Controllers
                     .Include(v => v.IdFamiliaNavigation)
                     .Include(v => v.IdTipoArticuloNavigation)
                     .Include(v => v.IdMarcaNavigation)
+                    .Include(v => v.IdImpuestoNavigation)
                     .FirstOrDefault(v => v.IdArticulo == model.IdArticulo);
 
                     if (articulo == null)
@@ -161,7 +172,9 @@ namespace TriadRestockSystem.Controllers
                     articulo.IdFamilia = model.IdFamilia;
                     articulo.IdTipoArticulo = model.IdTipoArticulo;
                     articulo.ConsumoGeneral = model.ConsumoGeneral;
-                    articulo.PrecioPorUnidad = Math.Round(model.Precio, 2);
+                    articulo.NumeroReorden = model.NumeroReorden;
+                    articulo.PrecioPorUnidad = Math.Round(model.PrecioBase, 2);
+                    articulo.IdImpuesto = model.Impuesto;
 
                     articulo.IdMarcaNavigation = marca;
 
@@ -199,7 +212,9 @@ namespace TriadRestockSystem.Controllers
                     IdFamilia = articulo.IdFamilia,
                     IdTipoArticulo = articulo.IdTipoArticulo,
                     ConsumoGeneral = articulo.ConsumoGeneral ?? false,
-                    Precio = articulo.PrecioPorUnidad ?? 0.0m
+                    NumeroReorden = articulo.NumeroReorden ?? 0,
+                    PrecioBase = articulo.PrecioPorUnidad ?? 0.0m,
+                    Impuesto = articulo.IdImpuesto ?? 1,
                 };
                 return Ok(vm);
             }

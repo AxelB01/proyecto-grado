@@ -15,8 +15,14 @@ public partial class SolicitudesDespacho
 
     public int IdSolicitudMateriales { get; set; }
 
+    public int IdAlmacen { get; set; }
+
     [Column(TypeName = "decimal(18, 2)")]
     public decimal Total { get; set; }
+
+    [ForeignKey("IdAlmacen")]
+    [InverseProperty("SolicitudesDespachos")]
+    public virtual Almacene IdAlmacenNavigation { get; set; } = null!;
 
     [ForeignKey("IdDocumento")]
     [InverseProperty("SolicitudesDespachos")]

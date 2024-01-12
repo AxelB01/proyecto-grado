@@ -126,7 +126,10 @@ const FamiliesForm = ({
 									},
 									{
 										validator: (_, value) => {
-											if (INPUT_TEXT_NAME_REGEX.test(value)) {
+											if (
+												INPUT_TEXT_NAME_REGEX.test(value) &&
+												value.length <= 100
+											) {
 												return Promise.resolve()
 											} else {
 												return Promise.reject(

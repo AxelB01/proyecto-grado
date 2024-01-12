@@ -18,6 +18,8 @@ public partial class OrdenesCompra
 
     public int IdProveedor { get; set; }
 
+    public int IdTipoPago { get; set; }
+
     [Column(TypeName = "decimal(18, 2)")]
     public decimal SubTotal { get; set; }
 
@@ -26,6 +28,18 @@ public partial class OrdenesCompra
 
     [Column(TypeName = "decimal(18, 2)")]
     public decimal Total { get; set; }
+
+    [Column("TotalAPagar", TypeName = "decimal(18, 2)")]
+    public decimal? TotalApagar { get; set; }
+
+    [Column(TypeName = "datetime")]
+    public DateTime FechaEntregaEstimada { get; set; }
+
+    [Column(TypeName = "datetime")]
+    public DateTime? NuevaFechaEntrega { get; set; }
+
+    [Column(TypeName = "datetime")]
+    public DateTime? FechaEntrega { get; set; }
 
     [ForeignKey("IdAlmacen")]
     [InverseProperty("OrdenesCompras")]
@@ -39,11 +53,18 @@ public partial class OrdenesCompra
     [InverseProperty("OrdenesCompras")]
     public virtual Proveedore IdProveedorNavigation { get; set; } = null!;
 
+    [ForeignKey("IdTipoPago")]
+    [InverseProperty("OrdenesCompras")]
+    public virtual OrdenesCompraTiposPago IdTipoPagoNavigation { get; set; } = null!;
+
     [InverseProperty("IdOrdenCompraNavigation")]
     public virtual ICollection<Inventario> Inventarios { get; set; } = new List<Inventario>();
 
     [InverseProperty("IdOrdenCompraNavigation")]
     public virtual ICollection<OrdenesCompraDetalle> OrdenesCompraDetalles { get; set; } = new List<OrdenesCompraDetalle>();
+
+    [InverseProperty("IdOrdenCompraNavigation")]
+    public virtual ICollection<OrdenesCompraPagoDetalle> OrdenesCompraPagoDetalles { get; set; } = new List<OrdenesCompraPagoDetalle>();
 
     [ForeignKey("IdOrdenCompra")]
     [InverseProperty("IdOrdenCompras")]

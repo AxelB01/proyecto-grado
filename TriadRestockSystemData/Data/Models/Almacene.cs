@@ -65,6 +65,9 @@ public partial class Almacene
     public virtual ICollection<Requisicione> Requisiciones { get; set; } = new List<Requisicione>();
 
     [InverseProperty("IdAlmacenNavigation")]
+    public virtual ICollection<SolicitudesDespacho> SolicitudesDespachos { get; set; } = new List<SolicitudesDespacho>();
+
+    [InverseProperty("IdAlmacenNavigation")]
     public virtual ICollection<UsuariosAlmacene> UsuariosAlmacenes { get; set; } = new List<UsuariosAlmacene>();
 
     [ForeignKey("IdAlmacen")]
