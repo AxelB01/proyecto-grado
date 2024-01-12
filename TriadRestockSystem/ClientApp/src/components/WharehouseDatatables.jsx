@@ -1,16 +1,42 @@
 import {
 	AuditOutlined,
+	DeleteOutlined,
 	EditOutlined,
+	EyeOutlined,
 	FolderOutlined,
-	PlusOutlined
+	PlusOutlined,
+	ReconciliationOutlined
 } from '@ant-design/icons'
-import { Button, Space, Tabs, Tag, Tooltip } from 'antd'
-import { useEffect, useRef, useState } from 'react'
-import { createWharehouseRequisitionModel } from '../functions/constructors'
+import { Button, Popconfirm, Space, Tabs, Tag, Tooltip } from 'antd'
+import 'moment/locale/es'
+import moment from 'moment/moment'
+import { useContext, useEffect, useRef, useState } from 'react'
+import AuthContext from '../context/AuthContext'
+import LayoutContext from '../context/LayoutContext'
+import { createRequisitionsModel } from '../functions/constructors'
+import { userHasAccessToModule } from '../functions/validation'
+import useAxiosPrivate from '../hooks/usePrivateAxios'
 import CustomTable from './CustomTable'
 import RequisitionEditModal from './RequisitionEditModal'
 
-const WharehouseDatatables = ({ id, loading, requisitions, items }) => {
+const APPROVE_REQUISICION = '/api/requisiciones/aprobarRequisicion'
+const DISCARD_REQUISICION = '/api/requisiciones/descartarRequisicion'
+const ARCHIVE_REQUISICION = '/api/requisiciones/archivarRequisicion'
+
+const WharehouseDatatables = ({
+	id,
+	loading,
+	requisitions,
+	purchaseOrders,
+	requests,
+	items,
+	itemsSorting,
+	reloadWharehouse
+}) => {
+	const { roles } = useContext(AuthContext)
+	const { openMessage, navigateToPath } = useContext(LayoutContext)
+	const axiosPrivate = useAxiosPrivate()
+
 	const [ordersTableKey] = useState(Date.now())
 	const [ordersTableState] = useState(false)
 	const ordersTableRef = useRef()
@@ -23,6 +49,8 @@ const WharehouseDatatables = ({ id, loading, requisitions, items }) => {
 	const [requisitionsTableState] = useState(false)
 	const requisitionsTableRef = useRef()
 
+	const [requisitionsLoadings, setRequisitionsLoadings] = useState({})
+
 	const [requisitionModalStatus, setRequisitionModalStatus] = useState(false)
 	const [requisitionModalValues, setRequisitionModalValues] = useState({})
 
@@ -34,10 +62,66 @@ const WharehouseDatatables = ({ id, loading, requisitions, items }) => {
 		}
 	}
 
+	const handlePendingOrderRegistration = model => {
+		navigateToPath('/wharehousePurchaseOrderRegistration', {
+			Id: model.key
+		})
+	}
+
+	const handleRequestDispatch = idSolicitud => {
+		navigateToPath('/requestDispatch', {
+			IdSolicitud: idSolicitud,
+			IdAlmacen: id
+		})
+	}
+
 	const pendingColumnsOrders = [
 		{
+			title: '',
+			key: 'accion',
+			render: (_, record) => (
+				<Space>
+					<Tooltip title={record.idEstado === 4 ? 'Registrar' : 'Ver'}>
+						<Button
+							type='text'
+							icon={
+								record.idEstado === 4 ? (
+									<ReconciliationOutlined />
+								) : (
+									<EyeOutlined />
+								)
+							}
+							onClick={() => handlePendingOrderRegistration(record)}
+							disabled={
+								!userHasAccessToModule('Almacenes', 'view', roles) &&
+								!userHasAccessToModule('Almacenes', 'creation', roles) &&
+								!userHasAccessToModule('Almacenes', 'management', roles)
+							}
+						/>
+					</Tooltip>
+					<Popconfirm
+						title='Archivar orden'
+						description='¿Desea archivar esta orden?'
+						okText='Sí'
+						cancelText='Cancelar'
+						onConfirm={() => console.log(record)}
+					>
+						<Button
+							type='text'
+							icon={<FolderOutlined />}
+							loading={requisitionsLoadings[record.key]}
+							disabled={
+								record.idEstado !== 1 ||
+								!userHasAccessToModule('Almacenes', 'management', roles)
+							}
+						/>
+					</Popconfirm>
+				</Space>
+			)
+		},
+		{
 			title: 'Codigo',
-			dataIndex: 'codigo',
+			dataIndex: 'numero',
 			key: 'codigo',
 			width: 90
 		},
@@ -45,43 +129,68 @@ const WharehouseDatatables = ({ id, loading, requisitions, items }) => {
 			title: 'Estado',
 			dataIndex: 'estado',
 			key: 'estado',
-			width: 110
+			width: 110,
+			render: (_, record) => (
+				<Tag color={record.idEstado === 4 ? 'geekblue' : ''}>
+					{record.estado}
+				</Tag>
+			)
 		},
 		{
 			title: 'Proveedor',
 			dataIndex: 'proveedor',
 			key: 'proveedor',
-			width: 180,
+			width: 250,
 			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
 		},
 		{
-			title: 'Total',
-			dataIndex: 'total',
-			key: 'total',
-			width: 150
-		},
-		{
 			title: 'Fecha Estimada',
-			dataIndex: 'fecha',
+			dataIndex: 'fechaEntregaEstimada',
 			key: 'fecha',
-			width: 140
-		},
-		{
-			title: 'Acciones',
-			dataIndex: 'accion',
-			key: 'accion',
-			render: (_, record) => (
-				<Space>
-					<Button>Detalle</Button>
-				</Space>
-			)
+			width: 250,
+			render: (_, record) =>
+				`${moment(new Date(record.fechaEntregaEstimada))
+					.locale('es')
+					.format('dddd D [de] MMMM, YYYY')}`
 		}
 	]
 
 	const pendingColumnsRequests = [
 		{
+			title: '',
+			key: 'accion',
+			render: (_, record) => (
+				<Space>
+					<Tooltip title=''>
+						<Button
+							type='text'
+							icon={<AuditOutlined />}
+							onClick={() => handleRequestDispatch(record.key)}
+						/>
+					</Tooltip>
+					<Popconfirm
+						title='Archivar solicitud'
+						description='¿Desea archivar esta solicitud?'
+						okText='Sí'
+						cancelText='Cancelar'
+						onConfirm={() => console.log(record)}
+					>
+						<Button
+							type='text'
+							icon={<FolderOutlined />}
+							loading={requisitionsLoadings[record.key]}
+							disabled={
+								record.idEstado !== 1 ||
+								!userHasAccessToModule('Almacenes', 'management', roles)
+							}
+						/>
+					</Popconfirm>
+				</Space>
+			)
+		},
+		{
 			title: 'Codigo',
-			dataIndex: 'codigo',
+			dataIndex: 'numero',
 			key: 'codigo',
 			width: 90
 		},
@@ -89,30 +198,29 @@ const WharehouseDatatables = ({ id, loading, requisitions, items }) => {
 			title: 'Estado',
 			dataIndex: 'estado',
 			key: 'estado',
-			width: 110
+			width: 110,
+			render: (_, record) => (
+				<Tag color={record.idEstado === 4 ? 'geekblue' : ''}>
+					{record.estado}
+				</Tag>
+			)
 		},
 		{
 			title: 'Centro de costos',
-			dataIndex: 'centroCostos',
+			dataIndex: 'centroCosto',
 			key: 'centroCostos',
-			width: 330,
+			width: 250,
 			render: text => <a style={{ color: '#2f54eb' }}>{text}</a>
 		},
 		{
 			title: 'Fecha',
-			dataIndex: 'fecha',
+			dataIndex: 'fechaAprobacion',
 			key: 'fecha',
-			width: 140
-		},
-		{
-			title: 'Acciones',
-			dataIndex: 'accion',
-			key: 'accion',
-			render: (_, record) => (
-				<Space>
-					<Button>Detalle</Button>
-				</Space>
-			)
+			width: 250,
+			render: (_, record) =>
+				`${moment(new Date(record.fechaAprobacion))
+					.locale('es')
+					.format('dddd D [de] MMMM, YYYY')}`
 		}
 	]
 
@@ -123,19 +231,50 @@ const WharehouseDatatables = ({ id, loading, requisitions, items }) => {
 			key: 'accion',
 			render: (_, record) => (
 				<Space>
-					<Tooltip title='Editar'>
+					<Tooltip title={record.idEstado === 1 ? 'Editar' : 'Ver'}>
 						<Button
 							type='text'
-							icon={<EditOutlined />}
+							icon={record.idEstado === 1 ? <EditOutlined /> : <EyeOutlined />}
 							onClick={() => loadRequisitionData(record)}
+							disabled={
+								!userHasAccessToModule('Almacenes', 'view', roles) &&
+								!userHasAccessToModule('Almacenes', 'creation', roles) &&
+								!userHasAccessToModule('Almacenes', 'management', roles)
+							}
 						/>
 					</Tooltip>
-					<Tooltip title='Aprobar'>
-						<Button type='text' icon={<AuditOutlined />} disabled />
-					</Tooltip>
-					<Tooltip title='Archivar'>
-						<Button type='text' icon={<FolderOutlined />} disabled />
-					</Tooltip>
+					<Popconfirm
+						title='Aprobar requisición'
+						description='¿Desea aprobar esta requisición?'
+						okText='Sí'
+						cancelText='Cancelar'
+						onConfirm={() => handleApproveRequisition(record.key)}
+					>
+						<Button
+							type='text'
+							icon={<AuditOutlined />}
+							loading={requisitionsLoadings[record.key]}
+							disabled={
+								record.idEstado !== 1 ||
+								!userHasAccessToModule('Almacenes', 'management', roles)
+							}
+						/>
+					</Popconfirm>
+					{record.idEstado === 1 ? (
+						<Popconfirm
+							title='Descartar requisición'
+							description='¿Desea descartar esta requisición?'
+							okText='Sí'
+							cancelText='Cancelar'
+							onConfirm={() => handleDiscardRequisition(record.key)}
+						>
+							<Button
+								type='text'
+								icon={<DeleteOutlined />}
+								loading={requisitionsLoadings[record.key]}
+							/>
+						</Popconfirm>
+					) : null}
 				</Space>
 			)
 		},
@@ -150,31 +289,99 @@ const WharehouseDatatables = ({ id, loading, requisitions, items }) => {
 			key: 'estado',
 			width: 140,
 			render: record => (
-				<Tag color={record.idEstado === 1 ? 'gold' : ''}>{record.estado}</Tag>
+				<Tag color={record.idEstado === 1 ? 'gold' : 'geekblue'}>
+					{record.estado}
+				</Tag>
 			)
 		},
 		{
 			title: 'Fecha',
 			dataIndex: 'fechaFormateada',
 			key: 'fechaFormateada',
-			width: 240
+			width: 350
 		}
 	]
 
+	const newRequisition = () => {
+		const model = createRequisitionsModel()
+		model.IdAlmacen = id
+
+		setRequisitionModalValues(model)
+	}
+
 	const loadRequisitionData = record => {
-		const model = createWharehouseRequisitionModel()
-		model.Id = record.key
+		const model = createRequisitionsModel()
+		model.IdAlmacen = id
+		model.Key = record.key
+		model.IdRequisicion = record.key
 		model.Numero = record.numero
 		model.IdEstado = record.idEstado
 		model.Estado = record.estado
 		model.Fecha = record.fechaFormateada
-		model.Detalles = record.articulos.map(a => {
+		model.Articulos = record.articulos.map(a => {
 			return {
 				Articulo: a.idArticulo,
 				Cantidad: a.cantidad
 			}
 		})
+
 		setRequisitionModalValues(model)
+	}
+
+	const handleApproveRequisition = id => {
+		setRequisitionsLoadings(prevState => ({
+			...prevState,
+			[id]: true
+		}))
+		approveRequisition(id)
+	}
+
+	const approveRequisition = async id => {
+		try {
+			const response = await axiosPrivate.post(APPROVE_REQUISICION, id)
+			if (response?.status === 200) {
+				openMessage('success', 'Requisición aprobada')
+			} else openMessage('error', 'Ha ocurrido un error inesperado...')
+		} catch (error) {
+			console.log(error)
+			openMessage('error', 'Ha ocurrido un error inesperado...')
+		} finally {
+			setRequisitionsLoadings(prevState => ({
+				...prevState,
+				[id]: false
+			}))
+			setTimeout(() => {
+				reloadWharehouse()
+			}, 100)
+		}
+	}
+
+	const handleDiscardRequisition = id => {
+		setRequisitionsLoadings(prevState => ({
+			...prevState,
+			[id]: true
+		}))
+		discardRequisition(id)
+	}
+
+	const discardRequisition = async id => {
+		try {
+			const response = await axiosPrivate.post(DISCARD_REQUISICION, id)
+			if (response?.status === 200) {
+				openMessage('info', 'Requisición descartada')
+			} else openMessage('error', 'Ha ocurrido un error inesperado...')
+		} catch (error) {
+			console.log(error)
+			openMessage('error', 'Ha ocurrido un error inesperado...')
+		} finally {
+			setRequisitionsLoadings(prevState => ({
+				...prevState,
+				[id]: false
+			}))
+			setTimeout(() => {
+				reloadWharehouse()
+			}, 100)
+		}
 	}
 
 	const tabItems = [
@@ -183,10 +390,20 @@ const WharehouseDatatables = ({ id, loading, requisitions, items }) => {
 			label: 'Requisiciones',
 			children: (
 				<>
-					<Button type='primary' icon={<PlusOutlined />} disabled>
-						Nueva requisición manual
-					</Button>
-					<br />
+					{userHasAccessToModule('Almacenes', 'view', roles) ||
+					userHasAccessToModule('Almacenes', 'creation', roles) ||
+					userHasAccessToModule('Almacenes', 'management', roles) ? (
+						<>
+							<Button
+								type='primary'
+								icon={<PlusOutlined />}
+								onClick={newRequisition}
+							>
+								Nueva requisición manual
+							</Button>
+							<br />
+						</>
+					) : null}
 					<CustomTable
 						tableKey={requisitionsTableKey}
 						tableRef={requisitionsTableRef}
@@ -210,7 +427,7 @@ const WharehouseDatatables = ({ id, loading, requisitions, items }) => {
 					tableState={ordersTableState || loading}
 					tableClases='custom-table-style no-hover'
 					columns={pendingColumnsOrders}
-					data={[]}
+					data={purchaseOrders}
 					defaultPageSize={5}
 					scrollable={false}
 				/>
@@ -226,7 +443,7 @@ const WharehouseDatatables = ({ id, loading, requisitions, items }) => {
 					tableState={requestsTableState || loading}
 					tableClases='custom-table-style no-hover'
 					columns={pendingColumnsRequests}
-					data={[]}
+					data={requests}
 					defaultPageSize={5}
 					scrollable={false}
 				/>
@@ -241,12 +458,26 @@ const WharehouseDatatables = ({ id, loading, requisitions, items }) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [requisitionModalValues])
 
+	useEffect(() => {
+		const requisitionsLoadingValues = Object.values(requisitionsLoadings)
+		const noRequisitionsLoading = requisitionsLoadingValues.every(
+			r => r !== true
+		)
+
+		if (!requisitionModalStatus && noRequisitionsLoading) {
+			reloadWharehouse()
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [requisitionModalStatus])
+
 	return (
 		<>
 			<RequisitionEditModal
 				open={requisitionModalStatus}
 				toggle={handleRequisitionModalStatus}
+				approveRequisition={handleApproveRequisition}
 				items={items}
+				itemsSorting={itemsSorting}
 				initialValues={requisitionModalValues}
 			/>
 			<Tabs defaultActiveKey='1' items={tabItems} />

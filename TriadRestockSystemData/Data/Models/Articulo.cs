@@ -24,15 +24,22 @@ public partial class Articulo
 
     public int? IdMarca { get; set; }
 
+    [StringLength(100)]
+    public string? Modelo { get; set; }
+
     [StringLength(500)]
     [Unicode(false)]
     public string? Descripcion { get; set; }
 
     public int IdFamilia { get; set; }
 
+    public int? IdImpuesto { get; set; }
+
     public int IdTipoArticulo { get; set; }
 
     public bool? ConsumoGeneral { get; set; }
+
+    public int? NumeroReorden { get; set; }
 
     [Column(TypeName = "decimal(18, 2)")]
     public decimal? PrecioPorUnidad { get; set; }
@@ -57,6 +64,10 @@ public partial class Articulo
     [ForeignKey("IdFamilia")]
     [InverseProperty("Articulos")]
     public virtual FamiliasArticulo IdFamiliaNavigation { get; set; } = null!;
+
+    [ForeignKey("IdImpuesto")]
+    [InverseProperty("Articulos")]
+    public virtual Impuesto? IdImpuestoNavigation { get; set; }
 
     [ForeignKey("IdMarca")]
     [InverseProperty("Articulos")]

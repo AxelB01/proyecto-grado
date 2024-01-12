@@ -6,15 +6,15 @@ const fields = [
 		label: 'Artículo'
 	},
 	{
-		value: 'codigo',
+		value: 'codigoArticulo',
 		label: 'Código'
 	},
 	{
-		value: 'serie',
+		value: 'numeroSerie',
 		label: 'Numero de serie'
 	},
 	{
-		value: 'registrado',
+		value: 'nombreCompleto',
 		label: 'Registrado por'
 	}
 ]
@@ -38,11 +38,11 @@ const WharehouseInventoryFiltersGeneral = ({ form }) => {
 							/>
 						</Form.Item>
 					</Col>
-					<Col span={6}>
+					{/* <Col span={6}>
 						<Form.Item name='estado'>
 							<Select options={[]} placeholder='Estado' allowClear />
 						</Form.Item>
-					</Col>
+					</Col> */}
 				</Row>
 			</Form>
 		</>

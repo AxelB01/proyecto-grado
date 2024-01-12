@@ -11,7 +11,9 @@
         public string? Descripcion { get; set; } = string.Empty;
         public int IdFamilia { get; set; }
         public int IdTipoArticulo { get; set; }
-        public decimal Precio { get; set; }
+        public decimal PrecioBase { get; set; }
+        public int Impuesto { get; set; }
         public bool ConsumoGeneral { get; set; }
+        public int NumeroReorden { get; set; }
     }
 }

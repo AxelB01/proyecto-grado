@@ -1,14 +1,15 @@
-import {
-	AuditOutlined,
-	CaretDownOutlined,
-	EditOutlined
-} from '@ant-design/icons'
+import { CaretDownOutlined, EditOutlined } from '@ant-design/icons'
 import { Button, Dropdown, Modal, Space, Tag } from 'antd'
 import { useEffect, useRef, useState } from 'react'
-import { addThousandsSeparators } from '../functions/validation'
+import { createWharehouseInventoryPositionForm } from '../functions/constructors'
+import {
+	addThousandsSeparators,
+	containsIgnoreCase
+} from '../functions/validation'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 import CustomTable from './CustomTable'
 import WharehouseInventoryFilters from './WharehouseInventoryFilters'
+import WharehouseInventoryFormModel from './WharehouseInventoryFormModel'
 
 const GET_WHAREHOUSE_INVENTORY = 'api/almacenes/inventarioAlmacen'
 
@@ -17,11 +18,6 @@ const inventoryItemMenu = [
 		key: '1',
 		label: 'Editar',
 		icon: <EditOutlined />
-	},
-	{
-		key: '2',
-		label: 'Historial',
-		icon: <AuditOutlined />
 	}
 ]
 
@@ -31,8 +27,36 @@ const WharehouseInventory = ({ status, toggle, id }) => {
 	const [filteredData, setFilteredData] = useState([])
 	const [loading, setLoading] = useState(true)
 
+	const [brands, setBrands] = useState([])
+	const [families, setFamilies] = useState([])
+	const [positions, setPositions] = useState([])
+
 	const [tableKey] = useState(Date.now)
 	const tableRef = useRef()
+
+	const [wharehouseInventorymModalStatus, setWharehouseInventoryStatus] =
+		useState(false)
+
+	const [wharehouseInventoryModalValues, setWharehouseInventoryModalValues] =
+		useState({})
+
+	const handleWharehouseInventoryModalStatus = () => {
+		setWharehouseInventoryStatus(!wharehouseInventorymModalStatus)
+	}
+
+	const handleEditItemInventory = record => {
+		const model = createWharehouseInventoryPositionForm()
+		model.IdInventario = record.idInventario
+		model.Articulo = `${record.articulo} (${record.marca})`
+		model.Codigo = record.numeroSerie
+		model.Posicion = [
+			id,
+			record.idAlmacenSeccion,
+			record.idAlmacenSeccionEstanteria
+		]
+
+		setWharehouseInventoryModalValues(model)
+	}
 
 	const handleCancel = () => {
 		toggle()
@@ -43,13 +67,30 @@ const WharehouseInventory = ({ status, toggle, id }) => {
 
 	const getData = async () => {
 		try {
+			setLoading(true)
 			const response = await axiosPrivate.get(
 				GET_WHAREHOUSE_INVENTORY + `?id=${id}`
 			)
 			if (response?.status === 200) {
 				const data = response.data
-				console.log(data)
-				setData(data)
+				setData(data.inventario)
+				setBrands(
+					data.marcas.map(b => {
+						return {
+							value: b.key,
+							label: b.text
+						}
+					})
+				)
+				setFamilies(
+					data.familias.map(f => {
+						return {
+							value: f.key,
+							label: f.text
+						}
+					})
+				)
+				setPositions(data.posiciones)
 				setTimeout(() => {
 					setLoading(false)
 				}, 500)
@@ -60,6 +101,21 @@ const WharehouseInventory = ({ status, toggle, id }) => {
 		}
 	}
 
+	const filterData = (value, dataIndex, marca, familia) => {
+		let newData = [...data]
+		if (value && dataIndex) {
+			newData = filteredData.filter(i =>
+				containsIgnoreCase(i[dataIndex], value)
+			)
+		}
+		if (marca) {
+			newData = newData.filter(i => i.idMarca === marca)
+		}
+		if (familia) {
+			newData = newData.filter(i => i.idFamilia === familia)
+		}
+		setFilteredData(newData)
+	}
 	useEffect(() => {
 		if (status) {
 			getData()
@@ -70,6 +126,24 @@ const WharehouseInventory = ({ status, toggle, id }) => {
 	useEffect(() => {
 		setFilteredData(data)
 	}, [data])
+
+	useEffect(() => {
+		console.log(wharehouseInventoryModalValues)
+		if (Object.keys(wharehouseInventoryModalValues).length !== 0) {
+			handleWharehouseInventoryModalStatus()
+		} else {
+			getData()
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [wharehouseInventoryModalValues])
+
+	useEffect(() => {
+		if (!wharehouseInventorymModalStatus) {
+			getData()
+			setWharehouseInventoryModalValues({})
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [wharehouseInventorymModalStatus])
 
 	const columns = [
 		{
@@ -82,7 +156,7 @@ const WharehouseInventory = ({ status, toggle, id }) => {
 						menu={{
 							items: inventoryItemMenu,
 							onClick: ({ key }) => {
-								console.log(key, record)
+								handleEditItemInventory(record)
 							}
 						}}
 					>
@@ -93,9 +167,12 @@ const WharehouseInventory = ({ status, toggle, id }) => {
 		},
 		{
 			title: 'Artículo',
-			width: 200,
+			width: 300,
 			dataIndex: 'articulo',
-			key: 'articulo'
+			key: 'articulo',
+			render: (_, record) => (
+				<span>{`${record.articulo} (${record.marca})`}</span>
+			)
 		},
 		{
 			title: 'Código',
@@ -104,8 +181,8 @@ const WharehouseInventory = ({ status, toggle, id }) => {
 			key: 'codigoArticulo'
 		},
 		{
-			title: 'Número de serie',
-			width: 150,
+			title: 'No. Serie (Codigo Barra)',
+			width: 200,
 			dataIndex: 'numeroSerie',
 			key: 'numeroSerie'
 		},
@@ -124,20 +201,14 @@ const WharehouseInventory = ({ status, toggle, id }) => {
 				</div>
 			)
 		},
+		// {
+		// 	title: 'Marca',
+		// 	width: 200,
+		// 	dataIndex: 'marca',
+		// 	key: 'marca'
+		// },
 		{
-			title: 'Marca',
-			width: 200,
-			dataIndex: 'marca',
-			key: 'marca'
-		},
-		{
-			title: 'Modelo',
-			width: 150,
-			dataIndex: 'modelo',
-			key: 'modelo'
-		},
-		{
-			title: 'Precio compra',
+			title: 'Costo',
 			width: 150,
 			dataIndex: 'precioCompra',
 			key: 'precioCompra',
@@ -173,35 +244,42 @@ const WharehouseInventory = ({ status, toggle, id }) => {
 			width: 250,
 			dataIndex: 'fechaRegistroFormateada',
 			key: 'fechaRegistroFormateada'
-		},
-		{
-			title: '',
-			key: 'actions',
-			render: () => <></>
 		}
 	]
 
 	return (
-		<Modal
-			title='Inventario'
-			open={status}
-			onCancel={handleCancel}
-			footer={[]}
-			width={1200}
-			style={{ top: 20 }}
-		>
-			<WharehouseInventoryFilters />
-			<CustomTable
-				tableKey={tableKey}
-				tableRef={tableRef}
-				tableState={loading}
-				columns={columns}
-				data={filteredData}
-				scrollable={true}
-				defaultPageSize={10}
-				pagination={true}
+		<>
+			<WharehouseInventoryFormModel
+				initialValues={wharehouseInventoryModalValues}
+				open={wharehouseInventorymModalStatus}
+				toggle={handleWharehouseInventoryModalStatus}
+				options={positions}
 			/>
-		</Modal>
+			<Modal
+				title='Inventario'
+				open={status}
+				onCancel={handleCancel}
+				footer={[]}
+				width={1200}
+				style={{ top: 20 }}
+			>
+				<WharehouseInventoryFilters
+					filteredData={filterData}
+					brands={brands}
+					families={families}
+				/>
+				<CustomTable
+					tableKey={tableKey}
+					tableRef={tableRef}
+					tableState={loading}
+					columns={columns}
+					data={filteredData}
+					scrollable={true}
+					defaultPageSize={10}
+					pagination={true}
+				/>
+			</Modal>
+		</>
 	)
 }
 

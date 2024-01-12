@@ -7,7 +7,9 @@ import Home from './components/Home'
 import Items from './components/Items'
 import Login from './components/Login'
 import PurchaseOrder from './components/PurchaseOrder'
+import PurchaseOrders from './components/PurchaseOrders'
 import Request from './components/Request'
+import RequestDispatch from './components/RequestDispatch'
 import Requests from './components/Requests'
 import Requisitions from './components/Requisitions'
 import Roles from './components/Roles'
@@ -15,6 +17,7 @@ import Suppliers from './components/Suppliers'
 import Units from './components/Units'
 import Users from './components/Users'
 import Wharehouse from './components/Wharehouse'
+import WharehousePurchaseOrderRegistration from './components/WharehousePurchaseOrderRegistration'
 import Wharehouses from './components/Wharehouses'
 
 const AppRoutes = [
@@ -96,7 +99,7 @@ const AppRoutes = [
 	{
 		index: false,
 		path: '/orders',
-		element: <PurchaseOrder />
+		element: <PurchaseOrders />
 	},
 	{
 		index: false,
@@ -107,6 +110,21 @@ const AppRoutes = [
 		index: false,
 		path: '/roles',
 		element: <Roles />
+	},
+	{
+		index: false,
+		path: '/purchaseOrder',
+		element: <PurchaseOrder />
+	},
+	{
+		index: false,
+		path: '/wharehousePurchaseOrderRegistration',
+		element: <WharehousePurchaseOrderRegistration />
+	},
+	{
+		index: false,
+		path: '/requestDispatch',
+		element: <RequestDispatch />
 	}
 ]
 

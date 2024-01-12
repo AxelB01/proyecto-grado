@@ -155,7 +155,7 @@ const Users = () => {
 			title: 'Código',
 			dataIndex: 'id',
 			key: 'id',
-			width: 110,
+			width: 80,
 			fixed: 'left',
 			filterType: 'text search'
 		},

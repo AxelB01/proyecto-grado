@@ -1,23 +1,34 @@
-import { Col, Form, Input, Row, Select } from 'antd'
+import { Col, Form, Row, Select } from 'antd'
 
-const WharehouseInventoryFiltersSpecifications = ({ form }) => {
+const WharehouseInventoryFiltersSpecifications = ({
+	form,
+	brands,
+	families
+}) => {
 	return (
 		<>
 			<Form form={form} name='form-inventory-filter-specifications'>
 				<Row gutter={16}>
 					<Col span={6}>
 						<Form.Item name='marca'>
-							<Select options={[]} placeholder='Marca' allowClear />
-						</Form.Item>
-					</Col>
-					<Col span={6}>
-						<Form.Item name='modelo'>
-							<Input autoComplete='off' placeholder='Modelo...' />
+							<Select
+								showSearch
+								optionFilterProp='label'
+								options={brands}
+								placeholder='Marca'
+								allowClear
+							/>
 						</Form.Item>
 					</Col>
 					<Col span={6}>
 						<Form.Item name='familia'>
-							<Select options={[]} placeholder='Familia' />
+							<Select
+								showSearch
+								optionFilterProp='label'
+								options={families}
+								placeholder='Familia'
+								allowClear
+							/>
 						</Form.Item>
 					</Col>
 				</Row>

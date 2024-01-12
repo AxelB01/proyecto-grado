@@ -369,9 +369,12 @@ namespace TriadRestockSystem.Controllers
                     using var dbTran = _db.Database.BeginTransaction();
                     try
                     {
+                        var fechaAprobacion = DateTime.Now;
+
                         solicitud.IdDocumentoNavigation.IdEstado = (int)IdEstadoDocumento.Aprobado;
                         solicitud.IdDocumentoNavigation.ModificadoPor = user.IdUsuario;
-                        solicitud.IdDocumentoNavigation.FechaModificacion = DateTime.Now;
+                        solicitud.IdDocumentoNavigation.FechaModificacion = fechaAprobacion;
+                        solicitud.IdDocumentoNavigation.FechaAprobacion = fechaAprobacion;
 
                         _db.SaveChanges();
                         dbTran.Commit();

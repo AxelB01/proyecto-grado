@@ -186,13 +186,15 @@ const UserForm = ({
 									},
 									{
 										validator: (_, value) => {
-											if (INPUT_TEXT_NAME_REGEX.test(value)) {
+											if (
+												INPUT_TEXT_NAME_REGEX.test(value) &&
+												value.length <= 100
+											) {
 												return Promise.resolve()
-											} else {
-												return Promise.reject(
-													new Error('El nombre ingresado no es válido')
-												)
 											}
+											return Promise.reject(
+												new Error('El nombre ingresado no es válido')
+											)
 										}
 									}
 								]}
@@ -218,13 +220,15 @@ const UserForm = ({
 									},
 									{
 										validator: (_, value) => {
-											if (INPUT_TEXT_NAME_REGEX.test(value)) {
+											if (
+												INPUT_TEXT_NAME_REGEX.test(value) &&
+												value.length <= 100
+											) {
 												return Promise.resolve()
-											} else {
-												return Promise.reject(
-													new Error('El apellido ingresado no es válido')
-												)
 											}
+											return Promise.reject(
+												new Error('El apellido ingresado no es válido')
+											)
 										}
 									}
 								]}
@@ -250,13 +254,15 @@ const UserForm = ({
 									},
 									{
 										validator: (_, value) => {
-											if (INPUT_TEXT_USERNAME_REGEX.test(value)) {
+											if (
+												INPUT_TEXT_USERNAME_REGEX.test(value) &&
+												value.length <= 50
+											) {
 												return Promise.resolve()
-											} else {
-												return Promise.reject(
-													new Error('El login ingresado no es válido')
-												)
 											}
+											return Promise.reject(
+												new Error('El login ingresado no es válido')
+											)
 										}
 									}
 								]}
@@ -278,6 +284,18 @@ const UserForm = ({
 									{
 										required: true,
 										message: 'Debe ingresar una contraseña'
+									},
+									{
+										validator: (_, value) => {
+											if (value.length <= 100) {
+												return Promise.resolve()
+											}
+											return Promise.reject(
+												new Error(
+													'El texto ingresado excede el límite permitido'
+												)
+											)
+										}
 									}
 								]}
 								hasFeedback
@@ -303,7 +321,10 @@ const UserForm = ({
 									{
 										validator: (_, value) => {
 											const contrasena = values.contrasena ?? ''
-											if (!isStringEmpty(value) && contrasena !== value) {
+											if (
+												(!isStringEmpty(value) && contrasena !== value) ||
+												value.length > 100
+											) {
 												return Promise.reject(
 													new Error('Las contraseñas ingresadas no coinciden')
 												)

@@ -104,6 +104,12 @@ public partial class Usuario
     [InverseProperty("InverseCreadoPorNavigation")]
     public virtual Usuario? CreadoPorNavigation { get; set; }
 
+    [InverseProperty("AprobadoPorNavigation")]
+    public virtual ICollection<Documento> DocumentoAprobadoPorNavigations { get; set; } = new List<Documento>();
+
+    [InverseProperty("ArchivadoPorNavigation")]
+    public virtual ICollection<Documento> DocumentoArchivadoPorNavigations { get; set; } = new List<Documento>();
+
     [InverseProperty("CreadoPorNavigation")]
     public virtual ICollection<Documento> DocumentoCreadoPorNavigations { get; set; } = new List<Documento>();
 
@@ -143,6 +149,9 @@ public partial class Usuario
     public virtual Usuario? ModificadoPorNavigation { get; set; }
 
     [InverseProperty("CreadoPorNavigation")]
+    public virtual ICollection<OrdenesCompraPagoDetalle> OrdenesCompraPagoDetalles { get; set; } = new List<OrdenesCompraPagoDetalle>();
+
+    [InverseProperty("CreadoPorNavigation")]
     public virtual ICollection<Proveedore> ProveedoreCreadoPorNavigations { get; set; } = new List<Proveedore>();
 
     [InverseProperty("ModificadoPorNavigation")]
@@ -159,6 +168,12 @@ public partial class Usuario
 
     [InverseProperty("ModificadoPorNavigation")]
     public virtual ICollection<Role> RoleModificadoPorNavigations { get; set; } = new List<Role>();
+
+    [InverseProperty("CreadoPorNavigation")]
+    public virtual ICollection<TiposPagosDetalle> TiposPagosDetalleCreadoPorNavigations { get; set; } = new List<TiposPagosDetalle>();
+
+    [InverseProperty("ModificadoPorNavigation")]
+    public virtual ICollection<TiposPagosDetalle> TiposPagosDetalleModificadoPorNavigations { get; set; } = new List<TiposPagosDetalle>();
 
     [InverseProperty("CreadoPorNavigation")]
     public virtual ICollection<UnidadesMedida> UnidadesMedidaCreadoPorNavigations { get; set; } = new List<UnidadesMedida>();

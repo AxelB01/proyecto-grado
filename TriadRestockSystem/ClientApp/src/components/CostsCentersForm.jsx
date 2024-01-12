@@ -2,7 +2,10 @@ import { Button, Col, Form, Input, Modal, Row } from 'antd'
 import { useContext, useEffect, useState } from 'react'
 import LayoutContext from '../context/LayoutContext'
 import { createCostCenterModel } from '../functions/constructors'
-import { isStringEmpty } from '../functions/validation'
+import {
+	hasOnlyLettersAccentMark,
+	isStringEmpty
+} from '../functions/validation'
 import useAxiosPrivate from '../hooks/usePrivateAxios'
 
 const CENTROS_COSTOS_SAVE = '/api/configuraciones/guardarCentroCostos'
@@ -118,6 +121,21 @@ const CostsCentersForm = ({
 									{
 										required: true,
 										message: 'Debe ingresar el nombre del centro de costos'
+									},
+									{
+										validator: (_, value) => {
+											if (
+												hasOnlyLettersAccentMark(value) &&
+												value.length <= 100
+											) {
+												return Promise.resolve()
+											}
+											return Promise.reject(
+												new Error(
+													'El texto ingresado excede los 100 caracteres'
+												)
+											)
+										}
 									}
 								]}
 								hasFeedback
